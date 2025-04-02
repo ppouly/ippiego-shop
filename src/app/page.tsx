@@ -57,7 +57,7 @@ export default function Home() {
 
       {/* 추천 상품 슬라이더 */}
       <div className="mt-6">
-        <h2 className="text-lg font-semibold mb-2">추천 상품</h2>
+        <h2 className="text-lg font-semibold mb-2">이번주 신상</h2>
         <Swiper
           modules={[Navigation, Pagination, Autoplay]}
           autoplay={{ delay: 2000, disableOnInteraction: false }}
@@ -73,7 +73,7 @@ export default function Home() {
           {products.map((product) => (
             <SwiperSlide key={product.id}>
               <div
-                className="border rounded p-2 cursor-pointer"
+                className="border-none rounded p-2 cursor-pointer"
                 onClick={() => router.push(`/products/${product.id}`)}
               >
                 <Image
@@ -81,7 +81,7 @@ export default function Home() {
                   alt={product.name}
                   width={300}
                   height={300}
-                  className="w-full rounded"
+                  className="w-full rounded-none border-none shadow-none"
                 />
                 <p className="mt-2 text-sm font-medium">{product.name}</p>
                 <p className="text-xs text-gray-400">
