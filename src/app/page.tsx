@@ -34,7 +34,7 @@ export default function Home() {
   return (
     <div className="p-4">
       {/* 상단 로고 + 전체보기 */}
-      <div className="flex justify-between items-center mb-4">
+      {/* <div className="flex justify-between items-center mb-4">
         <Image src="/logo.png" alt="logo" width={100} height={40} />
         <button
           className="text-blue-500 text-sm"
@@ -42,7 +42,7 @@ export default function Home() {
         >
           전체 상품 보기 →
         </button>
-      </div>
+      </div> */}
 
       {/* 배너 */}
       <div className="rounded overflow-hidden">
@@ -57,7 +57,7 @@ export default function Home() {
 
       {/* 추천 상품 슬라이더 */}
       <div className="mt-6">
-        <h2 className="text-lg font-semibold mb-2">이번주 신상</h2>
+        <h2 className="text-lg font-semibold text-black mb-2">이번주 신상</h2>
         <Swiper
           modules={[Navigation, Pagination, Autoplay]}
           autoplay={{ delay: 2000, disableOnInteraction: false }}
@@ -83,7 +83,7 @@ export default function Home() {
                   height={300}
                   className="w-full rounded-none border-none shadow-none"
                 />
-                <p className="mt-2 text-sm font-medium">{product.name}</p>
+                <p className="mt-2 text-sm font-medium text-black">{product.name}</p>
                 <p className="text-xs text-gray-400">
                   ₩{product.price.toLocaleString()}
                 </p>
