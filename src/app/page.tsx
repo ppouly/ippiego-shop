@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-bold">IPPIEGO</h1>
+        <Image src="/logo.png" alt="logo" width={100} height={40} />
         <button
           className="text-blue-500 text-sm"
           onClick={() => router.push("/products")}
