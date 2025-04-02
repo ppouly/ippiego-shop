@@ -3,6 +3,7 @@
 import "./globals.css";
 import { ReactNode } from "react";
 import Header from "@/components/Header";
+import BottomNav from "@/components/BottomNav";
 
 export const metadata = {
   title: "IPPIEGO | 빈티지 키즈 셀렉트샵",
@@ -18,9 +19,10 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ko">
-      <body className="pt-14"> {/* 헤더 높이 만큼 여백 */}
+      <body className="pt-14 pb-14"> {/* 헤더 높이 만큼 여백 */}
         <Header />
         {children}
+        <BottomNav />
       </body>
     </html>
   );
