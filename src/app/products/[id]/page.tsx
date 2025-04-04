@@ -30,13 +30,13 @@ export default function ProductDetailPage() {
   if (!product) return <p className="p-4">상품을 찾을 수 없습니다.</p>;
 
   return (
-    <div className="p-4 pb-24">
+    <div className="w-full p-4 bg-[#F7F2EB] rounded-xl"> 
       <Image
         src={product.image}
         alt={product.name}
         width={600}
         height={600}
-        className="w-full"
+        className="w-full h-auto object-contain"
       />
       <h1 className="text-xl font-bold mt-4">{product.name}</h1>
       <p className="text-gray-500">₩{product.price.toLocaleString()}</p>

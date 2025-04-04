@@ -23,7 +23,7 @@ export default function ProductListPage() {
   const router = useRouter();
 
   return (
-    <div className="p-4">
+    <div className="w-full p-4 bg-[#F7F2EB] rounded-xl">
       <h1 className="text-xl font-bold mb-4">전체 상품</h1>
       <div className="grid grid-cols-2 gap-4">
         {products.map((product) => (

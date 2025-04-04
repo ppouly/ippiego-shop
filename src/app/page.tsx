@@ -123,13 +123,15 @@ export default function Home() {
                 className="border-none rounded p-2 cursor-pointer"
                 onClick={() => router.push(`/products/${product.id}`)}
               >
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  width={300}
-                  height={300}
-                  className="w-full rounded-none border-none shadow-none"
-                />
+                <div className="w-full h-[280px] bg-[#F7F2EB] flex items-center justify-center rounded-md overflow-hidden">
+                  <Image
+                    src={product.image}
+                    alt={product.name}
+                    width={200}
+                    height={280}
+                    className="object-contain w-full h-full"
+                  />
+                </div>
                 <p className="mt-2 text-sm font-medium text-black">{product.name}</p>
                 <p className="text-xs text-gray-400">
                   ₩{product.price.toLocaleString()}
