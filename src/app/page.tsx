@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -6,7 +7,7 @@ import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import React from "react";
+//import React from "react";
 import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
 import { motion } from "framer-motion";
@@ -15,21 +16,75 @@ const products = [
   {
     id: 1,
     name: "스마일 티셔츠",
-    price: 75000,
+    price: 35000,
     image: "/product1.jpg",
+    brand: "미니로디니",
+    size: "3y-4y",
   },
   {
     id: 2,
     name: "레인보우 원피스",
-    price: 89000,
+    price: 29000,
     image: "/product2.jpg",
+    brand: "미니로디니",
+    size: "3y-4y",    
   },
   {
     id: 3,
     name: "컬러풀 후디",
-    price: 92000,
+    price: 22000,
     image: "/product3.jpg",
+    brand: "미니로디니",
+    size: "5y-6y",    
   },
+  {
+    id: 4,
+    name: "스마일 티셔츠",
+    price: 35000,
+    image: "/product1.jpg",
+    brand: "미니로디니",
+    size: "3y-4y",
+  },
+  {
+    id: 5,
+    name: "레인보우 원피스",
+    price: 29000,
+    image: "/product2.jpg",
+    brand: "미니로디니",
+    size: "3y-4y",    
+  },
+  {
+    id: 6,
+    name: "컬러풀 후디",
+    price: 22000,
+    image: "/product3.jpg",
+    brand: "미니로디니",
+    size: "5y-6y",    
+  },  
+  {
+    id: 7,
+    name: "스마일 티셔츠",
+    price: 35000,
+    image: "/product1.jpg",
+    brand: "미니로디니",
+    size: "3y-4y",
+  },
+  {
+    id: 8,
+    name: "레인보우 원피스",
+    price: 29000,
+    image: "/product2.jpg",
+    brand: "미니로디니",
+    size: "3y-4y",    
+  },
+  {
+    id: 9,
+    name: "컬러풀 후디",
+    price: 22000,
+    image: "/product3.jpg",
+    brand: "미니로디니",
+    size: "5y-6y",    
+  },   
 ];
 
 const banners = [
@@ -50,6 +105,8 @@ const banners = [
     //text: "Bold Colors, Big Adventures",
   },
 ];
+
+
 
 // 👉 메인 배너 슬라이더를 별도 컴포넌트로 분리
 function MainBannerSlider() {
@@ -96,7 +153,13 @@ function MainBannerSlider() {
 
 export default function Home() {
   const router = useRouter();
+  const [selectedSize, setSelectedSize] = useState("전체");
 
+  const filteredProducts =
+    selectedSize === "전체"
+      ? products
+      : products.filter((p) => p.size === selectedSize);
+      
   return (
     <div className="p-4">
       {/* 배너 */}
@@ -132,6 +195,7 @@ export default function Home() {
                     className="object-contain w-full h-full"
                   />
                 </div>
+                <p className="mt-1 text-xs text-gray-500">{product.brand}</p>
                 <p className="mt-2 text-sm font-medium text-black">{product.name}</p>
                 <p className="text-xs text-gray-400">
                   ₩{product.price.toLocaleString()}
@@ -140,6 +204,45 @@ export default function Home() {
             </SwiperSlide>
           ))}
         </Swiper>
+      {/* 사이즈별 추천 상품 목록 */}
+      <section className="mt-10">
+        <h2 className="text-lg font-semibold text-black mb-4">사이즈 별 전체 상품</h2>
+        <div className="flex gap-4 mt-2 mb-4">
+          {["전체", "3y-4y", "5y-6y", "7y-8y"].map((size) => (
+            <button
+              key={size}
+              onClick={() => setSelectedSize(size)}
+              className={`text-sm font-semibold ${
+                selectedSize === size
+                  ? "text-black underline"
+                  : "text-gray-400"
+              }`}
+            >
+              #{size}
+            </button>
+          ))}
+        </div>        
+        <div className="grid grid-cols-2 gap-4">
+          {filteredProducts.map((product) => (
+            <div key={product.id} className="cursor-pointer" onClick={() => router.push(`/products/${product.id}`)}>
+              <div className="w-full h-[240px] bg-[#fff5e0] flex items-center justify-center rounded-md overflow-hidden">
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  width={160}
+                  height={160}
+                  className="object-contain w-auto h-full"
+                />
+              </div>
+              <p className="mt-1 text-xs text-gray-500">{product.brand}</p>
+              <p className="text-sm font-medium text-black">{product.name}</p>
+              <p className="text-xs text-gray-400">₩{product.price.toLocaleString()}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+
       </div>
     </div>
   );
