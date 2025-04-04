@@ -34,19 +34,19 @@ const products = [
 
 const banners = [
   {
-    image: "/banner1.png",
-    text: "Dress Up, Run Wild, Go Ippie!",
+    image: "/banner1.jpg",
+    //text: "Dress Up, Run Wild, Go Ippie!",
   },
   {
-    image: "/banner2.png",
+    image: "/banner2.jpg",
     //text: "Vintage Vibes, Modern Fun",
   },
   {
-    image: "/banner3.png",
+    image: "/banner3.jpg",
     //text: "Bold Colors, Big Adventures",
   },
   {
-    image: "/banner4.png",
+    image: "/banner4.jpg",
     //text: "Bold Colors, Big Adventures",
   },
 ];
@@ -70,11 +70,12 @@ function MainBannerSlider() {
   });
 
   return (
-    <div ref={sliderRef} className="keen-slider h-screen w-full overflow-hidden">
+    <div ref={sliderRef} 
+         className="keen-slider w-full max-w-[768px] mx-auto overflow-hidden">
       {banners.map((banner, index) => (
         <div
           key={index}
-          className="keen-slider__slide relative h-full w-full bg-contain bg-center bg-no-repeat"
+          className="keen-slider__slide relative aspect-[2/3] bg-contain bg-center bg-no-repeat"
           style={{ backgroundImage: `url(${banner.image})`, 
                    backgroundColor: "#fff5e0", // 예: 크림색 (브랜드 톤) 
                   }}

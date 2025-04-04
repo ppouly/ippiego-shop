@@ -21,7 +21,7 @@ export const metadata = {
     siteName: "IPPIEGO",
     images: [
       {
-        url: "/og-image.png", // public 폴더에 넣어주세요
+        url: "/og-image.jpg", // public 폴더에 넣어주세요
         width: 1200,
         height: 630,
         alt: "IPPIEGO 오픈그래프 이미지",
