@@ -154,11 +154,16 @@ function MainBannerSlider() {
 export default function Home() {
   const router = useRouter();
   const [selectedSize, setSelectedSize] = useState("전체");
+  const [showAll, setShowAll] = useState(false);
 
   const filteredProducts =
     selectedSize === "전체"
       ? products
       : products.filter((p) => p.size === selectedSize);
+
+  const visibleProducts = showAll 
+      ? filteredProducts 
+      : filteredProducts.slice(0, 6);
       
   return (
     <div className="p-4">
@@ -211,7 +216,10 @@ export default function Home() {
           {["전체", "3y-4y", "5y-6y", "7y-8y"].map((size) => (
             <button
               key={size}
-              onClick={() => setSelectedSize(size)}
+              onClick={() => {
+                setSelectedSize(size);
+                setShowAll(false); // 탭 바꾸면 다시 접힘
+              }}
               className={`text-sm font-semibold ${
                 selectedSize === size
                   ? "text-black underline"
@@ -223,7 +231,7 @@ export default function Home() {
           ))}
         </div>        
         <div className="grid grid-cols-2 gap-4">
-          {filteredProducts.map((product) => (
+          {visibleProducts.map((product) => (
             <div key={product.id} className="cursor-pointer" onClick={() => router.push(`/products/${product.id}`)}>
               <div className="w-full h-[240px] bg-[#fff5e0] flex items-center justify-center rounded-md overflow-hidden">
                 <Image
@@ -240,6 +248,20 @@ export default function Home() {
             </div>
           ))}
         </div>
+
+      {/* 더보기 / 접기 버튼 */}
+      {filteredProducts.length > 2 && (
+        <div className="mt-4 text-center">
+          <button onClick={() => setShowAll(!showAll)} className="inline-flex justify-center">
+            <Image
+              src={showAll ? "/up.jpg" : "/down.jpg"}
+              alt="더보기 버튼"
+              width={24}
+              height={24}
+            />
+          </button>
+        </div>
+      )}  
       </section>
 
 
