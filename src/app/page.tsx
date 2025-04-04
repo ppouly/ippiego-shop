@@ -34,16 +34,20 @@ const products = [
 
 const banners = [
   {
-    image: "/banner1.jpg",
+    image: "/banner1.png",
     text: "Dress Up, Run Wild, Go Ippie!",
   },
   {
-    image: "/banner2.jpg",
-    text: "Vintage Vibes, Modern Fun",
+    image: "/banner2.png",
+    //text: "Vintage Vibes, Modern Fun",
   },
   {
-    image: "/banner3.jpg",
-    text: "Bold Colors, Big Adventures",
+    image: "/banner3.png",
+    //text: "Bold Colors, Big Adventures",
+  },
+  {
+    image: "/banner4.png",
+    //text: "Bold Colors, Big Adventures",
   },
 ];
 
@@ -70,8 +74,10 @@ function MainBannerSlider() {
       {banners.map((banner, index) => (
         <div
           key={index}
-          className="keen-slider__slide relative h-full w-full bg-cover bg-center"
-          style={{ backgroundImage: `url(${banner.image})` }}
+          className="keen-slider__slide relative h-full w-full bg-contain bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${banner.image})`, 
+                   backgroundColor: "#fff5e0", // 예: 크림색 (브랜드 톤) 
+                  }}
         >
           <motion.div
             initial={{ opacity: 0, y: 30 }}
