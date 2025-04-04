@@ -90,7 +90,7 @@ const products = [
 const banners = [
   {
     image: "/banner1.jpg",
-    //text: "Dress Up, Run Wild, Go Ippie!",
+    text: " ",
   },
   {
     image: "/banner2.jpg",
