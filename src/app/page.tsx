@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -152,9 +152,37 @@ function MainBannerSlider() {
 }
 
 export default function Home() {
+
+  type Product = {
+    id: number;
+    name: string;
+    brand: string;
+    category1: string;
+    category2: string;
+    size: string;
+    price: number;
+    purchasePrice: number;
+    image: string;
+    colors: string[];
+    conditionGrade: string;
+    description: string;
+    createdAt: string;
+    status: string;
+    [key: string]: any; // ← 기타 필드는 선택
+  };  
+
+
   const router = useRouter();
   const [selectedSize, setSelectedSize] = useState("전체");
+  const [products, setProducts] = useState<Product[]>([]);
   const [showAll, setShowAll] = useState(false);
+
+  useEffect(() => {
+    fetch("http://localhost:4000/products")
+      .then((res) => res.json())
+      .then((data) => setProducts(data))
+      .catch((error) => console.error("상품 불러오기 실패:", error));
+  }, []);
 
   const filteredProducts =
     selectedSize === "전체"
