@@ -12,80 +12,6 @@ import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
 import { motion } from "framer-motion";
 
-const products = [
-  {
-    id: 1,
-    name: "스마일 티셔츠",
-    price: 35000,
-    image: "/product1.jpg",
-    brand: "미니로디니",
-    size: "3y-4y",
-  },
-  {
-    id: 2,
-    name: "레인보우 원피스",
-    price: 29000,
-    image: "/product2.jpg",
-    brand: "미니로디니",
-    size: "3y-4y",    
-  },
-  {
-    id: 3,
-    name: "컬러풀 후디",
-    price: 22000,
-    image: "/product3.jpg",
-    brand: "미니로디니",
-    size: "5y-6y",    
-  },
-  {
-    id: 4,
-    name: "스마일 티셔츠",
-    price: 35000,
-    image: "/product4.jpg",
-    brand: "미니로디니",
-    size: "3y-4y",
-  },
-  {
-    id: 5,
-    name: "레인보우 원피스",
-    price: 29000,
-    image: "/product5.jpg",
-    brand: "미니로디니",
-    size: "3y-4y",    
-  },
-  {
-    id: 6,
-    name: "컬러풀 후디",
-    price: 22000,
-    image: "/product6.jpg",
-    brand: "미니로디니",
-    size: "5y-6y",    
-  },  
-  {
-    id: 7,
-    name: "스마일 티셔츠",
-    price: 35000,
-    image: "/product7.jpg",
-    brand: "미니로디니",
-    size: "3y-4y",
-  },
-  {
-    id: 8,
-    name: "레인보우 원피스",
-    price: 29000,
-    image: "/product2.jpg",
-    brand: "미니로디니",
-    size: "3y-4y",    
-  },
-  {
-    id: 9,
-    name: "컬러풀 후디",
-    price: 22000,
-    image: "/product3.jpg",
-    brand: "미니로디니",
-    size: "5y-6y",    
-  },   
-];
 
 const banners = [
   {
@@ -134,7 +60,7 @@ function MainBannerSlider() {
           key={index}
           className="keen-slider__slide relative aspect-[2/3] bg-contain bg-center bg-no-repeat"
           style={{ backgroundImage: `url(${banner.image})`, 
-                   backgroundColor: "#fff5e0", // 예: 크림색 (브랜드 톤) 
+                   backgroundColor: "#f7f2eb", // 예: 크림색 (브랜드 톤) 
                   }}
         >
           <motion.div
@@ -176,12 +102,29 @@ export default function Home() {
   const [selectedSize, setSelectedSize] = useState("전체");
   const [products, setProducts] = useState<Product[]>([]);
   const [showAll, setShowAll] = useState(false);
+  const SUPABASE_URL = "https://jcigjtydsfzbwvkivehd.supabase.co";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpjaWdqdHlkc2Z6Ynd2a2l2ZWhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5NDY1NTksImV4cCI6MjA1OTUyMjU1OX0._VQ3uGXTl29ppaPxptXAt-HUGs9Zf4stUlDNb1Yj9Q8";
+
 
   useEffect(() => {
-    fetch("http://localhost:4000/products")
-      .then((res) => res.json())
-      .then((data) => setProducts(data))
-      .catch((error) => console.error("상품 불러오기 실패:", error));
+    async function fetchProducts() {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/products`, {
+          headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`,
+          },
+        });
+  
+        const data = await res.json();
+        console.log("✅ 받아온 products:", data); // ← 이 줄 추가!
+        setProducts(data);
+      } catch (err) {
+        console.error("상품 불러오기 실패:", err);
+      }
+    }
+  
+    fetchProducts();
   }, []);
 
   const filteredProducts =
@@ -213,7 +156,10 @@ export default function Home() {
             1024: { slidesPerView: 3 },
           }}
         >
-          {products.map((product) => (
+        {products.map((product) => {
+          console.log("🔍 product.image:", product.image); // ← 요기!
+
+          return (
             <SwiperSlide key={product.id}>
               <div
                 className="border-none rounded p-2 cursor-pointer"
@@ -226,6 +172,7 @@ export default function Home() {
                     width={200}
                     height={280}
                     className="object-contain w-full h-full"
+                    unoptimized
                   />
                 </div>
                 <p className="mt-1 text-xs text-gray-500">{product.brand}</p>
@@ -235,20 +182,23 @@ export default function Home() {
                 </p>
               </div>
             </SwiperSlide>
-          ))}
+          );
+        })}
+
+
         </Swiper>
       {/* 사이즈별 추천 상품 목록 */}
       <section className="mt-10">
         <h2 className="text-lg font-semibold text-black mb-4">사이즈 별 전체 상품</h2>
-        <div className="flex gap-4 mt-2 mb-4">
-          {["전체", "3y-4y", "5y-6y", "7y-8y"].map((size) => (
+        <div className="overflow-x-auto whitespace-nowrap scroll-smooth no-scrollbar mr-1 px-4 py-2 px-4 -mx-4">
+          {["전체", "6m-18m","18m-24m","2y-3y","3y-4y", "4y-5y", "5y-6y", "6y-7y", "7y-8y"].map((size) => (
             <button
               key={size}
               onClick={() => {
                 setSelectedSize(size);
                 setShowAll(false); // 탭 바꾸면 다시 접힘
               }}
-              className={`text-sm font-semibold ${
+              className={`inline-block text-sm font-semibold mr-0.5 px-4 py-2 rounded-full  ${
                 selectedSize === size
                   ? "text-black underline"
                   : "text-gray-400"
@@ -261,13 +211,14 @@ export default function Home() {
         <div className="grid grid-cols-2 gap-4">
           {visibleProducts.map((product) => (
             <div key={product.id} className="cursor-pointer" onClick={() => router.push(`/products/${product.id}`)}>
-              <div className="w-full h-[240px] bg-[#fff5e0] flex items-center justify-center rounded-md overflow-hidden">
+              <div className="w-full h-[240px] bg-[#f7f2eb] flex items-center justify-center rounded-md overflow-hidden">
                 <Image
                   src={product.image}
                   alt={product.name}
                   width={160}
                   height={160}
                   className="object-contain w-auto h-full"
+                  unoptimized
                 />
               </div>
               <p className="mt-1 text-xs text-gray-500">{product.brand}</p>

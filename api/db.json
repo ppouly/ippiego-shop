@@ -80,14 +80,14 @@
         "conditionGrade": "A",
         "conditionDetail": "이염없음",
         "description": "소재 좋은 거북이 범벅 반팔티",
-        "image": "/product3.jpg",
+        "image": "/product4.jpg",
         "createdAt": "2025-04-05T12:00:00Z",
         "status": "판매중"
       },
       {
         "id": 5,
         "name": "악어 셋업",
-        "brand": "미니로디니",
+        "brand": "보보쇼즈즈",
         "category1": "셋업",
         "category2": "셋업",
         "brandSize": "116/122",

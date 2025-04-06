@@ -69,7 +69,7 @@ export default function CartPage() {
           </div>
 
           {/* 하단 고정 주문 버튼 */}
-          <div className="fixed bottom-0 left-0 w-full bg-white border-t p-4">
+          <div className="fixed bottom-0 left-0 w-full bg-white p-4">
             <button
               className="w-full bg-black text-white py-3 rounded-lg text-sm"
               onClick={() => router.push("/checkout")}
