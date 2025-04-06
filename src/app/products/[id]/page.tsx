@@ -38,10 +38,10 @@ export default function ProductDetailPage() {
   useEffect(() => {
     async function fetchProduct() {
       try {
-        const res = await fetch(`https://YOUR_PROJECT_ID.supabase.co/rest/v1/products?id=eq.${id}`, {
+        const res = await fetch(`https://jcigjtydsfzbwvkivehd.supabase.co/rest/v1/products?id=eq.${id}`, {
           headers: {
-            apikey: "YOUR_ANON_KEY",
-            Authorization: `Bearer YOUR_ANON_KEY`,
+            apikey: SUPABASE_KEY,
+            Authorization:  `Bearer ${SUPABASE_KEY}`,
           },
         });
   
