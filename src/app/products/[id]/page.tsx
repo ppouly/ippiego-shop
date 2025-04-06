@@ -82,7 +82,7 @@ export default function ProductDetailPage() {
       <p className="mt-4 text-sm">{product.detail}</p>
 
       {/* 고정 구매 버튼 */}
-      <div className="fixed bottom-0 left-0 w-full bg-white p-4">
+      <div className="fixed bottom-[64px] shadow-md left-0 w-full bg-white p-4">
       <button
         className="w-full bg-black text-white py-3 rounded-lg text-sm"
         onClick={() => {
