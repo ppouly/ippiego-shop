@@ -7,23 +7,6 @@ import { useEffect, useState } from "react";
 import { useCartStore } from "@/store/cart"; // 장바구니 상태 추가
 import type { Product } from "@/types/product";
 
-// type Product = {
-//   id: number;
-//   name: string;
-//   brand: string;
-//   category1: string;
-//   category2: string;
-//   size: string;
-//   price: number;
-//   purchasePrice: number;
-//   image: string;
-//   colors: string[];
-//   conditionGrade: string;
-//   description: string;
-//   createdAt: string;
-//   status: string;
-// };  
-
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -68,7 +51,9 @@ export default function ProductDetailPage() {
 
 
   return (
-    <div className="w-full p-4 bg-[#F7F2EB] rounded-xl"> 
+    <div className="w-full pb-[120px]">
+    {/* 상품 상단 정보 */}
+    <div className="w-full p-4 bg-[#F7F2EB]">
       <Image
         src={product.image}
         alt={product.name}
@@ -76,24 +61,33 @@ export default function ProductDetailPage() {
         height={600}
         className="w-full h-auto object-contain"
       />
-      <h1 className="text-xl font-bold mt-4">{product.name}</h1>
-      <p className="text-gray-500">₩{product.price.toLocaleString()}</p>
-      <p className="mt-4 text-sm">{product.description}</p>
+      <p className="mt-1 font-bold text-[#FF6B6B] mt-4">{product.brand}</p>
+      <h1 className="text-xl font-bold mt-1">{product.name}</h1>
+      <p className="text-gray-500">
+        ₩{product.price.toLocaleString()}
+      </p>
+    </div>
 
-      {/* 고정 구매 버튼 */}
-      <div className="fixed bottom-[64px] shadow-md left-0 w-full bg-white p-4">
+    {/* 상세 설명 영역 (div로 따로 분리, 흰 배경, 전체 너비) */}
+    <div
+      className="w-full bg-white py-6 text-sm"
+      dangerouslySetInnerHTML={{
+        __html: product.description || "",
+      }}
+    />
+
+    {/* 고정 구매 버튼 */}
+    <div className="fixed bottom-[56px] shadow-md left-0 w-full bg-white p-4">
       <button
         className="w-full bg-black text-white py-3 rounded-lg text-sm"
         onClick={() => {
-          useCartStore.getState().addToCart(product);
-          console.log("현재 장바구니 상태:", useCartStore.getState().items);
+          useCartStore.getState().addToCart(product!);
           alert("장바구니에 담겼어요!");
         }}
       >
         장바구니 담기
       </button>
-
-      </div>
     </div>
+  </div>  
   );
 }

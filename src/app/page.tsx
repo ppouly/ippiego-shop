@@ -79,24 +79,6 @@ function MainBannerSlider() {
 
 export default function Home() {
 
-  // type Product = {
-  //   id: number;
-  //   name: string;
-  //   brand: string;
-  //   category1: string;
-  //   category2: string;
-  //   size: string;
-  //   price: number;
-  //   purchasePrice: number;
-  //   image: string;
-  //   colors: string[];
-  //   conditionGrade: string;
-  //   description: string;
-  //   createdAt: string;
-  //   status: string;
-  //   [key: string]: any; // ← 기타 필드는 선택
-  // };  
-
 
   const router = useRouter();
   const [selectedSize, setSelectedSize] = useState("전체");
