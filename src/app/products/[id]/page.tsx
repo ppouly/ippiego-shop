@@ -61,7 +61,9 @@ export default function ProductDetailPage() {
         height={600}
         className="w-full h-auto object-contain"
       />
-      <p className="mt-1 font-bold text-[#FF6B6B] mt-4">{product.brand}</p>
+      <p className="text-s font-bold text-[#FF6B6B] mt-2">{product.brand}
+        <span className="text-s mt-1 font-bold text-[#3F8CFF] ml-2">{product.size}</span>
+      </p>
       <h1 className="text-xl font-bold mt-1">{product.name}</h1>
       <p className="text-gray-500">
         ₩{product.price.toLocaleString()}
