@@ -28,7 +28,7 @@ export default function CartPage() {
         items.map((item) => (
           <div
             key={item.id}
-            className="flex items-center gap-4 border-b py-3"
+            className="text-gray-500 flex items-center gap-4 border-b py-3"
           >
             <Image
               src={item.image}

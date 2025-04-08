@@ -40,7 +40,7 @@ export default function CheckoutPage() {
       <h1 className="text-gray-800 text-xl font-bold mb-4">주문 확인</h1>
 
       {items.map((item) => (
-        <div key={item.id} className="mb-2">
+        <div key={item.id} className="text-gray-600 mb-2">
           <p>
             {item.name} x {item.quantity}
           </p>
@@ -50,7 +50,7 @@ export default function CheckoutPage() {
       <p className="text-gray-800 mt-4 font-semibold">총 합계: ₩{total.toLocaleString()}</p>
 
       <textarea
-        className="w-full border p-2 mt-6"
+        className="text-gray-600 w-full border p-2 mt-6"
         rows={4}
         placeholder="배송지를 입력해주세요"
         value={address}

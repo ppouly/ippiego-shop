@@ -30,7 +30,7 @@ export default function OrderHistoryPage() {
       <h1 className="text-gray-800 text-xl font-bold mb-4">주문 내역</h1>
 
       {orders.length === 0 ? (
-        <p>주문한 내역이 없습니다.</p>
+        <p className="text-gray-600">주문한 내역이 없습니다.</p>
       ) : (
         orders.map((order, index) => (
           <div key={index} className="mb-6 border-b pb-4">
@@ -39,7 +39,7 @@ export default function OrderHistoryPage() {
             </p>
             <p className="text-gray-800 text-sm mb-2">📦 배송지: {order.address}</p>
             {order.items.map((item, idx) => (
-              <div key={idx} className="text-gray-800 pl-2 text-sm">
+              <div key={idx} className="text-gray-600 pl-2 text-sm">
                 - {item.name} x {item.quantity}개 (₩
                 {(item.price * item.quantity).toLocaleString()})
               </div>
