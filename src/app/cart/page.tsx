@@ -20,7 +20,7 @@ export default function CartPage() {
 
   return (
     <div className="p-4 pb-28">
-      <h1 className="text-xl font-bold mb-4">장바구니</h1>
+      <h1 className="text-gray-800 text-xl font-bold mb-4">장바구니</h1>
 
       {items.length === 0 ? (
         <p>장바구니가 비어 있어요 🛒</p>
@@ -64,7 +64,7 @@ export default function CartPage() {
 
       {items.length > 0 && (
         <>
-          <div className="mt-6 text-right font-bold">
+          <div className="text-gray-800 mt-6 text-right font-bold">
             총 합계: ₩{total.toLocaleString()}
           </div>
 
