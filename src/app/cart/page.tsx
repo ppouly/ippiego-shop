@@ -28,7 +28,7 @@ export default function CartPage() {
         items.map((item) => (
           <div
             key={item.id}
-            className="text-gray-500 flex items-center gap-4 border-b py-3"
+            className="flex items-center gap-4 border-b py-3"
           >
             <Image
               src={item.image}
@@ -38,7 +38,7 @@ export default function CartPage() {
               className="rounded"
             />
             <div className="flex-1">
-              <p className="font-medium">{item.name}</p>
+              <p className="font-medium text-gray-800">{item.name}</p>
               <p className="text-sm text-gray-400">
                 ₩{item.price.toLocaleString()}
               </p>

@@ -1,38 +1,44 @@
-// src/app/checkout/page.tsx
-
 "use client";
 
 import { useCartStore } from "@/store/cart";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function CheckoutPage() {
-  const { items, clearCart } = useCartStore();
+  const { items } = useCartStore(); // 🧡 필요한 항목만 가져오기
   const [address, setAddress] = useState("");
-  const router = useRouter();
 
   const total = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
 
-  const handleOrder = () => {
+  const handlePayment = async () => {
     if (!address) {
       alert("배송지를 입력해주세요.");
       return;
     }
 
-    // ✅ 주문 내역을 localStorage에 저장
-    const prev = JSON.parse(localStorage.getItem("orders") || "[]");
-    const newOrder = {
-      items,
-      address,
-      date: new Date().toLocaleString(),
-    };
-    localStorage.setItem("orders", JSON.stringify([...prev, newOrder]));
+    try {
+      const res = await fetch("/api/payment", {
+        method: "POST",
+        body: JSON.stringify({
+          orderId: `order-${Date.now()}`,
+          orderName: items.map((i) => i.name).join(", "),
+          amount: total,
+          customerName: "홍길동",
+        }),
+      });
 
-    clearCart(); // 장바구니 비우기
-    router.push("/order-complete");
+      const { paymentUrl } = await res.json();
+
+      localStorage.setItem("checkout_address", address);
+      localStorage.setItem("checkout_items", JSON.stringify(items));
+
+      window.location.href = paymentUrl;
+    } catch (error) {
+      console.error("결제 요청 실패:", error);
+      alert("결제 요청 중 문제가 발생했습니다.");
+    }
   };
 
   return (
@@ -47,7 +53,9 @@ export default function CheckoutPage() {
         </div>
       ))}
 
-      <p className="text-gray-800 mt-4 font-semibold">총 합계: ₩{total.toLocaleString()}</p>
+      <p className="text-gray-800 mt-4 font-semibold">
+        총 결제금액: ₩{total.toLocaleString()}
+      </p>
 
       <textarea
         className="text-gray-600 w-full border p-2 mt-6"
@@ -59,9 +67,9 @@ export default function CheckoutPage() {
 
       <button
         className="mt-4 w-full bg-black text-white py-3 rounded"
-        onClick={handleOrder}
+        onClick={handlePayment}
       >
-        주문하기
+        결제하기
       </button>
     </div>
   );
