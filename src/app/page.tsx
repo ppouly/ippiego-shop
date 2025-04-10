@@ -157,7 +157,11 @@ export default function Home() {
                     unoptimized
                   />
                 </div>
-                <p className="mt-1 text-xs text-gray-500">{product.brand}</p>
+                <p className="mt-1 text-xs text-[#FF6B6B]">{product.brand}
+                <span className="text-xs mt-1 text-[#3F8CFF] ml-2">
+                  {product.size}
+                </span>
+                </p>
                 <p className="mt-2 text-sm font-medium text-black">{product.name}</p>
                 <p className="text-xs text-gray-400">
                   ₩{product.price.toLocaleString()}
@@ -203,7 +207,7 @@ export default function Home() {
                   unoptimized
                 />
               </div>
-              <p className="mt-1 text-xs text-gray-500">{product.brand}</p>
+              <p className="mt-1 text-xs text-[#FF6B6B]">{product.brand}</p>
               <p className="text-sm font-medium text-black">{product.name}</p>
               <p className="text-xs text-gray-400">₩{product.price.toLocaleString()}</p>
             </div>
