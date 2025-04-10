@@ -21,6 +21,7 @@ export default function ProductListPage() {
   const searchParams = useSearchParams();
   const category = searchParams.get("category");
 
+  const brand = searchParams.get("brand"); // ✅ 브랜드 필터 추가
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -31,6 +32,10 @@ export default function ProductListPage() {
 
       if (category) {
         query = query.contains("category", [category]); // 배열 카테고리 검색
+      }
+
+      if (brand) {
+        query = query.eq("brand", brand); // ✅ 브랜드 필터링
       }
 
       const { data, error } = await query;
@@ -45,7 +50,7 @@ export default function ProductListPage() {
     };
 
     fetchProducts();
-  }, [category]);
+  }, [category,brand]);
 
   return (
     <div className="p-4">
