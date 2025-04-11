@@ -14,6 +14,8 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'description' | 'qa' | 'exchange'>('description');
 
+  const [currentImage, setCurrentImage] = useState(0);
+
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpjaWdqdHlkc2Z6Ynd2a2l2ZWhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5NDY1NTksImV4cCI6MjA1OTUyMjU1OX0._VQ3uGXTl29ppaPxptXAt-HUGs9Zf4stUlDNb1Yj9Q8";
 
   useEffect(() => {
@@ -61,18 +63,53 @@ export default function ProductDetailPage() {
 
   if (loading) return <p className="p-4">로딩 중...</p>;
   if (!product) return <p className="p-4">상품을 찾을 수 없습니다.</p>;
-
+  
+  const imageList = [
+    `/products/${product.id}/main.jpg`,
+    `/products/${product.id}/detail1.jpg`,
+    `/products/${product.id}/detail2.jpg`,
+  ];
   return (
     <div className="w-full pb-[120px] bg-[#FFFFFF]">
-      {/* 상품 상단 이미지 */}
-      <div className="w-full px-4 mt-4 flex justify-center">
-        <Image
-          src={product.image}
-          alt={product.name}
-          width={280}
-          height={210}
-          className="rounded-xl object-cover"
-        />
+     {/* 상품 이미지 슬라이더 + 토글 */}
+     <div className="w-full px-4 mt-4">
+        <div
+          className="overflow-x-auto flex gap-4 scrollbar-hide snap-x snap-mandatory bg-[#FFFFFF] rounded-xl py-2"
+          onScroll={(e) => {
+            const scrollLeft = e.currentTarget.scrollLeft;
+            const width = e.currentTarget.clientWidth;
+            const newIndex = Math.round(scrollLeft / (width - 32));
+            setCurrentImage(newIndex);
+          }}
+        >
+          {imageList.map((src, idx) => (
+            <div
+              key={idx}
+              className="flex-shrink-0 w-[300px] h-[360px] snap-start rounded-xl overflow-hidden bg-[#FFFFFF]"
+            >
+              <Image
+                src={src}
+                alt={`상품 이미지 ${idx + 1}`}
+                width={300}
+                height={360}
+                className="w-full h-full object-contain"
+              />
+            </div>
+          ))}
+        </div>
+
+        {/* 토글 인디케이터 */}
+        <div className="flex justify-center mt-3 gap-2">
+          {imageList.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentImage(idx)}
+              className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${
+                currentImage === idx ? "bg-black" : "bg-gray-300"
+              }`}
+            />
+          ))}
+        </div>
       </div>
 
       {/* 상품 정보 */}
@@ -141,7 +178,7 @@ export default function ProductDetailPage() {
 
       {/* 탭 영역 */}
       <div className="mt-6 px-4 mb-3" >
-        <div className="flex justify-between border-b mb-2 text-sm font-medium">
+        <div className="mt-4 flex justify-between border-b mb-2 text-sm font-medium">
           <button onClick={() => setActiveTab('description')} className={`pb-2 flex-1 ${activeTab === 'description' ? 'border-b-2 border-black text-black' : 'text-gray-400'}`}>상세설명</button>
           <button onClick={() => setActiveTab('qa')} className={`pb-2 flex-1 ${activeTab === 'qa' ? 'border-b-2 border-black text-black' : 'text-gray-400'}`}>Q&A</button>
           <button onClick={() => setActiveTab('exchange')} className={`pb-2 flex-1 ${activeTab === 'exchange' ? 'border-b-2 border-black text-black' : 'text-gray-400'}`}>교환/환불 정책</button>
@@ -161,7 +198,7 @@ export default function ProductDetailPage() {
           <div className="text-sm text-gray-600">
             <p>· 교환 및 환불은 수령일로부터 10일 이내 가능합니다.</p>
             <p>· 착용/세탁/훼손된 상품은 교환 및 환불이 어렵습니다.</p>
-            <p>· 상품 택(tag)이 제거된 상품은 교환 및 환불이 어렵습니다.</p>
+            <p>· 상품 택(tag) 제거된 상품은 교환 및 환불이 어렵습니다.</p>
             <p>· 고객 단순 변심의 경우 왕복 배송비가 부과됩니다.</p>
           </div>
         )}
