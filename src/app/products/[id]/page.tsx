@@ -177,7 +177,7 @@ export default function ProductDetailPage() {
        </div>
 
       {/* 탭 영역 */}
-      <div className="mt-6 px-4 mb-3" >
+      <div className="mt-6 px-4 py-4 mb-3" >
         <div className="mt-4 flex justify-between border-b mb-2 text-sm font-medium">
           <button onClick={() => setActiveTab('description')} className={`pb-2 flex-1 ${activeTab === 'description' ? 'border-b-2 border-black text-black' : 'text-gray-400'}`}>상세설명</button>
           <button onClick={() => setActiveTab('qa')} className={`pb-2 flex-1 ${activeTab === 'qa' ? 'border-b-2 border-black text-black' : 'text-gray-400'}`}>Q&A</button>
@@ -189,13 +189,13 @@ export default function ProductDetailPage() {
         )}
 
         {activeTab === 'qa' && (
-          <div className="text-sm text-gray-600">
+          <div className="px-4 py-4 text-sm text-gray-600">
             <p>자주 묻는 질문 및 답변은 준비 중입니다 💬</p>
           </div>
         )}
 
         {activeTab === 'exchange' && (
-          <div className="text-sm text-gray-600">
+          <div className="px-4 py-4 text-sm text-gray-600">
             <p>· 교환 및 환불은 수령일로부터 10일 이내 가능합니다.</p>
             <p>· 착용/세탁/훼손된 상품은 교환 및 환불이 어렵습니다.</p>
             <p>· 상품 택(tag) 제거된 상품은 교환 및 환불이 어렵습니다.</p>
@@ -203,6 +203,20 @@ export default function ProductDetailPage() {
           </div>
         )}
       </div>
+
+
+      <div className="bg-white px-4 py-5 border-t border-b">
+
+        <div className="flex justify-between text-sm mb-1">
+          <span className="text-gray-600">시즌</span>
+          <span className="text-gray-500">{product.season}</span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="text-gray-600">브랜드 표기 사이즈</span>
+          <span className="text-gray-500">{product.brandSize}</span>
+        </div>
+      </div>
+
       <div className="px-4 py-5 mb-3">
         <h3 className="font-bold text-sm text-[#222] mb-3">👯 자매룩 · 형제룩 추천</h3>
         {/* TODO: 슬라이더 삽입 */}
