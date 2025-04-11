@@ -18,5 +18,8 @@ export type Product = {
     shape : string;
     season : string;
     conditionDetail: string;
+    category: string
+    pkg_image: string;
+
   //  [key: string]: any;
   };
