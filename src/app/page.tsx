@@ -12,6 +12,7 @@ import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
 import { motion } from "framer-motion";
 import type { Product } from "@/types/product";
+import { fetchValidProducts } from "@/lib/fetchProducts";
 
 const banners = [
   {
@@ -84,30 +85,20 @@ export default function Home() {
   const [selectedSize, setSelectedSize] = useState("전체");
   const [products, setProducts] = useState<Product[]>([]);
   const [showAll, setShowAll] = useState(false);
-  const SUPABASE_URL = "https://jcigjtydsfzbwvkivehd.supabase.co";
-  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpjaWdqdHlkc2Z6Ynd2a2l2ZWhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5NDY1NTksImV4cCI6MjA1OTUyMjU1OX0._VQ3uGXTl29ppaPxptXAt-HUGs9Zf4stUlDNb1Yj9Q8";
-
-
+ 
   useEffect(() => {
-    async function fetchProducts() {
+    async function load() {
       try {
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/products`, {
-          headers: {
-            apikey: SUPABASE_KEY,
-            Authorization: `Bearer ${SUPABASE_KEY}`,
-          },
-        });
-  
-        const data = await res.json();
-        console.log("✅ 받아온 products:", data); // ← 이 줄 추가!
+        const data = await fetchValidProducts();
         setProducts(data);
       } catch (err) {
-        console.error("상품 불러오기 실패:", err);
+        console.error("❌ 상품 불러오기 실패:", err);
       }
     }
   
-    fetchProducts();
+    load();
   }, []);
+  
 
   const filteredProducts =
     selectedSize === "전체"
@@ -179,7 +170,7 @@ export default function Home() {
       <section className="mt-10">
         <h2 className="text-lg font-semibold text-black mb-4">사이즈 별 전체 상품</h2>
         <div className="overflow-x-auto whitespace-nowrap scroll-smooth no-scrollbar mr-1 px-4 py-2 px-4 -mx-4">
-          {["전체", "0m-12m","12m-24m","2y-3y","3y-4y", "4y-5y", "5y-6y", "6y-7y", "7y-8y"].map((size) => (
+          {["전체", "12m-24m","2y-3y","3y-4y", "4y-5y", "5y-6y", "6y-7y", "7y-8y"].map((size) => (
             <button
               key={size}
               onClick={() => {

@@ -3,54 +3,42 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 import Image from "next/image";
 import Link from "next/link";
-
-type Product = {
-  id: string;
-  name: string;
-  brand: string;
-  size: string;
-  price: number;
-  category: string[];
-  image: string;
-};
+import { fetchValidProducts } from "@/lib/fetchProducts"; // ✅ import
+import type { Product } from "@/types/product"; // 필요 시 정의 위치에 따라 수정
 
 export default function ProductListPage() {
   const searchParams = useSearchParams();
   const category = searchParams.get("category");
+  const brand = searchParams.get("brand");
 
-  const brand = searchParams.get("brand"); // ✅ 브랜드 필터 추가
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      let query = supabase.from("products").select("*");
+    async function load() {
+      try {
+        setLoading(true);
+        const allProducts = await fetchValidProducts();
 
-      if (category) {
-        query = query.contains("category", [category]); // 배열 카테고리 검색
+        // ✅ 프론트 필터링: 카테고리와 브랜드
+        const filtered = allProducts.filter((p) => {
+          const categoryMatch = category ? p.category?.includes(category) : true;
+          const brandMatch = brand ? p.brand === brand : true;
+          return categoryMatch && brandMatch;
+        });
+
+        setProducts(filtered);
+      } catch (err) {
+        console.error("상품 필터링 실패:", err);
+      } finally {
+        setLoading(false);
       }
+    }
 
-      if (brand) {
-        query = query.eq("brand", brand); // ✅ 브랜드 필터링
-      }
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error("Supabase fetch error:", error.message);
-      } else {
-        setProducts(data as Product[]);
-      }
-
-      setLoading(false);
-    };
-
-    fetchProducts();
-  }, [category,brand]);
+    load();
+  }, [category, brand]);
 
   return (
     <div className="p-4">
@@ -66,25 +54,28 @@ export default function ProductListPage() {
         <div className="grid grid-cols-2 gap-4">
           {products.map((product) => (
             <Link href={`/products/${product.id}`} key={product.id}>
-                <div className="w-full h-[280px] bg-[#F7F2EB] flex items-center justify-center rounded-md overflow-hidden">
-                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    width={200}
-                    height={280}
-                    className="object-contain w-full h-full"
-                    unoptimized
-                  />
-                </div>
-                <p className="mt-1 text-xs text-[#FF6B6B]">{product.brand}
+              <div className="w-full h-[280px] bg-[#F7F2EB] flex items-center justify-center rounded-md overflow-hidden">
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  width={200}
+                  height={280}
+                  className="object-contain w-full h-full"
+                  unoptimized
+                />
+              </div>
+              <p className="mt-1 text-xs text-[#FF6B6B]">
+                {product.brand}
                 <span className="text-xs mt-1 text-[#3F8CFF] ml-2">
                   {product.size}
                 </span>
-                </p>
-                <p className="mt-1 text-sm font-medium text-black">{product.name}</p>
-                <p className="text-xs text-gray-400">
-                  ₩{product.price.toLocaleString()}
-                </p>
+              </p>
+              <p className="mt-1 text-sm font-medium text-black">
+                {product.name}
+              </p>
+              <p className="text-xs text-gray-400">
+                ₩{product.price.toLocaleString()}
+              </p>
             </Link>
           ))}
         </div>
