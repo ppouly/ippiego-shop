@@ -138,41 +138,43 @@ export default function Home() {
             1024: { slidesPerView: 3 },
           }}
         >
-        {products.map((product) => {
-          console.log("🔍 product.image:", product.image); // ← 요기!
+          {products.slice(0, 7).map((product) => {
+            console.log("🔍 product.image:", product.image);
 
-          return (
-            <SwiperSlide key={product.id}>
-              <div
-                className="border-none rounded p-2 cursor-pointer"
-                onClick={() => router.push(`/products/${product.id}`)}
-              >
-                <div className="w-full h-[280px] bg-[#F7F2EB] flex items-center justify-center rounded-md overflow-hidden">
-                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    width={200}
-                    height={280}
-                    className="object-contain w-full h-full"
-                    unoptimized
-                  />
+            return (
+              <SwiperSlide key={product.id}>
+                <div
+                  className="border-none rounded p-2 cursor-pointer"
+                  onClick={() => router.push(`/products/${product.id}`)}
+                >
+                  <div className="w-full h-[280px] bg-[#F7F2EB] flex items-center justify-center rounded-md overflow-hidden">
+                    <Image
+                      src={product.image}
+                      alt={product.name}
+                      width={200}
+                      height={280}
+                      className="object-contain w-full h-full"
+                      unoptimized
+                    />
+                  </div>
+                  <p className="mt-1 text-xs text-[#FF6B6B]">
+                    {product.brand}
+                    <span className="text-xs mt-1 text-[#3F8CFF] ml-2">
+                      {product.size}
+                    </span>
+                  </p>
+                  <p className="mt-2 text-sm font-medium text-black">
+                    {product.name}
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    ₩{product.price.toLocaleString()}
+                  </p>
                 </div>
-                <p className="mt-1 text-xs text-[#FF6B6B]">{product.brand}
-                <span className="text-xs mt-1 text-[#3F8CFF] ml-2">
-                  {product.size}
-                </span>
-                </p>
-                <p className="mt-2 text-sm font-medium text-black">{product.name}</p>
-                <p className="text-xs text-gray-400">
-                  ₩{product.price.toLocaleString()}
-                </p>
-              </div>
-            </SwiperSlide>
-          );
-        })}
-
-
+              </SwiperSlide>
+            );
+          })}
         </Swiper>
+
       {/* 사이즈별 추천 상품 목록 */}
       <section className="mt-10">
         <h2 className="text-lg font-semibold text-black mb-4">사이즈 별 전체 상품</h2>
