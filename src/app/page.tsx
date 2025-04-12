@@ -177,7 +177,7 @@ export default function Home() {
       <section className="mt-10">
         <h2 className="text-lg font-semibold text-black mb-4">사이즈 별 전체 상품</h2>
         <div className="overflow-x-auto whitespace-nowrap scroll-smooth no-scrollbar mr-1 px-4 py-2 px-4 -mx-4">
-          {["전체", "6m-18m","18m-24m","2y-3y","3y-4y", "4y-5y", "5y-6y", "6y-7y", "7y-8y"].map((size) => (
+          {["전체", "0m-12m","12m-24m","2y-3y","3y-4y", "4y-5y", "5y-6y", "6y-7y", "7y-8y"].map((size) => (
             <button
               key={size}
               onClick={() => {
