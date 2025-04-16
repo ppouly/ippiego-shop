@@ -1,55 +1,40 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
 
-export async function POST(req: Request) {
-  const { paymentKey, orderId, amount } = await req.json();
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const paymentKey = searchParams.get("paymentKey");
+  const orderId = searchParams.get("orderId");
+  const amount = searchParams.get("amount");
 
   if (!paymentKey || !orderId || !amount) {
-    return NextResponse.json({ ok: false, message: "필수 정보 누락" }, { status: 400 });
+    return NextResponse.json({ message: "필수 파라미터 누락" }, { status: 400 });
   }
 
-  if (!process.env.TOSS_SECRET_KEY) {
-    console.error("❌ TOSS_SECRET_KEY 누락");
-    return NextResponse.json({ ok: false, message: "서버 설정 오류" }, { status: 500 });
+  const secretKey = process.env.TOSS_SECRET_KEY!;
+  const encryptedSecretKey = "Basic " + Buffer.from(`${secretKey}:`).toString("base64");
+
+  try {
+    const response = await fetch("https://api.tosspayments.com/v1/payments/confirm", {
+      method: "POST",
+      headers: {
+        Authorization: encryptedSecretKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        orderId,
+        amount: Number(amount),
+        paymentKey,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return NextResponse.json({ message: "결제 승인 실패", error: data }, { status: 500 });
+    }
+
+    return NextResponse.json(data);
+  } catch (err) {
+    return NextResponse.json({ message: "서버 오류", error: String(err) }, { status: 500 });
   }
-
-  const authHeader = Buffer.from(`${process.env.TOSS_SECRET_KEY}:`).toString("base64");
-
-  const tossRes = await fetch("https://api.tosspayments.com/v1/payments/confirm", {
-    method: "POST",
-    headers: {
-      Authorization: `Basic ${authHeader}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      paymentKey,
-      orderId,
-      amount: Number(amount),
-    }),
-  });
-
-  const result = await tossRes.json();
-
-  if (!tossRes.ok) {
-    console.error("❌ Toss 결제 승인 실패:", result);
-    return NextResponse.json({ ok: false, message: "결제 승인 실패" }, { status: 400 });
-  }
-
-  console.log("✅ 결제 승인 성공:", result);
-
-  const { error } = await supabase.from("orders").insert([
-    {
-      order_id: result.orderId,
-      buyer_name: result.customerName,
-      product_name: result.orderName,
-      amount: result.totalAmount,
-    },
-  ]);
-
-  if (error) {
-    console.error("❌ Supabase 저장 실패:", error.message);
-    return NextResponse.json({ ok: false, message: "DB 저장 실패" }, { status: 500 });
-  }
-
-  return NextResponse.json({ ok: true, data: result });
 }

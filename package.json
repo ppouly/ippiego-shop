@@ -10,7 +10,10 @@
     "preview": "npm run build && npm start"
   },
   "dependencies": {
+    "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/supabase-js": "^2.49.4",
+    "@tosspayments/payment-widget-sdk": "^0.12.0",
+    "@tosspayments/tosspayments-sdk": "^2.3.4",
     "framer-motion": "^12.6.3",
     "keen-slider": "^6.8.6",
     "lucide-react": "^0.487.0",

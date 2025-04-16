@@ -1,84 +1,81 @@
 "use client";
 
-import { useCartStore } from "@/store/cart";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+interface TossPayments {
+  (clientKey: string): TossPaymentsInstance;
+}
+
+interface TossPaymentsInstance {
+  requestPayment(options: {
+    method: string;
+    amount: number;
+    orderId: string;
+    orderName: string;
+    customerName: string;
+    customerEmail: string;
+    successUrl: string;
+    failUrl: string;
+  }): void;
+}
+
+declare global {
+  interface Window {
+    TossPayments?: TossPayments;
+  }
+}
 
 export default function CheckoutPage() {
-  const { items } = useCartStore(); // 🧡 필요한 항목만 가져오기
-  const [address, setAddress] = useState("");
+  const [tossPayments, setTossPayments] = useState<TossPaymentsInstance | null>(null);
+  const [scriptLoaded, setScriptLoaded] = useState(false);
 
-  const total = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://js.tosspayments.com/v1/payment";
+    script.async = true;
+    script.onload = () => setScriptLoaded(true);
+    document.body.appendChild(script);
+  }, []);
 
-  const handlePayment = async () => {
-    if (!address) {
-      alert("배송지를 입력해주세요.");
+  useEffect(() => {
+    if (!scriptLoaded) return;
+
+    const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY;
+    if (!clientKey) {
+      console.error("❌ 환경변수 누락: NEXT_PUBLIC_TOSS_CLIENT_KEY");
       return;
     }
-  
-    try {
-      const res = await fetch("/api/payment", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          orderId: `order-${Date.now()}`,
-          orderName: items.map((i) => i.name).join(", "),
-          amount: total,
-          customerName: "홍길동",
-        }),
-      });
-  
-      const data = await res.json();
-      console.log("💬 Toss 결제 응답 데이터:", data);
-  
-      if (!res.ok) {
-        alert("결제창 생성 실패: " + (data.message || "알 수 없는 에러"));
-        return;
-      }
-  
-      const { paymentUrl } = data;
-  
-      localStorage.setItem("checkout_address", address);
-      localStorage.setItem("checkout_items", JSON.stringify(items));
-  
-      window.location.href = paymentUrl;
-    } catch (error) {
-      console.error("❌ 결제 요청 실패:", error);
-      alert("결제 요청 중 문제가 발생했습니다.");
+
+    if (typeof window !== "undefined" && window.TossPayments) {
+      const tp = window.TossPayments(clientKey);
+      setTossPayments(tp);
     }
+  }, [scriptLoaded]);
+
+  const handleClick = () => {
+    if (!tossPayments) return;
+
+    tossPayments.requestPayment({
+      method: "CARD",
+      amount: 50000,
+      orderId: `order-${Date.now()}`,
+      orderName: "Ippie 상품 결제",
+      customerName: "홍길동",
+      customerEmail: "hong@example.com",
+      successUrl: `${window.location.origin}/order-complete`,
+      failUrl: `${window.location.origin}/order-fail`,
+    });
   };
-  
+
   return (
-    <div className="p-4 pb-24">
-      <h1 className="text-gray-800 text-xl font-bold mb-4">주문 확인</h1>
-
-      {items.map((item) => (
-        <div key={item.id} className="text-gray-600 mb-2">
-          <p>
-            {item.name} x {item.quantity}
-          </p>
-        </div>
-      ))}
-
-      <p className="text-gray-800 mt-4 font-semibold">
-        총 결제금액: ₩{total.toLocaleString()}
-      </p>
-
-      <textarea
-        className="text-gray-600 w-full border p-2 mt-6"
-        rows={4}
-        placeholder="배송지를 입력해주세요"
-        value={address}
-        onChange={(e) => setAddress(e.target.value)}
-      />
-
+    <div className="p-4">
+      <h1 className="text-xl font-bold mb-4">IppieGo 결제</h1>
       <button
-        className="mt-4 w-full bg-black text-white py-3 rounded"
-        onClick={handlePayment}
+        onClick={handleClick}
+        disabled={!tossPayments}
+        className={`w-full py-3 rounded ${
+          tossPayments ? "bg-blue-600 text-white" : "bg-gray-300 text-gray-500"
+        }`}
       >
         결제하기
       </button>
