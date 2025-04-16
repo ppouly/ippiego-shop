@@ -70,12 +70,27 @@ export default function CartPage() {
 
           {/* 하단 고정 주문 버튼 */}
           <div className="fixed bottom-[64px] left-0 w-full bg-white p-4 shadow-md">
-            <button
-              className="w-full bg-black text-white py-3 rounded-lg text-sm"
-              onClick={() => router.push("/checkout")}
-            >
-              주문하기
-            </button>
+          <button
+            className="w-full bg-black text-white py-3 rounded-lg text-sm"
+            onClick={() => {
+              const item = items[0]; // 단일 상품 기준 (다중 상품이면 추가 로직 필요)
+              const orderName =
+                items.length > 1 ? `${item.name} 외 ${items.length - 1}건` : item.name;
+              const totalAmount = items.reduce(
+                (sum, item) => sum + item.price * item.quantity,
+                0
+              );
+
+              router.push(
+                `/checkout?amount=${totalAmount}&orderName=${encodeURIComponent(
+                  orderName
+                )}&productId=${item.id}`
+              );
+            }}
+          >
+            주문하기
+          </button>
+
           </div>
         </>
       )}
