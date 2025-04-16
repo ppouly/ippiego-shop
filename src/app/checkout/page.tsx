@@ -23,39 +23,34 @@ declare global {
 
 export default function CheckoutPage() {
   const [tossPayments, setTossPayments] = useState<TossPaymentsInstance | null>(null);
-  const [scriptLoaded, setScriptLoaded] = useState(false);
 
-  // 1. Toss script 삽입
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://js.tosspayments.com/v1/payment";
     script.async = true;
-    script.onload = () => setScriptLoaded(true);
+    script.onload = () => {
+      const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY;
+      if (!clientKey) {
+        console.error("❌ 환경변수 누락: NEXT_PUBLIC_TOSS_CLIENT_KEY");
+        return;
+      }
+
+      if (typeof window !== "undefined" && window.TossPayments) {
+        const tp = window.TossPayments(clientKey);
+        setTossPayments(tp);
+        console.log("✅ TossPayments loaded:", tp);
+      }
+    };
     document.body.appendChild(script);
   }, []);
 
-  // 2. TossPayments 인스턴스 생성
-  useEffect(() => {
-    if (!scriptLoaded) return;
-
-    const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY;
-    if (!clientKey) {
-      console.error("❌ 환경변수 누락: NEXT_PUBLIC_TOSS_CLIENT_KEY");
-      return;
-    }
-
-    if (typeof window !== "undefined" && window.TossPayments) {
-      const tp = window.TossPayments(clientKey);
-      setTossPayments(tp);
-    }
-  }, [scriptLoaded]);
-
-  // 3. 결제 요청
   const handleClick = () => {
     if (!tossPayments) return;
 
-    const successUrl = process.env.NEXT_PUBLIC_TOSS_SUCCESS_URL || `${window.location.origin}/order-complete`;
-    const failUrl = process.env.NEXT_PUBLIC_TOSS_FAIL_URL || `${window.location.origin}/order-fail`;
+    const successUrl =
+      process.env.NEXT_PUBLIC_TOSS_SUCCESS_URL || `${window.location.origin}/order-complete`;
+    const failUrl =
+      process.env.NEXT_PUBLIC_TOSS_FAIL_URL || `${window.location.origin}/order-fail`;
 
     tossPayments.requestPayment({
       method: "CARD",
