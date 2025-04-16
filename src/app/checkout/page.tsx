@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 interface TossPaymentsInstance {
   requestPayment(options: {
@@ -22,6 +23,11 @@ declare global {
 }
 
 export default function CheckoutPage() {
+  const searchParams = useSearchParams();
+  const amount = Number(searchParams.get("amount"));
+  const orderName = searchParams.get("orderName") || "Ippie 상품 결제";
+  const productId = searchParams.get("productId");
+
   const [tossPayments, setTossPayments] = useState<TossPaymentsInstance | null>(null);
 
   useEffect(() => {
@@ -38,7 +44,6 @@ export default function CheckoutPage() {
       if (typeof window !== "undefined" && window.TossPayments) {
         const tp = window.TossPayments(clientKey);
         setTossPayments(tp);
-        console.log("✅ TossPayments loaded:", tp);
       }
     };
     document.body.appendChild(script);
@@ -48,25 +53,28 @@ export default function CheckoutPage() {
     if (!tossPayments) return;
 
     const successUrl =
-      process.env.NEXT_PUBLIC_TOSS_SUCCESS_URL || `${window.location.origin}/order-complete`;
-    const failUrl =
-      process.env.NEXT_PUBLIC_TOSS_FAIL_URL || `${window.location.origin}/order-fail`;
-
+      `${window.location.origin}/order-complete?productId=${productId}&orderId=order-${Date.now()}&amount=${amount}`;
+    const failUrl = `${window.location.origin}/order-fail`;
+    
     tossPayments.requestPayment({
       method: "CARD",
-      amount: 50000,
+      amount,
       orderId: `order-${Date.now()}`,
-      orderName: "Ippie 상품 결제",
+      orderName,
       customerName: "홍길동",
       customerEmail: "hong@example.com",
       successUrl,
       failUrl,
-    });
+    })
+    console.log("💰 전달된 amount:", amount);
+    ;
   };
 
   return (
     <div className="p-4">
       <h1 className="text-xl font-bold mb-4">IppieGo 결제</h1>
+      <p className="mb-2 text-sm text-gray-700">상품명: {orderName}</p>
+      <p className="mb-4 text-sm text-gray-700">결제금액: ₩{amount.toLocaleString()}</p>
       <button
         onClick={handleClick}
         disabled={!tossPayments}
