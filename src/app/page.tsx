@@ -227,7 +227,7 @@ export default function Home() {
         <p>상호명: 입히고 IPPIEGO | 대표자명: 홍길동</p>
         <p>사업자등록번호: 123-45-67890</p>
         <p>사업장 주소: 서울특별시 마포구 월드컵북로 123, 3층</p>
-        <p>유선번호: 02-1234-5678</p>
+        <p>유선번호: 02-1234-5678</p> 
         <p className="mt-1">© 2025 IPPIEGO. All rights reserved.</p>
       </footer>
 
