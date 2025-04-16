@@ -61,7 +61,7 @@ export default function CheckoutClient() {
 
     tossPayments.requestPayment({
       method: "CARD",
-      amount,
+      amount: amount,
       orderId,
       orderName,
       customerName: "홍길동",
