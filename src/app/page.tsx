@@ -223,12 +223,11 @@ export default function Home() {
       </section>
 
       {/* 푸터: 사업자 정보 */}  
-      <footer className="mt-16 text-left text-xs text-gray-400 border-t pt-4">
-        <p>상호명: 입히고</p>
-        <p>사업자등록번호: 425-33-01604</p>
-        <p>대표자: 백수정</p>
-        <p>사업장 주소: 경기도 성남시 분당구 서판교로132번길 24</p>
-        <p>전화번호 : 010-5470-9225</p>
+      <footer className="mt-16 text-left text-xs text-gray-400 border-t pt-4 leading-relaxed px-2">
+        <p>상호명: 입히고 IPPIEGO | 대표자명: 홍길동</p>
+        <p>사업자등록번호: 123-45-67890</p>
+        <p>사업장 주소: 서울특별시 마포구 월드컵북로 123, 3층</p>
+        <p>유선번호: 02-1234-5678</p>
         <p className="mt-1">© 2025 IPPIEGO. All rights reserved.</p>
       </footer>
 
