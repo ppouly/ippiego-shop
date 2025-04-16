@@ -222,6 +222,16 @@ export default function Home() {
       )}  
       </section>
 
+      {/* 푸터: 사업자 정보 */}  
+      <footer className="mt-16 text-center text-xs text-gray-400 border-t pt-4">
+        <p>상호명: 입히고</p>
+        <p>사업자등록번호: 425-33-01604</p>
+        <p>대표자명: 백수정</p>
+        <p>사업장 주소: 경기도 성남시 분당구 서판교로132번길 24</p>
+        <p> 010-5470-9225</p>
+        <p className="mt-1">© 2025 IPPIEGO. All rights reserved.</p>
+      </footer>
+
 
       </div>
     </div>
