@@ -2,10 +2,6 @@
 
 import { useEffect, useState } from "react";
 
-interface TossPayments {
-  (clientKey: string): TossPaymentsInstance;
-}
-
 interface TossPaymentsInstance {
   requestPayment(options: {
     method: string;
@@ -21,7 +17,7 @@ interface TossPaymentsInstance {
 
 declare global {
   interface Window {
-    TossPayments?: TossPayments;
+    TossPayments?: (clientKey: string) => TossPaymentsInstance;
   }
 }
 
@@ -29,6 +25,7 @@ export default function CheckoutPage() {
   const [tossPayments, setTossPayments] = useState<TossPaymentsInstance | null>(null);
   const [scriptLoaded, setScriptLoaded] = useState(false);
 
+  // 1. Toss script 삽입
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://js.tosspayments.com/v1/payment";
@@ -37,6 +34,7 @@ export default function CheckoutPage() {
     document.body.appendChild(script);
   }, []);
 
+  // 2. TossPayments 인스턴스 생성
   useEffect(() => {
     if (!scriptLoaded) return;
 
@@ -52,8 +50,12 @@ export default function CheckoutPage() {
     }
   }, [scriptLoaded]);
 
+  // 3. 결제 요청
   const handleClick = () => {
     if (!tossPayments) return;
+
+    const successUrl = process.env.NEXT_PUBLIC_TOSS_SUCCESS_URL || `${window.location.origin}/order-complete`;
+    const failUrl = process.env.NEXT_PUBLIC_TOSS_FAIL_URL || `${window.location.origin}/order-fail`;
 
     tossPayments.requestPayment({
       method: "CARD",
@@ -62,8 +64,8 @@ export default function CheckoutPage() {
       orderName: "Ippie 상품 결제",
       customerName: "홍길동",
       customerEmail: "hong@example.com",
-      successUrl: `${window.location.origin}/order-complete`,
-      failUrl: `${window.location.origin}/order-fail`,
+      successUrl,
+      failUrl,
     });
   };
 
@@ -73,11 +75,11 @@ export default function CheckoutPage() {
       <button
         onClick={handleClick}
         disabled={!tossPayments}
-        className={`w-full py-3 rounded ${
-          tossPayments ? "bg-blue-600 text-white" : "bg-gray-300 text-gray-500"
+        className={`w-full py-3 rounded transition ${
+          tossPayments ? "bg-blue-600 text-white hover:bg-blue-700" : "bg-gray-300 text-gray-500 cursor-not-allowed"
         }`}
       >
-        결제하기
+        {tossPayments ? "결제하기" : "로딩 중..."}
       </button>
     </div>
   );
