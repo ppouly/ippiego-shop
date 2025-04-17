@@ -52,32 +52,65 @@ export default function ProductListPage() {
         <p>상품이 없습니다.</p>
       ) : (
         <div className="grid grid-cols-2 gap-4">
-          {products.map((product) => (
-            <Link href={`/products/${product.id}`} key={product.id}>
-              <div className="w-full h-[280px] bg-[#F7F2EB] flex items-center justify-center rounded-md overflow-hidden">
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  width={200}
-                  height={280}
-                  className="object-contain w-full h-full"
-                  unoptimized
-                />
-              </div>
-              <p className="mt-1 text-xs text-[#FF6B6B]">
-                {product.brand}
-                <span className="text-xs mt-1 text-[#3F8CFF] ml-2">
-                  {product.size}
-                </span>
-              </p>
-              <p className="mt-1 text-sm font-medium text-black">
-                {product.name}
-              </p>
-              <p className="text-xs text-gray-400">
-                ₩{product.price.toLocaleString()}
-              </p>
-            </Link>
-          ))}
+        {products.map((product) => {
+          const isSoldOut = product.status === "판매완료";
+
+          return (
+        <Link
+            href={`/products/${product.id}`}
+            key={product.id}
+            className={isSoldOut ? "pointer-events-none" : ""}
+          >
+            <div
+              className={`relative w-full h-[280px] ${
+                isSoldOut ? "bg-gray-200" : "bg-[#F7F2EB]"
+              } flex items-center justify-center rounded-md overflow-hidden`}
+            >
+              <Image
+                src={product.image}
+                alt={product.name}
+                width={200}
+                height={280}
+                className={`object-contain w-full h-full ${
+                  isSoldOut ? "opacity-50" : ""
+                }`}
+                unoptimized
+              />
+              {isSoldOut && (
+                <div className="absolute top-2 left-2 bg-black/70 text-white text-[11px] font-semibold px-2 py-[2px] rounded-sm">
+                  판매완료
+                </div>
+              )}
+            </div>
+            <p
+              className={`mt-1 text-xs ${
+                isSoldOut ? "text-gray-400" : "text-[#FF6B6B]"
+              }`}
+            >
+              {product.brand}
+              <span
+                className={`text-xs ml-2 ${
+                  isSoldOut ? "text-gray-400" : "text-[#3F8CFF]"
+                }`}
+              >
+                {product.size}
+              </span>
+            </p>
+            <p
+              className={`mt-1 text-sm font-medium ${
+                isSoldOut ? "text-gray-500" : "text-black"
+              }`}
+            >
+              {product.name}
+            </p>
+            <p className="text-xs text-gray-400">
+              ₩{product.price.toLocaleString()}
+            </p>
+          </Link>
+          
+          );
+        })}
+
         </div>
       )}
     </div>

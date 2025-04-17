@@ -278,7 +278,7 @@ export default function ProductDetailPage() {
             className="w-full bg-gray-400 text-white py-3 rounded-xl text-base font-semibold cursor-not-allowed"
             disabled
           >
-            판매완료
+            품절
           </button>
         ) : (
           <button

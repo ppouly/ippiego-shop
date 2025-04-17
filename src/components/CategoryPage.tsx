@@ -154,7 +154,7 @@ export default function CategoryPage() {
         </div>
       )}
 
-      {activeTab === "신상구상,자랑!" && <div> 탭 따로열기 콘텐츠 (추후 구성)</div>}
+      {activeTab === "신상구상,자랑!" && <div> 신상구상,자랑!은 준비 중입니다 💬</div>}
     </div>
   );
 }
