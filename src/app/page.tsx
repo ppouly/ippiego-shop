@@ -129,10 +129,11 @@ export default function Home() {
             1024: { slidesPerView: 3 },
           }}
         >
-          {products.slice(0, 7).map((product) => {
-            console.log("🔍 product.image:", product.image);
-
-            return (
+          {products
+            .filter((p) => p.status !== "판매완료") // "판매완료" 제외
+            .slice(0, 7)
+            .map((product) => {
+              return (
               <SwiperSlide key={product.id}>
                 <div
                   className="border-none rounded p-2 cursor-pointer"
@@ -188,23 +189,46 @@ export default function Home() {
           ))}
         </div>        
         <div className="grid grid-cols-2 gap-4">
-          {visibleProducts.map((product) => (
-            <div key={product.id} className="cursor-pointer" onClick={() => router.push(`/products/${product.id}`)}>
-              <div className="w-full h-[240px] bg-[#f7f2eb] flex items-center justify-center rounded-md overflow-hidden">
+        {visibleProducts.map((product) => {
+          const isSoldOut = product.status === "판매완료";
+          return (
+            <div
+              key={product.id}
+              className="cursor-pointer"
+              onClick={() => !isSoldOut && router.push(`/products/${product.id}`)}
+            >
+              <div
+                className={`relative w-full h-[240px] ${
+                  isSoldOut ? "bg-gray-200" : "bg-[#f7f2eb]"
+                } flex items-center justify-center rounded-md overflow-hidden`}
+              >
                 <Image
                   src={product.image}
                   alt={product.name}
                   width={160}
                   height={160}
-                  className="object-contain w-auto h-full"
+                  className={`object-contain w-auto h-full ${
+                    isSoldOut ? "opacity-50" : ""
+                  }`}
                   unoptimized
                 />
+                {isSoldOut && (
+                  <div className="absolute top-2 left-2 bg-black/70 text-white text-[11px] font-semibold px-2 py-[2px] rounded-sm">
+                    품절
+                  </div>
+                )}
               </div>
-              <p className="mt-1 text-xs text-[#FF6B6B]">{product.brand}</p>
-              <p className="text-sm font-medium text-black">{product.name}</p>
+              <p className={`mt-1 text-xs ${isSoldOut ? "text-gray-400" : "text-[#FF6B6B]"}`}>
+                {product.brand}
+              </p>
+              <p className={`text-sm font-medium ${isSoldOut ? "text-gray-500" : "text-black"}`}>
+                {product.name}
+              </p>
               <p className="text-xs text-gray-400">₩{product.price.toLocaleString()}</p>
             </div>
-          ))}
+          );
+        })}
+
         </div>
 
       {/* 더보기 / 접기 버튼 */}

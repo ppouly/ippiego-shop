@@ -78,7 +78,7 @@ export default function ProductListPage() {
               />
               {isSoldOut && (
                 <div className="absolute top-2 left-2 bg-black/70 text-white text-[11px] font-semibold px-2 py-[2px] rounded-sm">
-                  판매완료
+                  품절
                 </div>
               )}
             </div>
