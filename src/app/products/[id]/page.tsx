@@ -124,7 +124,7 @@ export default function ProductDetailPage() {
         <div className="flex justify-between text-sm mb-1">
           <span className="text-gray-600">배송비</span>
           <span className="text-gray-500">
-            2,500원 (30,000원 이상 구매시 무료배송)
+            2,500원 (50,000원 이상 구매시 무료배송)
           </span>
         </div>
         <div className="flex justify-between text-sm">

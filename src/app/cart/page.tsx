@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function CartPage() {
-  const { items, updateQuantity, removeFromCart } = useCartStore();
+  const { items, removeFromCart } = useCartStore();
   const router = useRouter();
 
   const total = items.reduce(
@@ -42,15 +42,7 @@ export default function CartPage() {
               <p className="text-sm text-gray-400">
                 ₩{item.price.toLocaleString()}
               </p>
-              <input
-                type="number"
-                min={1}
-                value={item.quantity}
-                onChange={(e) =>
-                  updateQuantity(item.id, parseInt(e.target.value))
-                }
-                className="border px-2 py-1 w-16 mt-2"
-              />
+              <div className="mt-2 text-sm text-gray-600">수량: 1개</div>
             </div>
             <button
               className="text-red-500 text-sm"
