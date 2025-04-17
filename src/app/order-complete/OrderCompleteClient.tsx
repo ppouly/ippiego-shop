@@ -27,12 +27,16 @@ export default function OrderCompleteClient() {
       }
 
       // 1. 주문 정보 저장
-      const { error: orderError } = await supabase.from("orders").insert({
-        order_id: orderId,
-        payment_key: paymentKey,
-        amount: Number(amount),
-        product_id: productId,
-      });
+      const { error: orderError } = // OrderCompleteClient.tsx
+
+      await supabase
+        .from("orders")
+        .update({
+          payment_key: paymentKey,
+          status: "결제완료",
+        })
+        .eq("order_id", orderId);
+      
 
       if (orderError) {
         console.error("❌ 주문 저장 실패:", orderError);
