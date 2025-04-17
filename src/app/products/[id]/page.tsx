@@ -273,15 +273,24 @@ export default function ProductDetailPage() {
 
       {/* 하단 고정 구매 버튼 */}
       <div className="fixed bottom-[56px] shadow-md left-0 w-full bg-white p-4 z-10">
-        <button
-          className="w-full bg-black text-white py-3 rounded-xl text-base font-semibold"
-          onClick={() => {
-            useCartStore.getState().addToCart(product!);
-            alert("장바구니에 담겼어요!");
-          }}
-        >
-          장바구니 담기
-        </button>
+        {product.status === "판매완료" ? (
+          <button
+            className="w-full bg-gray-400 text-white py-3 rounded-xl text-base font-semibold cursor-not-allowed"
+            disabled
+          >
+            판매완료
+          </button>
+        ) : (
+          <button
+            className="w-full bg-black text-white py-3 rounded-xl text-base font-semibold"
+            onClick={() => {
+              useCartStore.getState().addToCart(product!);
+              alert("장바구니에 담겼어요!");
+            }}
+          >
+            장바구니 담기
+          </button>
+        )}
       </div>
     </div>
   );
