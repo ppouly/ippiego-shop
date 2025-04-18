@@ -50,6 +50,7 @@ export default function CheckoutClient() {
   const FREE_SHIPPING_THRESHOLD = 50000;
   const DELIVERY_FEE = 2500;
   const shippingFee = amount < FREE_SHIPPING_THRESHOLD ? DELIVERY_FEE : 0;
+  const shippingApplied = shippingFee > 0 ? 1 : 0;
   const finalAmount = amount + shippingFee;
 
   const [tossPayments, setTossPayments] = useState<TossPaymentsInstance | null>(null);
@@ -143,6 +144,7 @@ export default function CheckoutClient() {
       amount: finalAmount,
       verified: true,
       status: "결제대기",
+      delivery_fee: shippingApplied,  // ✅ 추가된 필드
     });
 
     tossPayments.requestPayment({
