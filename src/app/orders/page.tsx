@@ -58,7 +58,6 @@ export default function OrderHistoryPage() {
     setIsVerified(true);
     setMessage("인증 성공! 주문을 조회합니다.");
 
-    // 1. 주문 정보 불러오기
     const { data: orderData, error: orderError } = await supabase
       .from("orders")
       .select("*")
@@ -71,7 +70,6 @@ export default function OrderHistoryPage() {
       return;
     }
 
-    // 2. 상품 정보 가져오기
     const productIds = [...new Set(orderData.map((o) => o.product_id))];
     const { data: productData, error: productError } = await supabase
       .from("products")
@@ -84,7 +82,6 @@ export default function OrderHistoryPage() {
       return;
     }
 
-    // 3. 상품 정보 매칭
     const ordersWithProductInfo = orderData.map((order) => {
       const product = productData.find((p) => p.id === order.product_id);
       return {
@@ -98,35 +95,35 @@ export default function OrderHistoryPage() {
   };
 
   return (
-    <div className="p-4 space-y-4 text-[15px]">
-      <h1 className="text-xl font-bold text-gray-800 mb-2">📦 주문 내역 조회</h1>
-      {message && <p className="text-sm text-red-600">{message}</p>}
+    <div className="p-5 space-y-6 text-[15px] text-gray-800">
+      <h1 className="text-xl font-bold text-black">주문 내역 조회</h1>
+      {message && <p className={`text-sm ${message.includes("성공") ? "text-green-600" : "text-red-500"}`}>{message}</p>}
 
       {!isVerified ? (
-        <div className="space-y-2">
+        <div className="space-y-3">
           <div className="flex gap-2">
-            <input type="text" value="010" readOnly className="border px-3 py-2 rounded w-1/3 bg-gray-100" />
-            <input type="text" maxLength={4} value={phone2} onChange={(e) => setPhone2(e.target.value)} className="border px-3 py-2 rounded w-1/3" placeholder="0000" />
-            <input type="text" maxLength={4} value={phone3} onChange={(e) => setPhone3(e.target.value)} className="border px-3 py-2 rounded w-1/3" placeholder="0000" />
+            <input type="text" value="010" readOnly className="w-[70px] px-3 py-2 text-center rounded border bg-gray-100 text-gray-500" />
+            <input type="text" maxLength={4} value={phone2} onChange={(e) => setPhone2(e.target.value)} className="w-[100px] px-3 py-2 rounded border text-center" placeholder="0000" />
+            <input type="text" maxLength={4} value={phone3} onChange={(e) => setPhone3(e.target.value)} className="w-[100px] px-3 py-2 rounded border text-center" placeholder="0000" />
           </div>
           <div className="flex gap-2">
-            <input type="text" value={code} onChange={(e) => setCode(e.target.value)} className="border px-3 py-2 w-full rounded" placeholder="인증번호 입력" />
-            <button onClick={handleSendCode} className="bg-blue-500 text-white px-3 rounded">인증요청</button>
-            <button onClick={handleVerifyCode} className="bg-orange-600 text-white px-3 rounded">인증확인</button>
+            <input type="text" value={code} onChange={(e) => setCode(e.target.value)} className="flex-1 px-3 py-2 rounded border" placeholder="인증번호 입력" />
+            <button onClick={handleSendCode} className="bg-gray-200 px-3 py-2 rounded text-gray-800 text-sm hover:bg-gray-300">인증요청</button>
+            <button onClick={handleVerifyCode} className="bg-black text-white px-3 py-2 rounded text-sm hover:bg-gray-800">인증확인</button>
           </div>
         </div>
       ) : (
-        <div>
+        <div className="space-y-6">
           {orders.length === 0 ? (
-            <p className="text-gray-600">주문 내역이 없습니다.</p>
+            <p className="text-gray-500">주문 내역이 없습니다.</p>
           ) : (
             orders.map((order, index) => (
-              <div key={index} className="border-b pb-4 mb-4">
+              <div key={index} className="border-b pb-5">
                 <p className="text-sm text-gray-500 mb-1">🆔 주문번호: {order.order_id}</p>
-                <p className="text-gray-700 text-sm">주소: {order.address}</p>
-                <p className="text-gray-700 text-sm">메모: {order.memo}</p>
+                <p className="text-sm text-gray-700">배송지: {order.address}</p>
+                <p className="text-sm text-gray-700 mb-2">배송메모: {order.memo}</p>
 
-                <div className="flex items-center gap-4 mt-3">
+                <div className="flex gap-4 items-center">
                   <div className="w-20 h-20 bg-gray-100 rounded overflow-hidden relative">
                     <Image
                       src={order.image ?? ""}
@@ -136,26 +133,19 @@ export default function OrderHistoryPage() {
                       sizes="80px"
                     />
                   </div>
-                  <div className="text-[14px] text-gray-800 flex-1">
-                    <Link href={`/products/${order.product_id}`}>
-                      <p className="font-medium text-blue-600 hover:underline">{order.name}</p>
+                  <div className="flex-1 space-y-1 text-sm">
+                    <Link href={`/products/${order.product_id}`} className="font-semibold text-blue-600 hover:underline">
+                      {order.name}
                     </Link>
-                    <p className="text-gray-500 text-sm mt-1">상품번호: {order.product_id}</p>
-
+                    <p className="text-gray-500">상품번호: {order.product_id}</p>
                     {order.delivery_fee ? (
                       <>
-                        <p className="text-sm text-gray-800 mt-1">
-                          상품금액: ₩{(order.amount - 2500).toLocaleString()}
-                        </p>
-                        <p className="text-sm text-gray-800">배송비: +₩2,500</p>
-                        <p className="text-black font-semibold text-sm">
-                          총 결제금액: ₩{order.amount.toLocaleString()}
-                        </p>
+                        <p>상품금액: ₩{(order.amount - 2500).toLocaleString()}</p>
+                        <p>배송비: +₩2,500</p>
+                        <p className="text-black font-bold">총 결제금액: ₩{order.amount.toLocaleString()}</p>
                       </>
                     ) : (
-                      <p className="text-black font-semibold text-sm mt-1">
-                        총 결제금액: ₩{order.amount.toLocaleString()}
-                      </p>
+                      <p className="text-black font-bold">총 결제금액: ₩{order.amount.toLocaleString()}</p>
                     )}
                   </div>
                 </div>
