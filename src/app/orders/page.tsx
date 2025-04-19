@@ -4,19 +4,34 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import Image from "next/image";
 import Link from "next/link";
+import dayjs from "dayjs";
 
-type Order = {
+interface Order {
   order_id: string;
   product_id: string;
   address: string;
   amount: number;
   memo: string;
-  date?: string;
+  delivery_fee?: boolean;
   name?: string;
   image?: string;
-  price?: number;
+  delivery_complete_date?: string;
+  status?: string;
+}
+
+interface RawOrder {
+  order_id: string;
+  product_id: string;
+  address: string;
+  amount: number;
+  memo: string;
   delivery_fee?: boolean;
-};
+  delivery_complete_date?: string;
+  status?: string;
+  products?: {
+    name?: string;
+  };
+}
 
 export default function OrderHistoryPage() {
   const [phone2, setPhone2] = useState("");
@@ -25,6 +40,8 @@ export default function OrderHistoryPage() {
   const [isVerified, setIsVerified] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
   const [message, setMessage] = useState("");
+  const [refundMessage, setRefundMessage] = useState<string | null>(null);
+  const [loadingOrderId, setLoadingOrderId] = useState<string | null>(null);
 
   const fullPhone = `010${phone2}${phone3}`;
 
@@ -58,46 +75,54 @@ export default function OrderHistoryPage() {
     setIsVerified(true);
     setMessage("인증 성공! 주문을 조회합니다.");
 
-    const { data: orderData, error: orderError } = await supabase
+    const { data: orderData, error } = await supabase
       .from("orders")
-      .select("*")
+      .select("*, products(name)")
       .eq("phone", fullPhone)
       .order("created_at", { ascending: false });
 
-    if (orderError || !orderData) {
-      console.error("❌ 주문 조회 오류:", orderError?.message);
+    if (error || !orderData) {
       setMessage("주문 정보를 불러오는 중 오류가 발생했습니다.");
       return;
     }
 
-    const productIds = [...new Set(orderData.map((o) => o.product_id))];
-    const { data: productData, error: productError } = await supabase
-      .from("products")
-      .select("id, name")
-      .in("id", productIds);
+    const enrichedOrders: Order[] = (orderData as RawOrder[]).map((order) => ({
+      ...order,
+      name: order.products?.name ?? "상품명 없음",
+      image: `/products/${order.product_id}/main.jpg`,
+    }));
 
-    if (productError || !productData) {
-      console.error("❌ 상품 정보 조회 오류:", productError?.message);
-      setMessage("상품 정보를 불러오는 중 오류가 발생했습니다.");
-      return;
+    setOrders(enrichedOrders);
+  };
+
+  const handleRefundToggle = async (order: Order) => {
+    setLoadingOrderId(order.order_id);
+    const isRefunding = order.status === "환불요청";
+
+    if (isRefunding) {
+      await supabase.from("orders").update({ status: "결제완료" }).eq("order_id", order.order_id);
+      await supabase.from("products").update({ status: "판매완료" }).eq("id", order.product_id);
+      setRefundMessage(null);
+    } else {
+      const now = dayjs();
+      const completedDate = dayjs(order.delivery_complete_date);
+      const diff = now.diff(completedDate, "day");
+      if (diff > 10) return;
+
+      await supabase.from("orders").update({ status: "환불요청" }).eq("order_id", order.order_id);
+      await supabase.from("products").update({ status: "환불요청" }).eq("id", order.product_id);
+      setRefundMessage("배송된 택배 업체 통해 환불 수거가 될 예정입니다. 환불은 반송된 상품 검수 후 왕복배송비 제외 금액으로 환불됩니다.");
     }
 
-    const ordersWithProductInfo = orderData.map((order) => {
-      const product = productData.find((p) => p.id === order.product_id);
-      return {
-        ...order,
-        name: product?.name ?? "상품명 없음",
-        image: `/products/${order.product_id}/main.jpg`,
-      };
-    });
-
-    setOrders(ordersWithProductInfo);
+    await handleVerifyCode();
+    setLoadingOrderId(null);
   };
 
   return (
     <div className="p-5 space-y-6 text-[15px] text-gray-800">
       <h1 className="text-xl font-bold text-black">주문 내역 조회</h1>
       {message && <p className={`text-sm ${message.includes("성공") ? "text-green-600" : "text-red-500"}`}>{message}</p>}
+      {refundMessage && <p className="text-sm text-blue-600">{refundMessage}</p>}
 
       {!isVerified ? (
         <div className="space-y-3">
@@ -117,40 +142,51 @@ export default function OrderHistoryPage() {
           {orders.length === 0 ? (
             <p className="text-gray-500">주문 내역이 없습니다.</p>
           ) : (
-            orders.map((order, index) => (
-              <div key={index} className="border-b pb-5">
-                <p className="text-sm text-gray-500 mb-1">🆔 주문번호: {order.order_id}</p>
-                <p className="text-sm text-gray-700">배송지: {order.address}</p>
-                <p className="text-sm text-gray-700 mb-2">배송메모: {order.memo}</p>
+            orders.map((order, index) => {
+              const isRefundable =
+                order.delivery_complete_date &&
+                dayjs().diff(dayjs(order.delivery_complete_date), "day") <= 10 &&
+                order.status !== "환불완료";
 
-                <div className="flex gap-4 items-center">
-                  <div className="w-20 h-20 bg-gray-100 rounded overflow-hidden relative">
-                    <Image
-                      src={order.image ?? ""}
-                      alt={order.name ?? "상품 이미지"}
-                      fill
-                      className="object-cover"
-                      sizes="80px"
-                    />
-                  </div>
-                  <div className="flex-1 space-y-1 text-sm">
-                    <Link href={`/products/${order.product_id}`} className="font-semibold text-blue-600 hover:underline">
-                      {order.name}
-                    </Link>
-                    <p className="text-gray-500">상품번호: {order.product_id}</p>
-                    {order.delivery_fee ? (
-                      <>
-                        <p>상품금액: ₩{(order.amount - 2500).toLocaleString()}</p>
-                        <p>배송비: +₩2,500</p>
-                        <p className="text-black font-bold">총 결제금액: ₩{order.amount.toLocaleString()}</p>
-                      </>
-                    ) : (
+              return (
+                <div key={index} className="border-b pb-5">
+                  <p className="text-sm text-gray-500 mb-1">🆔 주문번호: {order.order_id}</p>
+                  <p className="text-sm text-gray-700">배송지: {order.address}</p>
+                  <p className="text-sm text-gray-700 mb-2">배송메모: {order.memo}</p>
+
+                  <div className="flex gap-4 items-center">
+                    <div className="w-20 h-20 bg-gray-100 rounded overflow-hidden relative">
+                      <Image
+                        src={order.image ?? ""}
+                        alt={order.name ?? "상품 이미지"}
+                        fill
+                        className="object-cover"
+                        sizes="80px"
+                      />
+                    </div>
+                    <div className="flex-1 space-y-1 text-sm">
+                      <Link href={`/products/${order.product_id}`} className="font-semibold text-blue-600 hover:underline">
+                        {order.name}
+                      </Link>
+                      {order.delivery_fee && <p>배송비: +₩2,500</p>}
                       <p className="text-black font-bold">총 결제금액: ₩{order.amount.toLocaleString()}</p>
-                    )}
+
+                      {isRefundable ? (
+                        <button
+                          disabled={loadingOrderId === order.order_id}
+                          className={`mt-2 text-sm px-3 py-1 rounded transition ${order.status === "환불요청" ? "bg-gray-400 text-white" : "bg-red-500 text-white hover:bg-red-600"}`}
+                          onClick={() => handleRefundToggle(order)}
+                        >
+                          {order.status === "환불요청" ? "환불 취소" : "환불 신청"}
+                        </button>
+                      ) : order.status === "환불완료" ? (
+                        <p className="text-sm text-gray-500 mt-1">환불 완료</p>
+                      ) : null}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       )}
