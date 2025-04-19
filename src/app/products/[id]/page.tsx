@@ -7,6 +7,39 @@ import type { Product } from "@/types/product";
 import Link from "next/link";
 import { fetchValidProducts } from "@/lib/fetchProducts";
 
+const conditionDescriptions: Record<string, React.ReactNode> = {
+  S: (
+    <>
+      택이 그대로 있거나 미착용에 가까운 상태로,<br />
+      오염·보풀 없이 새 옷처럼 깨끗해요.
+    </>
+  ),
+  A: (
+    <>
+      착용 1~3회 이내로 세탁은 되었지만 <br />
+      소재 원형 유지된 매우 깔끔한 상태예요.
+    </>
+  ),
+  B: (
+    <>
+      몇 차례 착용된 상품으로 보풀·약간 늘어남 <br />
+      또는 색빠짐이 있지만 전체적으로 양호해요.
+    </>
+  ),
+  C: (
+    <>
+      뚜렷한 사용감·생활 얼룩·변색·올나감 중 하나라도<br />
+      해당되는 상품으로 사진과 코멘트를 확인해주세요.
+    </>
+  ),
+  D: (
+    <>
+      찢어짐, 큰 얼룩, 변형 등 손상된 부분이 있어 <br />
+      빈티지나 리페어 용도로 적합해요.
+    </>
+  ),
+};
+
 export default function ProductDetailPage() {
   const params = useParams();
   const id = Number(params.id);
@@ -16,18 +49,13 @@ export default function ProductDetailPage() {
   const [activeTab, setActiveTab] = useState<'description' | 'qa' | 'exchange'>('description');
   const [currentImage, setCurrentImage] = useState(0);
 
-  // 하나의 useEffect에서 상품 상세 및 추천 상품을 불러옵니다.
   useEffect(() => {
     async function loadProductAndRelated() {
       try {
         const allProducts = await fetchValidProducts();
-
-        // 상세 상품 찾기
         const found = allProducts.find((item) => item.id === Number(id));
         if (!found) throw new Error("상품이 존재하지 않습니다.");
         setProduct(found);
-
-        // 추천 상품 : 같은 사이즈, 현재 상품 제외, 최대 10개
         const related = allProducts
           .filter((item) => item.size === found.size && item.id !== found.id)
           .slice(0, 10);
@@ -54,7 +82,6 @@ export default function ProductDetailPage() {
 
   return (
     <div className="w-full pb-[120px] bg-[#FFFFFF]">
-      {/* 상품 이미지 슬라이더 + 토글 */}
       <div className="w-full px-4 mt-4">
         <div
           className="overflow-x-auto flex gap-4 scrollbar-hide snap-x snap-mandatory bg-[#FFFFFF] rounded-xl py-2"
@@ -80,8 +107,6 @@ export default function ProductDetailPage() {
             </div>
           ))}
         </div>
-
-        {/* 토글 인디케이터 */}
         <div className="flex justify-center mt-3 gap-2">
           {imageList.map((_, idx) => (
             <button
@@ -95,15 +120,11 @@ export default function ProductDetailPage() {
         </div>
       </div>
 
-      {/* 상품 정보 */}
       <div className="p-4">
         <p className="text-xs font-bold text-[#FF6B6B]">
-          {product.brand}{" "}
-          <span className="ml-2 text-[#3F8CFF]">{product.size}</span>
+          {product.brand} <span className="ml-2 text-[#3F8CFF]">{product.size}</span>
         </p>
-        <h1 className="text-lg font-extrabold text-gray-800 mt-1">
-          {product.name}
-        </h1>
+        <h1 className="text-lg font-extrabold text-gray-800 mt-1">{product.name}</h1>
         <div className="mt-1 text-base text-black font-semibold">
           ₩{product.price.toLocaleString()}
           {product.discountRate !== 0 && (
@@ -119,34 +140,22 @@ export default function ProductDetailPage() {
         </div>
       </div>
 
-      {/* 배송안내 */}
       <div className="bg-white px-4 py-5 border-t border-b">
         <div className="flex justify-between text-sm mb-1">
           <span className="text-gray-600">배송비</span>
-          <span className="text-gray-500">
-            2,500원 (50,000원 이상 구매시 무료배송)
-          </span>
+          <span className="text-gray-500">3,500원 (50,000원 이상 구매시 무료배송)</span>
         </div>
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">발송예정일</span>
-          <span className="text-gray-500">
-            평일 오후 2시 이전 결제 시 당일 출고
-          </span>
+          <span className="text-gray-500">평일 오후 2시 이전 결제 시 당일 출고</span>
         </div>
       </div>
 
-      {/* 추천 상품 슬라이더 */}
       <div className="px-4 py-5 mb-3">
-        <h3 className="font-bold text-sm text-[#222] mb-2">
-          같은 사이즈 다른 상품
-        </h3>
+        <h3 className="font-bold text-sm text-[#222] mb-2">같은 사이즈 다른 상품</h3>
         <div className="overflow-x-auto flex gap-4 scrollbar-hide">
           {relatedProducts.map((item) => (
-            <Link
-              key={item.id}
-              href={`/products/${item.id}`}
-              className="flex-none w-[140px]"
-            >
+            <Link key={item.id} href={`/products/${item.id}`} className="flex-none w-[140px]">
               <div className="w-[140px] h-[180px] rounded-md overflow-hidden bg-gray-100">
                 <Image
                   src={item.image}
@@ -156,32 +165,28 @@ export default function ProductDetailPage() {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <p className="text-xs mt-1 text-gray-700 truncate">
-                {item.name}
-              </p>
-              <p className="text-xs font-bold text-gray-900">
-                ₩{item.price.toLocaleString()}
-              </p>
+              <p className="text-xs mt-1 text-gray-700 truncate">{item.name}</p>
+              <p className="text-xs font-bold text-gray-900">₩{item.price.toLocaleString()}</p>
             </Link>
           ))}
         </div>
       </div>
 
-      <div className="bg-white px-4 py-5 border-t">
-        <h2 className="text-sm font-bold text-gray-800 mb-3"> 등급안내 </h2>
-        <div className="flex justify-between text-sm mb-1">
-          <span className="text-gray-500 border-t text-xl">
+      <div className="bg-white px-4 py-6 border-t space-y-4">
+        <h2 className="text-sm font-bold text-gray-800 mb-2">등급안내</h2>
+        <div className="flex items-start justify-between gap-6">
+          <span className="text-orange-500 text-4xl font-extrabold pl-2 min-w-[32px]">
             {product.conditionGrade}
           </span>
-          <span className="text-gray-500">
-            실착 후 세탁 1~2회로 새 상품과 같은 상태{" "}
-          </span>
+          <p className="text-xs text-right text-gray-700 leading-5 max-w-[85%]  overflow-hidden">
+            {conditionDescriptions[product.conditionGrade]}
+          </p>
         </div>
-        <div className="flex justify-between text-sm mb-1 font-bold text-orange-500">
-          <span></span>
-          <span>상태가 걱정되나요? 받아보고 교환/환불 가능해요 </span>
+        <div className="text-sm font-semibold text-orange-500 text-right mt-2">
+          상태가 걱정되나요? 받아보고 교환/환불 가능해요
         </div>
       </div>
+
 
       {/* 포장 안내 */}
       <div className="font-bold bg-white px-4 py-4 mx-4 rounded-lg shadow-sm text-sm">

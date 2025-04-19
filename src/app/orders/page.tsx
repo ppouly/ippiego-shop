@@ -166,7 +166,7 @@ export default function OrderHistoryPage() {
                       <Link href={`/products/${order.product_id}`} className="font-semibold text-blue-600 hover:underline">
                         {order.name}
                       </Link>
-                      {order.delivery_fee && <p>배송비: +₩2,500</p>}
+                      {order.delivery_fee && <p>배송비: +₩3,500</p>}
                       <p className="text-black font-bold">총 결제금액: ₩{order.amount.toLocaleString()}</p>
 
                       {isRefundable ? (
