@@ -1,3 +1,4 @@
+// ✅ 이 컴포넌트는 주문 내역 페이지에서 각 상품의 환불요청 버튼 및 로직을 처리합니다.
 "use client";
 
 import { useState } from "react";
@@ -19,15 +20,7 @@ interface Order {
   status?: string;
 }
 
-interface RawOrder {
-  order_id: string;
-  product_id: string;
-  address: string;
-  amount: number;
-  memo: string;
-  delivery_fee?: boolean;
-  delivery_complete_date?: string;
-  status?: string;
+interface RawOrder extends Omit<Order, "name" | "image"> {
   products?: {
     name?: string;
   };
@@ -105,16 +98,21 @@ export default function OrderHistoryPage() {
       setRefundMessage(null);
     } else {
       const now = dayjs();
-      const completedDate = dayjs(order.delivery_complete_date);
-      const diff = now.diff(completedDate, "day");
-      if (diff > 10) return;
+      if (order.delivery_complete_date) {
+        const completedDate = dayjs(order.delivery_complete_date);
+        const diff = now.diff(completedDate, "day");
+        if (diff > 10) {
+          setLoadingOrderId(null);
+          return;
+        }
+      }
 
       await supabase.from("orders").update({ status: "환불요청" }).eq("order_id", order.order_id);
       await supabase.from("products").update({ status: "환불요청" }).eq("id", order.product_id);
-      setRefundMessage("배송된 택배 업체 통해 환불 수거가 될 예정입니다. 환불은 반송된 상품 검수 후 왕복배송비 제외 금액으로 환불됩니다.");
+      setRefundMessage("환불 신청이 완료되었습니다. 택배 기사를 통해 반품 수거가 진행되며, 상품 검수 후 왕복 배송비를 제외한 금액이 환불됩니다.");
     }
 
-    await handleVerifyCode();
+    handleVerifyCode();
     setLoadingOrderId(null);
   };
 
@@ -143,10 +141,10 @@ export default function OrderHistoryPage() {
             <p className="text-gray-500">주문 내역이 없습니다.</p>
           ) : (
             orders.map((order, index) => {
-              const isRefundable =
-                order.delivery_complete_date &&
-                dayjs().diff(dayjs(order.delivery_complete_date), "day") <= 10 &&
-                order.status !== "환불완료";
+              const isWithin10Days = order.delivery_complete_date
+                ? dayjs().diff(dayjs(order.delivery_complete_date), "day") <= 10
+                : true;
+              const isRefundable = isWithin10Days && order.status !== "환불완료";
 
               return (
                 <div key={index} className="border-b pb-5">

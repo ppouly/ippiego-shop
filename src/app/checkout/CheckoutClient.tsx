@@ -16,7 +16,7 @@ export default function CheckoutClient() {
   const productImage = `/products/${productId}/main.jpg`;
 
   const FREE_SHIPPING_THRESHOLD = 50000;
-  const DELIVERY_FEE = 2500;
+  const DELIVERY_FEE = 3500;
   const shippingFee = amount < FREE_SHIPPING_THRESHOLD ? DELIVERY_FEE : 0;
   const shippingApplied = shippingFee > 0 ? 1 : 0;
   const finalAmount = amount + shippingFee;
