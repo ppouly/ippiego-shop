@@ -79,7 +79,7 @@ export default function ProductListPage() {
             );
           })}
         </div>
-      </div>
+      </div> 
 
       {/* 사이즈 필터 */}
       <div>
