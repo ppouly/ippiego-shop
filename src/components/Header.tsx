@@ -46,6 +46,6 @@ export default function Header() {
           <Image src="/icon-cart.svg" alt="cart" width={20} height={20} />
         </button>
       </div>
-    </header>
+    </header> 
   );
 }
