@@ -16,19 +16,19 @@ const conditionDescriptions: Record<string, React.ReactNode> = {
   ),
   A: (
     <>
-      착용 1~3회 이내로 세탁은 되었지만 <br />
+      착용 3~5회 정도로 세탁은 되었지만 <br />
       소재 원형 유지된 매우 깔끔한 상태예요.
     </>
   ),
   B: (
     <>
-      몇 차례 착용된 상품으로 보풀·약간 늘어남 <br />
+      여러 차례 착용된 상품으로 보풀·약간 늘어남 <br />
       또는 색빠짐이 있지만 전체적으로 양호해요.
     </>
   ),
   C: (
     <>
-      뚜렷한 사용감·생활 얼룩·변색·올나감 중 하나라도<br />
+      많은 사용감·생활 얼룩·변색·올나감 중 하나라도<br />
       해당되는 상품으로 사진과 코멘트를 확인해주세요.
     </>
   ),
@@ -38,7 +38,7 @@ const conditionDescriptions: Record<string, React.ReactNode> = {
       빈티지나 리페어 용도로 적합해요.
     </>
   ),
-};
+}; 
 
 export default function ProductDetailPage() {
   const params = useParams();
