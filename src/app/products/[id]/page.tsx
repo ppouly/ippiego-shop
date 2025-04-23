@@ -257,7 +257,7 @@ export default function ProductDetailPage() {
             </div>
 
             {/* ✅ 상품 상세 HTML 삽입 */}
-            <div className="mt-4" dangerouslySetInnerHTML={{ __html: product.description || "" }} />
+            <div className="mt-7" dangerouslySetInnerHTML={{ __html: product.description || "" }} />
           </div>
         )}
 
