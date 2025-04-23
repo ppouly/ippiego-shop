@@ -23,7 +23,7 @@ const conditionDescriptions: Record<string, React.ReactNode> = {
   B: (
     <>
       여러 차례 착용된 상품이지만 전체적으로 양호해요. <br />
-      미세보풀·약간 늘어남/줄어듬 또는 색빠짐이 있을 수 있어요.
+      약간 늘어남/줄어듬·보풀·색빠짐이 있을 수 있어요.
     </>
   ),
   C: (
@@ -257,7 +257,7 @@ export default function ProductDetailPage() {
             </div>
 
             {/* ✅ 상품 상세 HTML 삽입 */}
-            <div className="mt-7" dangerouslySetInnerHTML={{ __html: product.description || "" }} />
+            <div className="mt-14" dangerouslySetInnerHTML={{ __html: product.description || "" }} />
           </div>
         )}
 
