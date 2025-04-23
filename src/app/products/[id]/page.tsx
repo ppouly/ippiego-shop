@@ -28,7 +28,7 @@ const conditionDescriptions: Record<string, React.ReactNode> = {
   ),
   C: (
     <>
-      많은 사용감·생활 얼룩·변색·올나감 중 하나라도<br />
+      많은 사용감·생활이염·변색·올나감 중 하나라도<br />
       해당되는 상품으로 사진과 코멘트를 확인해주세요.
     </>
   ),
@@ -197,9 +197,15 @@ export default function ProductDetailPage() {
           height={400}
           className="w-full rounded mb-2"
         />
-        <p>🧼 8無 안심세제로 세탁 완료!<br /></p>
-        <p className="text-center"> 포장 완료! </p>
-        <p className="text-right"> 바로출고 가능해요 🧼</p>
+      </div>
+      <div className="font-bold bg-white px-4 py-4 mx-4 rounded-lg shadow-sm text-sm">
+        <Image
+          src={"/pkg_cmplt.jpg"}
+          alt="포장 안내"
+          width={600}
+          height={200}
+          className="w-full rounded mb-2"
+        />
       </div>
 
       {/* 탭 영역 */}
@@ -238,11 +244,23 @@ export default function ProductDetailPage() {
         </div>
 
         {activeTab === "description" && (
-          <div
-            className="text-sm leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: product.description || "" }}
-          />
+          <div className="text-sm leading-relaxed">
+            {/* ✅ 고정 이미지 삽입 */}
+            <div className="mb-4">
+              <Image
+                src="/notice_real_photo.jpg"  // public 폴더 안의 이미지 경로
+                alt="실물 촬영 안내"
+                width={600}
+                height={400}
+                className="w-full rounded"
+              />
+            </div>
+
+            {/* ✅ 상품 상세 HTML 삽입 */}
+            <div className="mt-4" dangerouslySetInnerHTML={{ __html: product.description || "" }} />
+          </div>
         )}
+
 
         {activeTab === "qa" && (
           <div className="px-4 py-4 text-sm text-gray-600">
