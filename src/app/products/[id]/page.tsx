@@ -22,8 +22,8 @@ const conditionDescriptions: Record<string, React.ReactNode> = {
   ),
   B: (
     <>
-      여러 차례 착용된 상품으로 보풀·약간 늘어남 <br />
-      또는 색빠짐이 있지만 전체적으로 양호해요.
+      여러 차례 착용된 상품이지만 전체적으로 양호해요. <br />
+      미세보풀·약간 늘어남/줄어듬 또는 색빠짐이 있을 수 있어요.
     </>
   ),
   C: (
