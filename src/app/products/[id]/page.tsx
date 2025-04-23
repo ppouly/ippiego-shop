@@ -248,7 +248,7 @@ export default function ProductDetailPage() {
             {/* ✅ 고정 이미지 삽입 */}
             <div className="mb-4">
               <Image
-                src=""  // public 폴더 안의 이미지 경로
+                src="/notice_real_photo.jpg"  // public 폴더 안의 이미지 경로
                 alt="실물 촬영 안내"
                 width={600}
                 height={400}
@@ -257,7 +257,7 @@ export default function ProductDetailPage() {
             </div>
 
             {/* ✅ 상품 상세 HTML 삽입 */}
-            <div className="mt-6" dangerouslySetInnerHTML={{ __html: product.description || "" }} />
+            <div className="mt-4" dangerouslySetInnerHTML={{ __html: product.description || "" }} />
           </div>
         )}
 
