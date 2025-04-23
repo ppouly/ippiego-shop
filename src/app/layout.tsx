@@ -18,7 +18,7 @@ export const metadata = {
   metadataBase: new URL("https://ippiego.shop"),
   openGraph: {
     title: "IPPIEGO | 중고 수입 유아동복 리세일샵",
-    description: "중고 수입 유아동복 리세일 마켓, 자유롭고 감성적인 아이들을 위한 IPPIEGO.",
+    description: "중고 수입 유아동복 리세일 마켓, 자유롭고 감성적인 아이들을 위한 입히고!",
     url: "https://ippiego.shop",
     siteName: "IPPIEGO",
     images: [
@@ -34,7 +34,7 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "IPPIEGO | 중고 수입 유아동복 리세일샵",
+    title: "입히고 | 중고 수입 유아동복 리세일샵",
     description: "자유롭고 감성적인 아이들을 위한 빈티지 유아동복 리세일샵",
     images: ["/og-image.jpg"],
   },
