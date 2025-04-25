@@ -66,9 +66,10 @@ export default function CartPage() {
             <div className="flex-1">
               <p className="font-medium text-gray-800">
                 {item.name}
-                {statuses[item.id] === "판매완료" && (
-                  <span className="ml-2 text-sm text-red-500">(품절)</span>
+                {["판매완료", "환불요청"].includes(statuses[item.id]) && (
+                <span className="ml-2 text-sm text-red-500">(품절)</span>
                 )}
+
               </p>
               <p className="text-sm text-gray-400">
                 ₩{item.price.toLocaleString()}
