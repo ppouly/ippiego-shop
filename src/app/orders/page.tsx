@@ -27,8 +27,7 @@ interface RawOrder extends Omit<Order, "name" | "image"> {
 }
 
 export default function OrderHistoryPage() {
-  const [phone2, setPhone2] = useState("");
-  const [phone3, setPhone3] = useState("");
+  const [phoneRest, setPhoneRest] = useState("");
   const [code, setCode] = useState("");
   const [isVerified, setIsVerified] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -36,7 +35,7 @@ export default function OrderHistoryPage() {
   const [refundMessage, setRefundMessage] = useState<string | null>(null);
   const [loadingOrderId, setLoadingOrderId] = useState<string | null>(null);
 
-  const fullPhone = `010${phone2}${phone3}`;
+  const fullPhone = `010${phoneRest}`;
 
   const handleSendCode = async () => {
     const res = await fetch("/api/send-code", {
@@ -45,13 +44,20 @@ export default function OrderHistoryPage() {
       body: JSON.stringify({ phone: fullPhone }),
     });
     const result = await res.json();
-    if (result.success && result.code) {
+    
+    if (result.success) {
+      setMessage("인증번호가 발송되었습니다. 문자메시지를 확인해주세요.");
+    } else {
+      setMessage("인증번호 요청 실패: " + (result.message || "잠시 후 다시 시도해주세요."));
+    }
+     /*if (result.success && result.code) {
       setCode(result.code);
       setMessage(`테스트용 인증번호: ${result.code}`);
     } else {
       setMessage("인증번호 요청 실패");
-    }
+    }*/
   };
+  
 
   const handleVerifyCode = async () => {
     const res = await fetch("/api/verify-code", {
@@ -89,9 +95,15 @@ export default function OrderHistoryPage() {
   };
 
   const handleRefundToggle = async (order: Order) => {
+    // 인증 여부 먼저 체크
+    if (!isVerified) {
+      setMessage("먼저 휴대폰 인증을 완료해주세요.");
+      return;
+    }
+  
     setLoadingOrderId(order.order_id);
     const isRefunding = order.status === "환불요청";
-
+  
     if (isRefunding) {
       await supabase.from("orders").update({ status: "결제완료" }).eq("order_id", order.order_id);
       await supabase.from("products").update({ status: "판매완료" }).eq("id", order.product_id);
@@ -106,15 +118,15 @@ export default function OrderHistoryPage() {
           return;
         }
       }
-
+  
       await supabase.from("orders").update({ status: "환불요청" }).eq("order_id", order.order_id);
       await supabase.from("products").update({ status: "환불요청" }).eq("id", order.product_id);
       setRefundMessage("환불 신청이 완료되었습니다. 택배 기사를 통해 반품 수거가 진행되며, 상품 검수 후 왕복 배송비를 제외한 금액이 환불됩니다.");
     }
-
-    handleVerifyCode();
+  
     setLoadingOrderId(null);
   };
+  
 
   return (
     <div className="p-5 space-y-6 text-[15px] text-gray-800">
@@ -124,17 +136,50 @@ export default function OrderHistoryPage() {
 
       {!isVerified ? (
         <div className="space-y-3">
+          {/* 전화번호 입력 */}
           <div className="flex gap-2">
-            <input type="text" value="010" readOnly className="w-[70px] px-3 py-2 text-center rounded border bg-gray-100 text-gray-500" />
-            <input type="text" maxLength={4} value={phone2} onChange={(e) => setPhone2(e.target.value)} className="w-[100px] px-3 py-2 rounded border text-center" placeholder="0000" />
-            <input type="text" maxLength={4} value={phone3} onChange={(e) => setPhone3(e.target.value)} className="w-[100px] px-3 py-2 rounded border text-center" placeholder="0000" />
+            <input
+              type="text"
+              value="010"
+              readOnly
+              className="w-[70px] px-3 py-2 bg-gray-100 text-center rounded border border-gray-300 text-gray-500 text-[15px]"
+            />
+            <input
+              type="text"
+              maxLength={8}
+              value={phoneRest}
+              onChange={(e) => setPhoneRest(e.target.value.replace(/[^0-9]/g, ""))}
+              className="flex-1 min-w-[180px] px-3 py-2 rounded border border-gray-300 text-center text-[15px]"
+              placeholder="12345678"
+            />
           </div>
-          <div className="flex gap-2">
-            <input type="text" value={code} onChange={(e) => setCode(e.target.value)} className="flex-1 px-3 py-2 rounded border" placeholder="인증번호 입력" />
-            <button onClick={handleSendCode} className="bg-gray-200 px-3 py-2 rounded text-gray-800 text-sm hover:bg-gray-300">인증요청</button>
-            <button onClick={handleVerifyCode} className="bg-black text-white px-3 py-2 rounded text-sm hover:bg-gray-800">인증확인</button>
+
+          {/* 인증번호 입력 */}
+          <input
+            type="text"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            placeholder="인증번호 입력"
+            className="w-full px-3 py-2 rounded border border-gray-300 text-[15px]"
+          />
+
+          {/* 인증 버튼 */}
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={handleSendCode}
+              className="bg-gray-200 text-gray-800 border border-gray-300 rounded px-3 py-2 text-sm hover:bg-gray-300"
+            >
+              인증요청
+            </button>
+            <button
+              onClick={handleVerifyCode}
+              className="bg-black text-white rounded px-3 py-2 text-sm hover:bg-gray-800"
+            >
+              인증확인
+            </button>
           </div>
         </div>
+
       ) : (
         <div className="space-y-6">
           {orders.length === 0 ? (

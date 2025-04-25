@@ -22,8 +22,7 @@ export default function CheckoutClient() {
   const finalAmount = amount + shippingFee;
 
   const [tossPayments, setTossPayments] = useState<ReturnType<NonNullable<typeof window.TossPayments>> | null>(null);
-  const [phone2, setPhone2] = useState("");
-  const [phone3, setPhone3] = useState("");
+  const [phoneRest, setPhoneRest] = useState(""); // 010 이후 숫자 8자리
   const [code, setCode] = useState("");
   const [isVerified, setIsVerified] = useState(false);
   const [zip, setZip] = useState("");
@@ -34,7 +33,7 @@ export default function CheckoutClient() {
   const [customMemo, setCustomMemo] = useState("");
   const [message, setMessage] = useState("");
 
-  const fullPhone = `010${phone2}${phone3}`;
+  const fullPhone = `010${phoneRest}`;
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -48,7 +47,7 @@ export default function CheckoutClient() {
     document.body.appendChild(script);
   }, []);
 
-  const handleSendCode = async () => {
+ /* const handleSendCode = async () => {
     const res = await fetch("/api/send-code", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -60,6 +59,21 @@ export default function CheckoutClient() {
       setMessage(`테스트용 인증번호: ${result.code}`);
     } else {
       setMessage("인증번호 요청 실패");
+    }
+  };
+*/
+  const handleSendCode = async () => {
+    const res = await fetch("/api/send-code", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone: fullPhone }),
+    });
+    const result = await res.json();
+
+    if (result.success) {
+      setMessage("인증번호가 발송되었습니다. 문자메시지를 확인해주세요.");
+    } else {
+      setMessage("인증번호 요청 실패: " + (result.message || "잠시 후 다시 시도해주세요."));
     }
   };
 
@@ -131,30 +145,70 @@ export default function CheckoutClient() {
       failUrl,
     });
   };
-  
-
-  
+    
   return (
     <div className="p-4 space-y-6 text-[15px] text-gray-800">
       <h1 className="text-lg font-semibold text-gray-900">비회원 주문서 작성</h1>
 
-      {/* 인증 UI */}
-      <div className="space-y-3">
-        <label className="block text-[15px] font-semibold text-gray-900 mb-1">
-          휴대전화 번호 인증 <span className="text-red-500">*</span>
-        </label>
-        <div className="flex gap-2">
-          <input type="text" value="010" readOnly className="w-[70px] px-3 py-2 bg-gray-100 text-center rounded border border-gray-300 text-[15px]" />
-          <input type="text" maxLength={4} value={phone2} onChange={(e) => setPhone2(e.target.value)} placeholder="0000" className="w-[100px] px-3 py-2 rounded border border-gray-300 text-center text-[15px]" />
-          <input type="text" maxLength={4} value={phone3} onChange={(e) => setPhone3(e.target.value)} placeholder="0000" className="w-[100px] px-3 py-2 rounded border border-gray-300 text-center text-[15px]" />
-        </div>
-        <div className="flex gap-2">
-          <input type="text" value={code} onChange={(e) => setCode(e.target.value)} placeholder="인증번호 입력" className="flex-1 px-3 py-2 rounded border border-gray-300 text-[15px]" />
-          <button onClick={handleSendCode} className="bg-gray-100 text-gray-800 border border-gray-300 rounded px-3 py-2 text-sm hover:bg-gray-200">인증요청</button>
-          <button onClick={handleVerifyCode} className="bg-black text-white rounded px-3 py-2 text-sm hover:bg-gray-800">인증확인</button>
-        </div>
-        {message && <p className={`text-sm mt-1 ${message.includes("성공") ? "text-green-600" : "text-red-600"}`}>{message}</p>}
-      </div>
+
+{/* 휴대전화 번호 인증 */}
+<div className="pt-6  space-y-3">
+  <label className="block text-[15px] font-semibold text-gray-900 mb-2">
+    휴대전화 번호 인증 <span className="text-red-500">*</span>
+  </label>
+
+  {/* 전화번호 입력 (010 + 번호) */}
+  <div className="flex gap-2">
+    <input
+      type="text"
+      value="010"
+      readOnly
+      className="w-[70px] px-3 py-2 bg-gray-100 text-center rounded border border-gray-300 text-[15px]"
+    />
+    <input
+      type="text"
+      maxLength={8}
+      value={phoneRest}
+      onChange={(e) => setPhoneRest(e.target.value.replace(/[^0-9]/g, ""))}
+      placeholder="12345678"
+      className="flex-1 min-w-[180px] px-3 py-2 rounded border border-gray-300 text-center text-[15px]"
+    />
+  </div>
+
+  {/* 인증번호 입력 */}
+  <input
+    type="text"
+    value={code}
+    onChange={(e) => setCode(e.target.value)}
+    placeholder="인증번호 입력"
+    className="w-full px-3 py-2 rounded border border-gray-300 text-[15px]"
+  />
+
+  {/* 버튼 2개: 가로 정렬, 한 줄 아래 위치 */}
+  <div className="flex justify-end gap-2">
+    <button
+      onClick={handleSendCode}
+      className="px-3 py-2 rounded border border-gray-300 bg-white text-gray-800 text-sm hover:bg-gray-100"
+    >
+      인증요청
+    </button>
+    <button
+      onClick={handleVerifyCode}
+      className="px-3 py-2 rounded bg-black text-white text-sm hover:bg-gray-800"
+    >
+      인증확인
+    </button>
+  </div>
+
+  {/* 메시지 */}
+  {message && (
+    <p className={`text-sm mt-1 ${message.includes("성공") ? "text-green-600" : "text-red-600"}`}>
+      {message}
+    </p>
+  )}
+</div>
+
+
 
       {/* 받는사람 */}
       <div className="pt-6 border-t">
