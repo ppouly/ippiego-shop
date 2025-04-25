@@ -6,7 +6,7 @@ export async function fetchValidProducts(): Promise<Product[]> {
   const { data, error } = await supabase
     .from("products")
     .select("*")
-    .in("status", ["판매중", "판매완료"]);
+    .in("status", ["판매중", "판매완료","환불요청"]);
 
   if (error) {
     console.error("상품 불러오기 오류:", error);
