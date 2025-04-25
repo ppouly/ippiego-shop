@@ -190,7 +190,7 @@ export default function CheckoutClient() {
       value={phoneRest}
       onChange={(e) => setPhoneRest(e.target.value.replace(/[^0-9]/g, ""))}
       placeholder="12345678"
-      className="flex-1 min-w-[180px] px-3 py-2 rounded border border-gray-300 text-center text-[15px]"
+      className="flex-1 min-w-[180px] px-3 py-2 rounded border border-gray-300 text-[15px]"
     />
   </div>
 
@@ -277,7 +277,7 @@ export default function CheckoutClient() {
 
 
       {/* 주문 상품 */}
-      <div className="border-t pt-5  pb-3 text-sm text-gray-800 space-y-2">
+      <div className="border-t pt-5  pb-6 text-sm text-gray-800 space-y-2">
         <h2 className="text-[15px] font-semibold text-black">주문상품</h2>
         <div className="flex gap-3 items-center">
           <div className="w-20 h-20 rounded overflow-hidden bg-gray-100 relative">

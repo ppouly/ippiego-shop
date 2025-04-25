@@ -149,7 +149,7 @@ export default function OrderHistoryPage() {
               maxLength={8}
               value={phoneRest}
               onChange={(e) => setPhoneRest(e.target.value.replace(/[^0-9]/g, ""))}
-              className="flex-1 min-w-[180px] px-3 py-2 rounded border border-gray-300 text-center text-[15px]"
+              className="flex-1 min-w-[180px] px-3 py-2 rounded border border-gray-300 text-[15px]"
               placeholder="12345678"
             />
           </div>
