@@ -14,12 +14,13 @@ export default function CheckoutClient() {
   const orderName = searchParams.get("orderName") || "Ippie 상품 결제";
   const productId = searchParams.get("productId") || "unknown";
   const productImage = `/products/${productId}/main.jpg`;
-
+  const [couponCode, setCouponCode] = useState("BETA25MAY"); // ✅ 쿠폰코드 입력 기본값 추가
   const FREE_SHIPPING_THRESHOLD = 50000;
   const DELIVERY_FEE = 3500;
-  const shippingFee = amount < FREE_SHIPPING_THRESHOLD ? DELIVERY_FEE : 0;
-  const shippingApplied = shippingFee > 0 ? 1 : 0;
-  const finalAmount = amount + shippingFee;
+  const [shippingFee, setShippingFee] = useState(0);
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [finalAmount, setFinalAmount] = useState(amount);
+  
 
   const [tossPayments, setTossPayments] = useState<ReturnType<NonNullable<typeof window.TossPayments>> | null>(null);
   const [phoneRest, setPhoneRest] = useState(""); // 010 이후 숫자 8자리
@@ -46,6 +47,22 @@ export default function CheckoutClient() {
     };
     document.body.appendChild(script);
   }, []);
+
+    // ✅ 쿠폰코드, 배송비, 최종금액 계산하는 useEffect 추가
+    useEffect(() => {
+      let fee = amount < FREE_SHIPPING_THRESHOLD ? DELIVERY_FEE : 0;
+      let discount = 0;
+  
+      if (couponCode === "BETA25MAY") {
+        fee = 0; // 배송비 무료
+      } else if (couponCode === "BETA20DISCOUNT") {
+        discount = Math.floor(amount * 0.2); // 20% 할인 (내림 처리)
+      }
+  
+      setShippingFee(fee);
+      setDiscountAmount(discount);
+      setFinalAmount(amount + fee - discount);
+    }, [amount, couponCode]);
 
  /* const handleSendCode = async () => {
     const res = await fetch("/api/send-code", {
@@ -114,7 +131,7 @@ export default function CheckoutClient() {
     const orderId = `order-${Date.now()}`;
     const successUrl = `${window.location.origin}/order-complete?productId=${productId}&orderId=${orderId}&amount=${finalAmount}`;
     const failUrl = `${window.location.origin}/order-fail`;
-  
+
     const { error } = await supabase.from("orders").insert({
       order_id: orderId,
       product_id: productId,
@@ -125,9 +142,11 @@ export default function CheckoutClient() {
       amount: finalAmount,
       verified: true,
       status: "결제대기",
-      delivery_fee: shippingApplied,
+      delivery_fee: shippingFee > 0 ? 1 : 0,
+      coupon_code: couponCode, // ✅ 쿠폰코드 저장 (선택사항)
+      discount_amount: discountAmount, // ✅ 할인금액 저장 (선택사항)
     });
-  
+
     if (error) {
       console.error("❌ 주문 저장 실패:", error.message);
       setMessage("주문 저장 중 오류가 발생했습니다.");
@@ -147,12 +166,12 @@ export default function CheckoutClient() {
   };
     
   return (
-    <div className="p-4 space-y-6 text-[15px] text-gray-800">
+    <div className="p-4 space-y-1 text-[15px] text-gray-800">
       <h1 className="text-lg font-semibold text-gray-900">비회원 주문서 작성</h1>
 
 
 {/* 휴대전화 번호 인증 */}
-<div className="pt-6  space-y-3">
+<div className="pt-6  pb-3  space-y-3">
   <label className="block text-[15px] font-semibold text-gray-900 mb-2">
     휴대전화 번호 인증 <span className="text-red-500">*</span>
   </label>
@@ -228,7 +247,7 @@ export default function CheckoutClient() {
       </div>
 
       {/* 배송 메모 */}
-      <div className="pt-6">
+      <div className="pt-6  pb-6">
         <label className="block text-[15px] font-semibold text-gray-900 mb-2">배송 메모</label>
         <select value={memo} onChange={(e) => setMemo(e.target.value)} className="border border-gray-300 px-3 py-2 w-full rounded">
           <option>부재 시 문 앞에 놓아주세요.</option>
@@ -241,8 +260,24 @@ export default function CheckoutClient() {
         )}
       </div>
 
+      {/* ✅ 쿠폰코드 입력창 추가 */}
+      <div className="pt-6 pb-6 border-t ">
+        <label className="block text-[15px] font-semibold text-gray-900 mb-2">
+          쿠폰 코드 입력
+        </label>
+        <input
+          type="text"
+          value={couponCode}
+          onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+          className="border px-3 py-2 w-full rounded text-[15px]"
+          placeholder="쿠폰 코드를 입력하세요"
+        />
+        <p className="text-sm text-gray-500 mt-1">BETA25MAY = 베타기간 배송비 무료 이벤트 코드</p>
+      </div>
+
+
       {/* 주문 상품 */}
-      <div className="border-t pt-5 text-sm text-gray-800 space-y-2">
+      <div className="border-t pt-5  pb-3 text-sm text-gray-800 space-y-2">
         <h2 className="text-[15px] font-semibold text-black">주문상품</h2>
         <div className="flex gap-3 items-center">
           <div className="w-20 h-20 rounded overflow-hidden bg-gray-100 relative">
@@ -257,16 +292,17 @@ export default function CheckoutClient() {
       </div>
 
       {/* 결제 정보 */}
-      <div className="border-t pt-5 space-y-1 text-sm text-gray-800">
+      <div className="border-t pt-5  pb-3 space-y-1 text-sm text-gray-800">
         <h2 className="text-[15px] font-semibold text-black">결제정보</h2>
         <div className="flex justify-between"><span>주문상품</span><span className="font-medium">₩{amount.toLocaleString()}</span></div>
         <div className="flex justify-between"><span>배송비</span><span className="font-medium">+₩{shippingFee.toLocaleString()}</span></div>
-        <div className="flex justify-between"><span>할인/부가결제</span><span className="font-medium text-red-500">-₩0</span></div>
+        <div className="flex justify-between"><span>할인/부가결제</span><span className="font-medium text-red-500">-₩{discountAmount.toLocaleString()}</span></div>
       </div>
 
       <div className="bg-blue-50 px-4 py-3 rounded text-right mt-4">
         <span className="text-[16px] font-bold text-blue-600">최종 결제 금액 ₩{finalAmount.toLocaleString()}</span>
       </div>
+
 
       <button
         onClick={handleClick}
