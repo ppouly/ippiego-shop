@@ -58,7 +58,27 @@ export default function OrderHistoryPage() {
     }*/
   };
   
-
+  const fetchOrders = async () => {
+    const { data: orderData, error } = await supabase
+      .from("orders")
+      .select("*, products(name)")
+      .eq("phone", fullPhone)
+      .order("created_at", { ascending: false });
+  
+    if (error || !orderData) {
+      setMessage("주문 정보를 불러오는 중 오류가 발생했습니다.");
+      return;
+    }
+  
+    const enrichedOrders: Order[] = (orderData as RawOrder[]).map((order) => ({
+      ...order,
+      name: order.products?.name ?? "상품명 없음",
+      image: `/products/${order.product_id}/main.jpg`,
+    }));
+  
+    setOrders(enrichedOrders);
+  };
+  
   const handleVerifyCode = async () => {
     const res = await fetch("/api/verify-code", {
       method: "POST",
@@ -70,28 +90,11 @@ export default function OrderHistoryPage() {
       setMessage("인증 실패: " + result.message);
       return;
     }
-
     setIsVerified(true);
     setMessage("인증 성공! 주문을 조회합니다.");
-
-    const { data: orderData, error } = await supabase
-      .from("orders")
-      .select("*, products(name)")
-      .eq("phone", fullPhone)
-      .order("created_at", { ascending: false });
-
-    if (error || !orderData) {
-      setMessage("주문 정보를 불러오는 중 오류가 발생했습니다.");
-      return;
-    }
-
-    const enrichedOrders: Order[] = (orderData as RawOrder[]).map((order) => ({
-      ...order,
-      name: order.products?.name ?? "상품명 없음",
-      image: `/products/${order.product_id}/main.jpg`,
-    }));
-
-    setOrders(enrichedOrders);
+  
+    await fetchOrders(); // ✅ 주문 조회 함수 호출
+    
   };
 
   const handleRefundToggle = async (order: Order) => {
@@ -123,7 +126,7 @@ export default function OrderHistoryPage() {
       await supabase.from("products").update({ status: "환불요청" }).eq("id", order.product_id);
       setRefundMessage("환불 신청이 완료되었습니다. 택배 기사를 통해 반품 수거가 진행되며, 상품 검수 후 왕복 배송비를 제외한 금액이 환불됩니다.");
     }
-  
+    await fetchOrders(); // ✅ 환불 처리 후 주문 다시 조회
     setLoadingOrderId(null);
   };
   
