@@ -40,8 +40,9 @@ export default function CartPage() {
   }, [items]);
 
   const hasSoldOutItem = items.some(
-    (item) => statuses[item.id] === "판매완료"
+    (item) => statuses[item.id] === "판매완료" || statuses[item.id] === "환불요청"
   );
+  
 
   return (
     <div className="p-4 pb-28">

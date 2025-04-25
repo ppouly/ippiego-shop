@@ -130,7 +130,7 @@ export default function Home() {
           }}
         >
           {products
-            .filter((p) => p.status !== "판매완료") // "판매완료" 제외
+            .filter((p) => !["판매완료", "환불요청"].includes(p.status))
             .slice(0, 7)
             .map((product) => {
               return (
@@ -190,7 +190,7 @@ export default function Home() {
         </div>        
         <div className="grid grid-cols-2 gap-4">
         {visibleProducts.map((product) => {
-          const isSoldOut = product.status === "판매완료";
+          const isSoldOut = product.status === "판매완료" || product.status === "환불요청";
           return (
             <div
               key={product.id}

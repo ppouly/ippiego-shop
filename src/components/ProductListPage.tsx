@@ -132,7 +132,7 @@ export default function ProductListPage() {
       ) : (
         <div className="grid grid-cols-2 gap-4">
           {products.map((product) => {
-            const isSoldOut = product.status === "판매완료";
+            const isSoldOut  = ["판매완료", "환불요청"].includes(product.status);
 
             return (
               <Link
