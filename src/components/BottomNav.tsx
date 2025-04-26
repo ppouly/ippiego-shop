@@ -31,7 +31,7 @@ export default function BottomNav() {
     { label: "홈", icon: <AiFillHome size={22} />, path: "/" },
     { label: "카테고리", icon: <MdCategory size={22} />, path: "/category" },
     { label: "최근본", icon: <RiHistoryLine size={22} />, path: "/recent" },
-    { label: "마이", icon: <AiOutlineUser size={22} />, path: "/orders" },
+    { label: "마이", icon: <AiOutlineUser size={22} />, path: "/mypage" },
   ];
 
   return (
