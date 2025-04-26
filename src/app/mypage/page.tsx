@@ -202,7 +202,7 @@ export default function MyPage() {
             >
             카카오 로그인하기
             </button>
-
+            <p className="text-xs text-orange-800">카카오 회원가입 서비스 준비 중 입니다.</p>
               </a>
             </div>
           </>
