@@ -272,7 +272,7 @@ export default function ProductDetailPage() {
           <div className="px-4 py-4 text-sm text-gray-600">
             <p>· 교환 및 환불은 수령일로부터 10일 이내 가능합니다.</p>
             <p>· 착용/세탁/훼손된 상품은 교환 및 환불이 어렵습니다.</p>
-            <p>· 상품 택(tag) 제거된 상품은 교환 및 환불이 어렵습니다.</p>
+            <p>· 상품 택(tag)이 제거된 경우, 상품 금액의 30%를 제외한 금액이 환불 처리됩니다.</p>
             <p>· 고객 단순 변심의 경우 왕복 배송비가 부과됩니다.</p>
           </div>
         )}

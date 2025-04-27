@@ -64,10 +64,11 @@ export default function OrderCompleteClient() {
 
       // 3. 주문 정보 가져오기
       const { data: order, error: fetchError } = await supabase
-        .from("orders")
-        .select("order_id, products(product_id, order_name), total_amount")
-        .eq("order_id", orderId)
-        .maybeSingle();
+      .from("orders")
+      .select("order_id, products, total_amount")
+      .eq("order_id", orderId)
+      .maybeSingle();
+
 
       if (fetchError || !order) {
         console.error("❌ 주문 정보 조회 실패:", fetchError);
@@ -77,18 +78,20 @@ export default function OrderCompleteClient() {
       setOrderData(order);
 
       // 4. 상품 테이블 업데이트 (여러 상품)
-      const productIds = order.products?.map((item) => item.product_id) || [];
+      // 4. 상품 테이블 업데이트 (여러 상품)
+const productIds = (order.products as ProductItem[])?.map((item) => item.product_id) || [];
 
-      for (const id of productIds) {
-        const { error: updateError } = await supabase
-          .from("products")
-          .update({ status: "판매완료" })
-          .eq("id", id);
+for (const id of productIds) {
+  const { error: updateError } = await supabase
+    .from("products")
+    .update({ status: "판매완료" })
+    .eq("id", id);
 
-        if (updateError) {
-          console.error(`❌ 상품(id: ${id}) 상태 업데이트 실패:`, updateError);
-        }
-      }
+  if (updateError) {
+    console.error(`❌ 상품(id: ${id}) 상태 업데이트 실패:`, updateError);
+  }
+}
+
     };
 
     confirmAndSave();
