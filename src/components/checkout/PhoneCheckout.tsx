@@ -5,9 +5,12 @@ import { useSearchParams } from "next/navigation";
 import OrderForm from "./OrderForm";
 
 interface TempOrder {
-  product_id: string;
-  amount: number;
-  order_name: string;
+  products: {
+    product_id: number;
+    order_name: string;
+    amount: number;
+  }[];
+  total_amount: number;
 }
 
 export default function PhoneCheckout() {
@@ -30,10 +33,13 @@ export default function PhoneCheckout() {
         const res = await fetch(`/api/get-temp-order?orderId=${orderId}`);
         const result = await res.json();
         if (result.success) {
+          let products = result.order.products;
+          if (typeof products === "string") {
+            products = JSON.parse(products);
+          }
           setOrder({
-            product_id: result.order.product_id,
-            amount: result.order.amount,
-            order_name: result.order.order_name,
+            products: result.order.products,
+            total_amount: result.order.total_amount,
           });
         } else {
           console.error("주문 정보 조회 실패:", result.message);
@@ -46,6 +52,12 @@ export default function PhoneCheckout() {
     fetchOrder();
   }, [orderId]);
 
+  useEffect(() => {
+    console.log("✅ isVerified 변경됨:", isVerified);
+    console.log("✅ phoneRest:", phoneRest);
+    console.log("✅ order:", order);
+  }, [isVerified, phoneRest, order]);
+
   const handleSendCode = async () => {
     try {
       const res = await fetch("/api/send-code", {
@@ -57,6 +69,7 @@ export default function PhoneCheckout() {
       const result = await res.json();
       if (result.success) {
         setMessage("인증번호가 발송되었습니다.");
+      //  alert(`[입히고test] 인증번호는 ${result.code} 입니다.`);////(6/6 test용)
       } else {
         setMessage(`인증번호 요청 실패: ${result.message || ""}`);
       }
@@ -106,10 +119,8 @@ export default function PhoneCheckout() {
       handleSendCode={handleSendCode}
       handleVerifyCode={handleVerifyCode}
       message={message}
-      amount={order.amount}
-      orderName={order.order_name}
-      productId={order.product_id}
-      productImage={`/products/${order.product_id}/main.jpg`}
+      products={order.products}
+      totalAmount={order.total_amount}
     />
   );
 }

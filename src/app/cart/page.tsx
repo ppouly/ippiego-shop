@@ -9,14 +9,11 @@ import { supabase } from "@/lib/supabase";
 export default function CartPage() {
   const { items, removeFromCart } = useCartStore();
   const router = useRouter();
-  const [statuses, setStatuses] = useState<{ [productId: string]: string }>({});
+  const [statuses, setStatuses] = useState<{ [productId: number]: string }>({});
 
-  const total = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  // Supabase에서 상품 status 불러오기
+  // 상품 판매 상태 가져오기
   useEffect(() => {
     if (items.length === 0) return;
 
@@ -31,7 +28,7 @@ export default function CartPage() {
         const map = data.reduce((acc, cur) => {
           acc[cur.id] = cur.status;
           return acc;
-        }, {} as { [key: string]: string });
+        }, {} as { [key: number]: string });
         setStatuses(map);
       }
     };
@@ -42,7 +39,39 @@ export default function CartPage() {
   const hasSoldOutItem = items.some(
     (item) => statuses[item.id] === "판매완료" || statuses[item.id] === "환불요청"
   );
-  
+
+  const handleOrder = async () => {
+    const products = items.map((item) => ({
+      product_id: item.id,
+      order_name: item.name,
+      amount: item.price,
+    }));
+
+    if (products.length === 0) {
+      alert("장바구니에 상품이 없습니다. 다시 담아주세요.");
+      return;
+    }
+
+    const totalAmount = products.reduce((sum, item) => sum + item.amount, 0);
+
+    try {
+      const res = await fetch("/api/create-temp-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ products, totalAmount }),
+      });
+
+      const result = await res.json();
+      if (result.success) {
+        router.push(`/checkout?orderId=${result.orderId}`);
+      } else {
+        alert(`주문 생성 실패: ${result.message}`);
+      }
+    } catch (error) {
+      console.error("주문 생성 에러:", error);
+      alert("주문 생성 중 오류가 발생했습니다.");
+    }
+  };
 
   return (
     <div className="p-4 pb-28">
@@ -67,14 +96,13 @@ export default function CartPage() {
               <p className="font-medium text-gray-800">
                 {item.name}
                 {["판매완료", "환불요청"].includes(statuses[item.id]) && (
-                <span className="ml-2 text-sm text-red-500">(품절)</span>
+                  <span className="ml-2 text-sm text-red-500">(품절)</span>
                 )}
-
               </p>
               <p className="text-sm text-gray-400">
                 ₩{item.price.toLocaleString()}
               </p>
-              <div className="mt-2 text-sm text-gray-600">수량: 1개</div>
+              <div className="mt-2 text-sm text-gray-600">수량: {item.quantity}개</div>
             </div>
             <button
               className="text-red-500 text-sm"
@@ -103,23 +131,7 @@ export default function CartPage() {
             ) : (
               <button
                 className="w-full bg-black text-white py-3 rounded-lg text-sm"
-                onClick={() => {
-                  const item = items[0];
-                  const orderName =
-                    items.length > 1
-                      ? `${item.name} 외 ${items.length - 1}건`
-                      : item.name;
-                  const totalAmount = items.reduce(
-                    (sum, item) => sum + item.price * item.quantity,
-                    0
-                  );
-
-                  router.push(
-                    `/checkout?amount=${totalAmount}&orderName=${encodeURIComponent(
-                      orderName
-                    )}&productId=${item.id}`
-                  );
-                }}
+                onClick={handleOrder}
               >
                 주문하기
               </button>

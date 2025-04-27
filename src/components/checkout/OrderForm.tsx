@@ -5,11 +5,15 @@ import Script from "next/script";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 
-interface OrderFormProps {
+interface ProductItem {
+  product_id: number;
+  order_name: string;
   amount: number;
-  orderName: string;
-  productId: string;
-  productImage: string;
+}
+
+interface OrderFormProps {
+  products: ProductItem[];
+  totalAmount: number;
   isVerified: boolean;
   isMember: boolean;
   phoneRest?: string;
@@ -22,10 +26,8 @@ interface OrderFormProps {
 }
 
 export default function OrderForm({
-  amount,
-  orderName,
-  productId,
-  productImage,
+  products,
+  totalAmount,
   isVerified,
   isMember,
   phoneRest = "",
@@ -41,7 +43,7 @@ export default function OrderForm({
 
   const [shippingFee, setShippingFee] = useState(0);
   const [discountAmount, setDiscountAmount] = useState(0);
-  const [finalAmount, setFinalAmount] = useState(amount);
+  const [finalAmount, setFinalAmount] = useState(totalAmount);
   const [couponCode, setCouponCode] = useState("BETA25MAY");
 
   const [recipient, setRecipient] = useState("");
@@ -69,19 +71,19 @@ export default function OrderForm({
   }, []);
 
   useEffect(() => {
-    let fee = amount < FREE_SHIPPING_THRESHOLD ? DELIVERY_FEE : 0;
+    let fee = totalAmount < FREE_SHIPPING_THRESHOLD ? DELIVERY_FEE : 0;
     let discount = 0;
 
     if (couponCode === "BETA25MAY") {
-      fee = 0; // 배송비 무료
+      fee = 0;
     } else if (couponCode === "BETA20DISCOUNT") {
-      discount = Math.floor(amount * 0.2); // 20% 할인
+      discount = Math.floor(totalAmount * 0.2);
     }
 
     setShippingFee(fee);
     setDiscountAmount(discount);
-    setFinalAmount(amount + fee - discount);
-  }, [amount, couponCode]);
+    setFinalAmount(totalAmount + fee - discount);
+  }, [totalAmount, couponCode]);
 
   const handleDaumPostcode = () => {
     if (window.daum?.Postcode) {
@@ -103,17 +105,17 @@ export default function OrderForm({
     }
 
     const orderId = `order-${Date.now()}`;
-    const successUrl = `${window.location.origin}/order-complete?productId=${productId}&orderId=${orderId}&amount=${finalAmount}`;
+    const successUrl = `${window.location.origin}/order-complete?orderId=${orderId}`;
     const failUrl = `${window.location.origin}/order-fail`;
 
     const { error } = await supabase.from("orders").insert({
       order_id: orderId,
-      product_id: productId,
+      products,
+      total_amount: totalAmount,
       phone: fullPhone,
       address: `${zip} ${addr} ${detail}`,
       recipient,
       memo: memo === "직접 입력" ? customMemo : memo,
-      amount: finalAmount,
       verified: true,
       status: "결제대기",
       delivery_fee: shippingFee > 0 ? 1 : 0,
@@ -131,7 +133,7 @@ export default function OrderForm({
       method: "CARD",
       amount: finalAmount,
       orderId,
-      orderName,
+      orderName: products.map((p) => p.order_name).join(", "),
       customerName: recipient,
       customerEmail: "none@ippiego.shop",
       successUrl,
@@ -238,25 +240,26 @@ export default function OrderForm({
         />
       </div>
 
-      {/* 상품 정보 */}
+      {/* 주문 상품 리스트 */}
       <div className="border-t pt-5 pb-6 text-sm text-gray-800 space-y-2">
         <h2 className="text-[15px] font-semibold text-black">주문상품</h2>
-        <div className="flex gap-3 items-center">
-          <div className="w-20 h-20 rounded overflow-hidden bg-gray-100 relative">
-            <Image src={productImage} alt="상품 이미지" fill className="object-cover" sizes="80px" />
+        {products.map((product) => (
+          <div key={product.product_id} className="flex gap-3 items-center">
+            <div className="w-20 h-20 rounded overflow-hidden bg-gray-100 relative">
+              <Image src={`/products/${product.product_id}/main.jpg`} alt={product.order_name} fill className="object-cover" sizes="80px" />
+            </div>
+            <div className="flex-1">
+              <div className="font-medium">{product.order_name}</div>
+              <div className="text-[15px] font-semibold text-black mt-1">₩{product.amount.toLocaleString()}</div>
+            </div>
           </div>
-          <div className="flex-1">
-            <div className="font-medium">{orderName}</div>
-            <div className="text-gray-500">수량: 1개</div>
-            <div className="text-[15px] font-semibold text-black mt-1">₩{amount.toLocaleString()}</div>
-          </div>
-        </div>
+        ))}
       </div>
 
       {/* 결제정보 */}
       <div className="border-t pt-5 pb-3 space-y-1 text-sm text-gray-800">
         <h2 className="text-[15px] font-semibold text-black">결제정보</h2>
-        <div className="flex justify-between"><span>주문상품</span><span className="font-medium">₩{amount.toLocaleString()}</span></div>
+        <div className="flex justify-between"><span>주문상품</span><span className="font-medium">₩{totalAmount.toLocaleString()}</span></div>
         <div className="flex justify-between"><span>배송비</span><span className="font-medium">+₩{shippingFee.toLocaleString()}</span></div>
         <div className="flex justify-between"><span>할인/부가결제</span><span className="font-medium text-red-500">-₩{discountAmount.toLocaleString()}</span></div>
       </div>
@@ -274,9 +277,7 @@ export default function OrderForm({
         결제하기
       </button>
 
-      {submitMessage && (
-        <p className="text-sm text-red-600 text-center mt-4">{submitMessage}</p>
-      )}
+      {submitMessage && <p className="text-sm text-red-600 text-center mt-4">{submitMessage}</p>}
 
       <Script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" />
     </div>

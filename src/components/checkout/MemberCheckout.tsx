@@ -11,9 +11,12 @@ interface User {
 }
 
 interface TempOrder {
-  product_id: string;
-  amount: number;
-  order_name: string;
+  products: {
+    product_id: number;
+    order_name: string;
+    amount: number;
+  }[];
+  total_amount: number;
 }
 
 export default function MemberCheckout() {
@@ -55,9 +58,8 @@ export default function MemberCheckout() {
         const result = await res.json();
         if (result.success) {
           setOrder({
-            product_id: result.order.product_id,
-            amount: result.order.amount,
-            order_name: result.order.order_name,
+            products: result.order.products,
+            total_amount: result.order.total_amount,
           });
         } else {
           console.error("주문 정보 조회 실패:", result.message);
@@ -102,10 +104,8 @@ export default function MemberCheckout() {
       isVerified
       phoneRest={phoneRest}
       setPhoneRest={setPhoneRest}
-      amount={order.amount}
-      orderName={order.order_name}
-      productId={order.product_id}
-      productImage={`/products/${order.product_id}/main.jpg`}
+      products={order.products}
+      totalAmount={order.total_amount}
     />
   );
 }
