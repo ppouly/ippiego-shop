@@ -69,7 +69,7 @@ export default function PhoneCheckout() {
       const result = await res.json();
       if (result.success) {
         setMessage("인증번호가 발송되었습니다.");
-      //  alert(`[입히고test] 인증번호는 ${result.code} 입니다.`);////(6/6 test용)
+      // alert(`[입히고test] 인증번호는 ${result.code} 입니다.`);////(6/6 test용)
       } else {
         setMessage(`인증번호 요청 실패: ${result.message || ""}`);
       }

@@ -39,11 +39,11 @@ export async function POST(req: Request) {
       text: `[입히고] 인증번호는 ${code} 입니다.`,
       autoTypeDetect: true,
     });
-    console.log("✅ 쿨SMS 발송 성공:", result);
+    console.log("✅ 쿨SMS 발송 성공:", result); // (3/6)
 
     console.log(`📨 인증번호 전송 완료: ${code} → ${phone}`);
     // TEST 인증번호를 클라이언트에 돌려보내기
-    //return Response.json({ success: true, code }); //(5/6 test용)
+    // return Response.json({ success: true, code }); //(5/6 test용)
     return Response.json({ success: true });  //(4/6)
   } catch (err) {
     const error = err as CoolSmsError;

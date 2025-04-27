@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Script from "next/script";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
+import { loadPaymentWidget, PaymentWidgetInstance } from "@tosspayments/payment-widget-sdk";
 
 interface ProductItem {
   product_id: number;
@@ -54,21 +55,27 @@ export default function OrderForm({
   const [customMemo, setCustomMemo] = useState("");
   const [submitMessage, setSubmitMessage] = useState("");
 
-  const [tossPayments, setTossPayments] = useState<ReturnType<NonNullable<typeof window.TossPayments>> | null>(null);
+  const [paymentWidget, setPaymentWidget] = useState<PaymentWidgetInstance | null>(null);
+  // const [isPaymentMethodSelected, setIsPaymentMethodSelected] = useState(false);
 
   const fullPhone = `010${phoneRest}`;
 
   useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://js.tosspayments.com/v1/payment";
-    script.async = true;
-    script.onload = () => {
-      const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY;
-      const tp = window.TossPayments?.(clientKey!);
-      if (tp) setTossPayments(tp);
+    const loadWidget = async () => {
+      const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!;
+      const customerKey = `customer_${Date.now()}`;
+      const widget = await loadPaymentWidget(clientKey, customerKey);
+  
+      await widget.renderPaymentMethods("#payment-widget", {
+        value: totalAmount,
+      });
+  
+      setPaymentWidget(widget);
     };
-    document.body.appendChild(script);
-  }, []);
+  
+    loadWidget();
+  }, [totalAmount]);
+  
 
   useEffect(() => {
     let fee = totalAmount < FREE_SHIPPING_THRESHOLD ? DELIVERY_FEE : 0;
@@ -98,16 +105,16 @@ export default function OrderForm({
     }
   };
 
-  const handleClick = async () => {
-    if (!tossPayments || finalAmount <= 0 || !recipient || !addr || !detail || (!isVerified && !isMember)) {
+  const handleClick = useCallback(async () => {
+    if (!paymentWidget || finalAmount <= 0 || !recipient || !addr || !detail || (!isVerified && !isMember)) {
       setSubmitMessage("필수 정보를 모두 입력해주세요.");
       return;
     }
-
+  
     const orderId = `order-${Date.now()}`;
     const successUrl = `${window.location.origin}/order-complete?orderId=${orderId}`;
     const failUrl = `${window.location.origin}/order-fail`;
-
+  
     const { error } = await supabase.from("orders").insert({
       order_id: orderId,
       products,
@@ -122,27 +129,50 @@ export default function OrderForm({
       coupon_code: couponCode,
       discount_amount: discountAmount,
     });
-
+  
     if (error) {
       console.error("❌ 주문 저장 실패:", error.message);
       setSubmitMessage("주문 저장 중 오류가 발생했습니다.");
       return;
     }
-
-    tossPayments.requestPayment({
-      method: "CARD",
-      amount: finalAmount,
-      orderId,
-      orderName: products.map((p) => p.order_name).join(", "),
-      customerName: recipient,
-      customerEmail: "none@ippiego.shop",
-      successUrl,
-      failUrl,
-    });
-  };
+  
+    try {
+      await paymentWidget.requestPayment({
+        orderId,
+        orderName: products.map((p) => p.order_name).join(", "),
+        customerName: recipient,
+        customerEmail: "none@ippiego.shop",
+        successUrl,
+        failUrl,
+      });
+    } catch (error) {
+      console.error("❌ 결제 요청 실패", error);
+      setSubmitMessage("결제 요청 중 문제가 발생했습니다.");
+    }
+  }, [
+    paymentWidget,
+    finalAmount,
+    recipient,
+    addr,
+    detail,
+    isVerified,
+    isMember,
+    products,
+    totalAmount,
+    fullPhone,
+    zip,
+    memo,
+    customMemo,
+    shippingFee,
+    couponCode,
+    discountAmount,
+  ]);
+  
+  
 
   return (
     <div className="space-y-6">
+
       {/* 전화번호 입력 영역 */}
       <div className="space-y-2">
         <label className="block text-[15px] font-semibold text-gray-900">
@@ -268,17 +298,33 @@ export default function OrderForm({
         <span className="text-[16px] font-bold text-blue-600">최종 결제 금액 ₩{finalAmount.toLocaleString()}</span>
       </div>
 
-      {/* 결제 버튼 */}
+      {/* ✅ Toss 결제수단 위젯 영역 */}
+      <div id="payment-widget" className="my-6" />
+
+      {/* ✅ 결제 버튼 */}
       <button
         onClick={handleClick}
-        disabled={!tossPayments || !recipient || !addr || !detail || (!isVerified && !isMember)}
-        className={`w-full py-3 mt-4 rounded text-white text-[15px] font-medium transition ${tossPayments && recipient && addr && detail ? "bg-black hover:bg-gray-800" : "bg-gray-300 cursor-not-allowed"}`}
+        disabled={
+          !paymentWidget ||
+          !recipient ||
+          !addr ||
+          !detail ||
+          (!isVerified && !isMember)
+        }
+        
+        className={`w-full py-3 mt-4 rounded text-white text-[15px] font-medium transition ${
+          paymentWidget && recipient && addr && detail
+            ? "bg-black hover:bg-gray-800"
+            : "bg-gray-300 cursor-not-allowed"
+        }`}
       >
         결제하기
       </button>
 
+
       {submitMessage && <p className="text-sm text-red-600 text-center mt-4">{submitMessage}</p>}
 
+      {/* 다음 주소 검색 스크립트 */}
       <Script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" />
     </div>
   );
