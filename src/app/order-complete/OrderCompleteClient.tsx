@@ -21,13 +21,12 @@ export default function OrderCompleteClient() {
   const paymentKey = searchParams.get("paymentKey");
   const orderId = searchParams.get("orderId");
   const amount = searchParams.get("amount");
-  const productId = searchParams.get("productId");
 
   const supabase = createClientComponentClient();
   const [orderData, setOrderData] = useState<OrderData | null>(null);
 
   useEffect(() => {
-    if (!paymentKey || !orderId || !amount || !productId) return;
+    if (!paymentKey || !orderId || !amount) return;
 
     const confirmAndSave = async () => {
       // 1. Toss 서버에 결제 승인 요청
@@ -63,32 +62,37 @@ export default function OrderCompleteClient() {
         return;
       }
 
-      // 3. 상품 테이블 업데이트
-      const { error: updateError } = await supabase
-        .from("products")
-        .update({ status: "판매완료" })
-        .eq("id", Number(productId));
-
-      if (updateError) {
-        console.error("❌ 상품 상태 업데이트 실패:", updateError);
-      }
-
-      // 4. ✅ 주문 정보 가져오기 (product_id도 같이 가져온다)
+      // 3. 주문 정보 가져오기
       const { data: order, error: fetchError } = await supabase
         .from("orders")
         .select("order_id, products(product_id, order_name), total_amount")
         .eq("order_id", orderId)
         .maybeSingle();
 
-      if (fetchError) {
+      if (fetchError || !order) {
         console.error("❌ 주문 정보 조회 실패:", fetchError);
-      } else {
-        setOrderData(order);
+        return;
+      }
+
+      setOrderData(order);
+
+      // 4. 상품 테이블 업데이트 (여러 상품)
+      const productIds = order.products?.map((item) => item.product_id) || [];
+
+      for (const id of productIds) {
+        const { error: updateError } = await supabase
+          .from("products")
+          .update({ status: "판매완료" })
+          .eq("id", id);
+
+        if (updateError) {
+          console.error(`❌ 상품(id: ${id}) 상태 업데이트 실패:`, updateError);
+        }
       }
     };
 
     confirmAndSave();
-  }, [paymentKey, orderId, amount, productId, supabase]);
+  }, [paymentKey, orderId, amount, supabase]);
 
   return (
     <div className="p-4 text-center">
