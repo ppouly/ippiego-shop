@@ -7,6 +7,8 @@ import type { Product } from "@/types/product";
 import Link from "next/link";
 import { fetchValidProducts } from "@/lib/fetchProducts";
 
+
+
 const conditionDescriptions: Record<string, React.ReactNode> = {
   S: (
     <>
@@ -48,6 +50,7 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'description' | 'qa' | 'exchange'>('description');
   const [currentImage, setCurrentImage] = useState(0);
+  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     async function loadProductAndRelated() {
@@ -294,6 +297,19 @@ export default function ProductDetailPage() {
         {/* TODO: 슬라이더 삽입 */}
       </div>
 
+      {showToast && (
+  <div className="fixed bottom-[120px] left-1/2 transform -translate-x-1/2 px-4 py-2 bg-black text-white text-sm rounded-lg shadow-md z-50 flex items-center gap-3">
+    <span>✅장바구니에 담겼어요!</span>
+    <Link 
+      href="/cart"
+      className="underline font-semibold text-white text-sm"
+    >
+      장바구니로 이동
+    </Link>
+  </div>
+)}
+
+
       {/* 하단 고정 구매 버튼 */}
       <div className="fixed bottom-[56px] shadow-md left-0 w-full bg-white p-4 z-10">
         {product.status === "판매완료" ? (
@@ -308,7 +324,8 @@ export default function ProductDetailPage() {
             className="w-full bg-black text-white py-3 rounded-xl text-base font-semibold"
             onClick={() => {
               useCartStore.getState().addToCart(product!);
-              alert("장바구니에 담겼어요!");
+              setShowToast(true);
+  setTimeout(() => setShowToast(false), 4000); // 4초 뒤 사라지게
             }}
           >
             장바구니 담기
