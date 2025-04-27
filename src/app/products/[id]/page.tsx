@@ -298,11 +298,14 @@ export default function ProductDetailPage() {
       </div>
 
       {showToast && (
-  <div className="fixed bottom-[120px] left-1/2 transform -translate-x-1/2 px-4 py-2 bg-black text-white text-sm rounded-lg shadow-md z-50 flex items-center gap-3">
-    <span>✅장바구니에 담겼어요!</span>
+  <div className="fixed bottom-[220px] left-1/2 transform -translate-x-1/2 -translate-y-1/2 px-6 py-3 bg-black text-white text-sm rounded-lg shadow-md z-50 flex items-center gap-3 w-[320px]">
+     <div className="flex items-center gap-2">
+      <span className="text-s">✅</span>
+      <span className="text-s font-medium">장바구니에 담겼어요!</span>
+    </div>
     <Link 
       href="/cart"
-      className="underline font-semibold text-white text-sm"
+      className="underline font-semibold text-white text-xs ml-4"
     >
       장바구니로 이동
     </Link>
