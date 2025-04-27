@@ -253,6 +253,16 @@ export default function Home() {
         <p>통신판매업 신고번호: 2025-성남분당A-0351</p>
         <p>사업장 주소: 경기도 분당구 서판교로132번길 24</p>
         <p>유선번호: 010-5470-9225</p>  
+        <p className="flex space-x-4">
+          {/* 개인정보처리방침 링크 추가 */}
+          <p className="flex space-x-4">
+            <a href="/privacy-policy" className="hover:underline">
+              개인정보처리방침
+            </a>
+          </p>
+          {/* 추가로 다른 링크도 가능 (예: 이용약관 등) */}
+          {/* <Link href="/terms" className="hover:underline">이용약관</Link> */}
+        </p>
         <p className="mt-1">© 2025 IPPIEGO. All rights reserved.</p>
       </footer>
 
