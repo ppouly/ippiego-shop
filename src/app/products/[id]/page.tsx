@@ -292,7 +292,7 @@ export default function ProductDetailPage() {
           <span className="text-gray-500">{product.brandSize}</span>
         </div>
         {/* ✅ 여기!!! IppiegoSizeTable 삽입 */}
-        <div className="mt-8 mb-8">
+        <div className="mb-8">
           <IppiegoSizeTable selectedSize={product.size} brand={product.brand} />
         </div>
 
