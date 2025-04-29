@@ -6,7 +6,7 @@ import { useCartStore } from "@/store/cart";
 import type { Product } from "@/types/product";
 import Link from "next/link";
 import { fetchValidProducts } from "@/lib/fetchProducts";
-
+import IppiegoSizeTable from '@/components/IppiegoSizeTable';
 
 
 const conditionDescriptions: Record<string, React.ReactNode> = {
@@ -261,6 +261,7 @@ export default function ProductDetailPage() {
 
             {/* ✅ 상품 상세 HTML 삽입 */}
             <div className="mt-14" dangerouslySetInnerHTML={{ __html: product.description || "" }} />
+
           </div>
         )}
 
@@ -280,7 +281,7 @@ export default function ProductDetailPage() {
           </div>
         )}
       </div>
-
+ 
       <div className="bg-white px-4 py-5 border-t border-b">
         <div className="flex justify-between text-sm mb-1">
           <span className="text-gray-600">시즌</span>
@@ -290,6 +291,11 @@ export default function ProductDetailPage() {
           <span className="text-gray-600">브랜드 표기 사이즈</span>
           <span className="text-gray-500">{product.brandSize}</span>
         </div>
+        {/* ✅ 여기!!! IppiegoSizeTable 삽입 */}
+        <div className="mt-8 mb-8">
+          <IppiegoSizeTable selectedSize={product.size} brand={product.brand} />
+        </div>
+
       </div>
 
       <div className="px-4 py-5 mb-3">

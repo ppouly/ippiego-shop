@@ -84,7 +84,7 @@ export default function ProductListPage() {
       {/* 사이즈 필터 */}
       <div>
         <div className="overflow-x-auto whitespace-nowrap scroll-smooth no-scrollbar -mx-2 px-2 py-1">
-          {["6m-12m","12m-24m","1y-2y","2y-3y","3y-4y","4y-5y","5y-6y","6y-7y","7y-8y","8y-9y","9y-10y"].map((s) => {
+          {["70","80","90","100","110","120","130","140"].map((s) => {
             const selectedSizes = size?.split(",") || [];
             const isSelected = selectedSizes.includes(s);
 
