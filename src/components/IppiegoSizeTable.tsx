@@ -10,25 +10,25 @@ interface BrandCommentProps {
 }
 
 const brandComments: Record<string, { comment: string; adjusted: boolean }> = {
-  '미니로디니': { comment: '표준 핏입니다. 정사이즈 선택을 추천드립니다.', adjusted: false },
-  '보보쇼즈': { comment: '오버핏 경향이 있어, 한 사이즈 작게 선택하는 경우가 많습니다.', adjusted: true },
-  '루이스미샤': { comment: '슬림핏 제품이 많아 체형에 따라 반 사이즈 업을 추천드립니다.', adjusted: true },
-  '아폴리나': { comment: '여유 있는 플로우 핏입니다. 정사이즈 선택을 추천드립니다.', adjusted: false },
-  '던스': { comment: '크게 나오는 편이라 한 사이즈 작게 선택하는 경우가 많습니다.', adjusted: true },
-  '타오': { comment: '제품별 핏 차이가 크므로 상세 사진 확인을 권장합니다.', adjusted: false },
-  '봉주르다이어리': { comment: '루즈핏 경향이 있습니다. 체형에 따라 선택해주세요.', adjusted: false },
-  '콩제슬래드': { comment: '크게 나오는 편입니다. 한 사이즈 작게 선택하는 경우가 많습니다.', adjusted: true },
+  '미니로디니': { comment: '미니로디니는 표준 핏입니다. 정사이즈 선택을 추천드립니다.', adjusted: false },
+  '보보쇼즈': { comment: '보보쇼즈는 오버핏 경향이 있어, 한 사이즈 작게 선택하는 경우가 많습니다.', adjusted: true },
+  '루이스미샤': { comment: '루이스미샤는 슬림핏 제품이 많아 체형에 따라 반 사이즈 업을 추천드립니다.', adjusted: true },
+  '아폴리나': { comment: '아폴리나는 여유 있는 플로우 핏입니다. 정사이즈 선택을 추천드립니다.', adjusted: false },
+  '던스': { comment: '던스는 크게 나오는 편이라 한 사이즈 작게 선택하는 경우가 많습니다.', adjusted: true },
+  '타오': { comment: '타오는 제품별 핏 차이가 크므로 상세 사진 확인을 권장합니다.', adjusted: false },
+  '봉주르다이어리': { comment: '봉주르다이어리는 루즈핏 경향이 있습니다. 체형에 따라 선택해주세요.', adjusted: false },
+  '콩제슬래드': { comment: '콩제슬래드는 크게 나오는 편입니다. 한 사이즈 작게 선택하는 경우가 많습니다.', adjusted: true },
 };
 
 const brandToColumn: Record<string, string> = {
   '미니로디니': '미니로디니',
-  '보보쇼즈': '보보쇼즈 (한사이즈 작게표기)',
-  '루이스미샤': '루이스미샤 (반사이즈 크게표기)',
+  '보보쇼즈': '보보쇼즈 (사이즈다운)',
+  '루이스미샤': '루이스미샤 (반사이즈업)',
   '아폴리나': '아폴리나',
-  '던스': '던스 (한사이즈 작게표기)',
+  '던스': '던스 (사이즈다운)',
   '타오': '타오 (TAO)',
   '봉주르다이어리': '봉주르다이어리',
-  '콩제슬래드': '콩제슬래드 (한사이즈 작게표기)',
+  '콩제슬래드': '콩제슬래드 (사이즈다운)',
 };
 
 export function BrandComment({ brand }: BrandCommentProps) {
@@ -49,8 +49,8 @@ export default function IppiegoSizeTable({ selectedSize, brand }: IppiegoSizeTab
 
   const columnHeaders = [
     'IPPIEGO 사이즈', '키 기준(cm)', '나이 기준',
-    '미니로디니', '보보쇼즈 (한사이즈 작게표기)', '루이스미샤 (반사이즈 크게표기)', '아폴리나',
-    '던스 (한사이즈 작게표기)', '타오 (TAO)', '봉주르다이어리', '콩제슬래드 (한사이즈 작게표기)',
+    '미니로디니', '보보쇼즈 (사이즈다운)', '루이스미샤 (반사이즈업)', '아폴리나',
+    '던스 (사이즈다운)', '타오 (TAO)', '봉주르다이어리', '콩제슬래드 (사이즈다운)',
   ];
 
   const targetColumnName = brand ? brandToColumn[brand] : '';
