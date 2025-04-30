@@ -23,7 +23,7 @@ export const metadata = {
     siteName: "IPPIEGO",
     images: [
       {
-        url: "/og-image.jpg",
+        url:  "https://ippiego.shop/og-image.jpg",
         width: 800,
         height: 600,
         alt: "IPPIEGO 대표 이미지",
