@@ -187,7 +187,7 @@ export default function ProductDetailPage() {
           </p>
         </div>
         <div className="text-sm font-semibold text-orange-500 text-right mt-2">
-          상태가 걱정되나요? 받아보고 교환/환불 가능해요
+          상태가 걱정되나요? 입히고에서는 받아보고 교환/환불 가능해요
         </div>
       </div>
 
@@ -293,7 +293,8 @@ export default function ProductDetailPage() {
           <span className="text-gray-500">{product.brandSize}</span>
         </div>
         {/* ✅ 여기!!! IppiegoSizeTable 삽입 */}
-        <div className="mb-8">
+        <div className="mb-8 text-gray-500">
+          입히고에서는 '입히고 자체 사이즈'를 표기합니다.        
           <IppiegoSizeTable selectedSize={product.size} brand={product.brand} />
         </div>
 
