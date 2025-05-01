@@ -289,6 +289,10 @@ export default function ProductDetailPage() {
           <span className="text-gray-500">{product.season}</span>
         </div>
         <div className="flex justify-between text-sm">
+          <span className="text-gray-600">입히고 사이즈</span>
+          <span className="text-gray-500">{product.size}</span>
+        </div>
+        <div className="flex justify-between text-sm">
           <span className="text-gray-600">브랜드 표기 사이즈</span>
           <span className="text-gray-500">{product.brandSize}</span>
         </div>
