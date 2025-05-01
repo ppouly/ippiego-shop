@@ -42,6 +42,7 @@ const conditionDescriptions: Record<string, React.ReactNode> = {
   ),
 }; 
 
+
 export default function ProductDetailPage() {
   const params = useParams();
   const id = Number(params.id);
