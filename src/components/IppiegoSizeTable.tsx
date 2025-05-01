@@ -38,7 +38,7 @@ export function BrandComment({ brand }: BrandCommentProps) {
   return (
     <div className="mt-4 text-xs text-gray-600">
       📢 {info.comment}
-      {info.adjusted && <><br />🎯 이 특성을 반영하여 입히고 사이즈표에 표기하였습니다.</>}
+      {info.adjusted && <><br />🎯 이 특성을 반영하여 입피고 사이즈표에 표기하였습니다.</>}
     </div>
   );
 }
@@ -48,7 +48,7 @@ export default function IppiegoSizeTable({ selectedSize, brand }: IppiegoSizeTab
     selectedSize === size ? 'bg-orange-100 font-bold text-orange-600' : 'hover:bg-gray-50';
 
   const columnHeaders = [
-    '입히고 사이즈', '키 기준(cm)', '나이 기준',
+    '입피고 사이즈', '키 기준(cm)', '나이 기준',
     '미니로디니', '보보쇼즈 (사이즈다운)', '루이스미샤 (반사이즈업)', '아폴리나',
     '던스 (사이즈다운)', '타오 (TAO)', '봉주르다이어리', '콩제슬래드 (사이즈다운)',
   ];
