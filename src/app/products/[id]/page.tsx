@@ -298,7 +298,7 @@ export default function ProductDetailPage() {
         </div>
         {/* ✅ 여기!!! IppiegoSizeTable 삽입 */}
         <div className="mb-8 text-gray-500 text-xs mt-5">
-          <h1>📢 입히고에서는 '입히고 자체 사이즈'를 표기합니다.  </h1>      
+          <h1>📢 입히고에서는 ⟨입히고 자체 사이즈⟩ 를 표기합니다.  </h1>      
           <IppiegoSizeTable selectedSize={product.size} brand={product.brand} />
         </div>
 
