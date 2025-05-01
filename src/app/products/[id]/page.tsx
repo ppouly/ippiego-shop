@@ -187,7 +187,7 @@ export default function ProductDetailPage() {
           </p>
         </div>
         <div className="text-sm font-semibold text-orange-500 text-right mt-2">
-          <h1>상태가 걱정되나요? <p></p> 입히고에서는 받아보고 교환/환불 가능해요</h1>
+          <h1>상태가 걱정되나요? <p></p> 입피고에서는 받아보고 교환/환불 가능해요</h1>
         </div>
       </div>
 
@@ -289,7 +289,7 @@ export default function ProductDetailPage() {
           <span className="text-gray-500">{product.season}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-gray-600">입히고 사이즈</span>
+          <span className="text-gray-600">입피고 사이즈</span>
           <span className="text-gray-500">{product.size}</span>
         </div>
         <div className="flex justify-between text-sm">
@@ -298,7 +298,7 @@ export default function ProductDetailPage() {
         </div>
         {/* ✅ 여기!!! IppiegoSizeTable 삽입 */}
         <div className="mb-8 text-gray-500 text-xs mt-5">
-          <h1>📢 입히고에서는 ⟨입히고 자체 사이즈⟩ 를 표기합니다.  </h1>      
+          <h1>📢 입피고에서는 ⟨입피고 자체 사이즈⟩를 표기합니다.  </h1>      
           <IppiegoSizeTable selectedSize={product.size} brand={product.brand} />
         </div>
 
