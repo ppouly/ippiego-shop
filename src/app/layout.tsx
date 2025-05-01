@@ -14,19 +14,19 @@ export const metadata = {
    '보보쇼즈 중고', '미니로디니 중고','던스 순무','보보쇼즈 딸기','아폴리나 중고','루이스미샤 중고','타오 중고', '중고 아동복', '입히고', '수입 아동복',"입히고",
   ],
   authors: [{ name: "IPPIEGO", url: "https://ippiego.shop" }],
-  creator: "IPPIEGO",
+  creator: "입히고",
   metadataBase: new URL("https://ippiego.shop"),
   openGraph: {
     title: "입히고샵 | 환불보장, 중고 수입 유아동복 리세일샵 IPPIE Go!",
     description: "보보쇼즈, 미니로디니, 던스, 루이스미샤 등 중고 수입 유아동복 리세일 마켓, 멋은 그대로, 부담은 덜게, 환불가능하니까, 먼저 입혀보세요",
     url: "https://ippiego.shop",
-    siteName: "IPPIEGO",
+    siteName: "입히고샵",
     images: [
       {
         url:  "https://ippiego.shop/og-image.jpg",
         width: 800,
         height: 600,
-        alt: "IPPIEGO 대표 이미지",
+        alt: "입히고샵 대표 이미지",
       },
     ],
     locale: "ko_KR",
