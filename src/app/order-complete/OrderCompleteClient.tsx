@@ -77,7 +77,17 @@ export default function OrderCompleteClient() {
 
       setOrderData(order);
 
-      // 4. 상품 테이블 업데이트 (여러 상품)
+      // 후기 토큰 발급
+      for (const item of order.products as ProductItem[]) {
+        const { error: tokenError } = await supabase.from("reviews_tokens").insert({
+          order_id: order.order_id,
+          product_id: item.product_id,
+        });
+      
+        if (tokenError) {
+          console.error(`❌ 후기 토큰 생성 실패 (상품 ${item.product_id})`, tokenError);
+        }
+      }
       // 4. 상품 테이블 업데이트 (여러 상품)
 const productIds = (order.products as ProductItem[])?.map((item) => item.product_id) || [];
 

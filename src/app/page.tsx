@@ -14,6 +14,7 @@ import { motion } from "framer-motion";
 import type { Product } from "@/types/product";
 import { fetchValidProducts } from "@/lib/fetchProducts";
 import { LogPageView } from "@/components/LogPageView";
+import ReviewSlide from "@/components/ReviewSlide";
 
 const banners = [
   {
@@ -81,11 +82,11 @@ function MainBannerSlider() {
 
 export default function Home() {
 
-
   const router = useRouter();
   const [selectedSize, setSelectedSize] = useState("전체");
   const [products, setProducts] = useState<Product[]>([]);
   const [showAll, setShowAll] = useState(false);
+  const [showBanner, setShowBanner] = useState(true);
  
   useEffect(() => {
     async function load() {
@@ -113,12 +114,37 @@ export default function Home() {
   return (
     <div className="p-4">
       <LogPageView path="/" />
+            {/* ✅ 가운데 상단 플로팅 배너 */}
+            {showBanner && (
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 shadow-lg bg-white border border-gray-200 rounded-xl w-[320px] max-w-full">
+          <div className="relative p-3">
+            <button
+              onClick={() => setShowBanner(false)}
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-lg"
+              aria-label="배너 닫기"
+            >
+              ×
+            </button>
+            <Image
+              src="/banner-holiday.png"
+              alt="입히고 배송안내"
+              width={320}
+              height={200}
+              className="rounded-lg w-full h-auto"
+              priority
+            />
+          </div>
+        </div>
+      )}
       {/* 배너 */}
       <MainBannerSlider />
 
       {/* 추천 상품 슬라이더 */}
       <div className="mt-6">
-        <h2 className="text-lg font-semibold text-black mb-2">이번주 신상</h2>
+      <h2 className="text-lg font-semibold text-black mb-2 flex items-center justify-between">
+  New
+  <span className="text-sm text-gray-500 ml-2">매주 금요일 밤, 새 옷들이 몰래 도착해요 🛎️</span>
+</h2>
         <Swiper
           modules={[Navigation, Pagination, Autoplay]}
           autoplay={{ delay: 2000, disableOnInteraction: false }}
@@ -168,6 +194,11 @@ export default function Home() {
             );
           })}
         </Swiper>
+
+        <section>
+        <h2 className="text-lg font-semibold mt-7 mb-2">생생 후기🧡</h2>
+        <ReviewSlide />
+      </section>
 
       {/* 사이즈별 추천 상품 목록 */}
       <section className="mt-10">
