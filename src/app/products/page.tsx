@@ -1,7 +1,7 @@
 // src/app/products/page.tsx
 import { Suspense } from "react";
 import ProductListPage from "@/components/ProductListPage";
-
+import { LogPageView } from "@/components/LogPageView";
 
 export default function ProductsPage() {
   return (
@@ -13,6 +13,7 @@ export default function ProductsPage() {
       }
     >
       <ProductListPage />
+      <LogPageView path="/products" />
     </Suspense>
   );
 }

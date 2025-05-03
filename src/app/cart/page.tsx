@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { LogPageView } from "@/components/LogPageView";
 
 export default function CartPage() {
   const { items, removeFromCart } = useCartStore();
@@ -75,6 +76,7 @@ export default function CartPage() {
 
   return (
     <div className="p-4 pb-28">
+      <LogPageView path="/cart" />
       <h1 className="text-gray-800 text-xl font-bold mb-4">장바구니</h1>
 
       {items.length === 0 ? (

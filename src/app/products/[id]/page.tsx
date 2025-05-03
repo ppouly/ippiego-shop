@@ -7,7 +7,7 @@ import type { Product } from "@/types/product";
 import Link from "next/link";
 import { fetchValidProducts } from "@/lib/fetchProducts";
 import IppiegoSizeTable from '@/components/IppiegoSizeTable';
-
+import { AutoLogPageView } from "@/components/AutoLogPageView";
 
 const conditionDescriptions: Record<string, React.ReactNode> = {
   S: (
@@ -86,6 +86,7 @@ export default function ProductDetailPage() {
 
   return (
     <div className="w-full pb-[120px] bg-[#FFFFFF]">
+      <AutoLogPageView />
       <div className="w-full px-4 mt-4">
         <div
           className="overflow-x-auto flex gap-4 scrollbar-hide snap-x snap-mandatory bg-[#FFFFFF] rounded-xl py-2"

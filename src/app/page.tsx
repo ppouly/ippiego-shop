@@ -13,6 +13,7 @@ import "keen-slider/keen-slider.min.css";
 import { motion } from "framer-motion";
 import type { Product } from "@/types/product";
 import { fetchValidProducts } from "@/lib/fetchProducts";
+import { LogPageView } from "@/components/LogPageView";
 
 const banners = [
   {
@@ -111,6 +112,7 @@ export default function Home() {
       
   return (
     <div className="p-4">
+      <LogPageView path="/" />
       {/* 배너 */}
       <MainBannerSlider />
 
@@ -252,19 +254,20 @@ export default function Home() {
         <p>사업자등록번호: 425-33-01604</p>
         <p>통신판매업 신고번호: 2025-성남분당A-0351</p>
         <p>사업장 주소: 경기도 분당구 서판교로132번길 24</p>
-        <p>유선번호: 010-4759-9255</p>  
-        <p className="flex space-x-4">
-          {/* 개인정보처리방침 링크 추가 */}
-          <p className="flex space-x-4">
-            <a href="/privacy-policy" className="hover:underline">
-              개인정보처리방침
-            </a>
-          </p>
-          {/* 추가로 다른 링크도 가능 (예: 이용약관 등) */}
+        <p>유선번호: 010-4759-9255</p>
+
+        {/* ⛔ 중첩된 <p> → ✅ <div>로 수정 */}
+        <div className="flex space-x-4 mt-1">
+          <a href="/privacy-policy" className="hover:underline">
+            개인정보처리방침
+          </a>
+          {/* 다른 링크 추가 가능 */}
           {/* <Link href="/terms" className="hover:underline">이용약관</Link> */}
-        </p>
+        </div>
+
         <p className="mt-1">© 2025 IPPIEGO. All rights reserved.</p>
       </footer>
+
 
 
       </div>
