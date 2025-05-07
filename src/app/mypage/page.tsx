@@ -48,8 +48,14 @@ export default function MyPage() {
     const stored = localStorage.getItem("user");
     if (stored) {
       setUser(JSON.parse(stored));
+      setMessage("자동 로그인 중입니다.");
     }
   }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    location.reload();
+  };
 
   const handleSendCode = async () => {
     const res = await fetch("/api/send-code", {
@@ -250,6 +256,12 @@ export default function MyPage() {
         <a href="/orders" className="underline text-blue-500">
           주문내역 보기 →
         </a>
+        <button
+        onClick={handleLogout}
+        className="text-sm px-3 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+      >
+        로그아웃
+      </button>
       </div>
     </div>
   );
