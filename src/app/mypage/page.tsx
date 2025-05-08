@@ -268,22 +268,32 @@ export default function MyPage() {
   }
 
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">마이페이지</h1>
-      <p>카카오 연동 전화번호: {user.phone}</p>
-      <p>배송지 기본주소: {user.address}</p>
-      <div className="mt-4">
-        <a href="/orders" className="underline text-blue-500">
+    <div className="p-6 space-y-6">
+      <h1 className="text-xl font-bold text-gray-900">마이페이지</h1>
+  
+      <div className="border rounded-lg p-4 shadow-sm bg-white space-y-2">
+        <p className="text-[15px]">
+          <span className="font-semibold text-gray-700">카카오 연동 전화번호:</span> {user.phone ?? "정보 없음"}
+        </p>
+        <p className="text-[15px]">
+          <span className="font-semibold text-gray-700">배송지 기본주소:</span>{" "}
+          {user.address ?? "저장된 주소가 없습니다."}
+        </p>
+      </div>
+  
+      <div className="flex justify-between items-center">
+        <Link href="/orders" className="text-blue-600 font-semibold hover:underline text-sm">
           주문내역 보기 →
-        </a>
+        </Link>
         <button
           onClick={handleLogout}
-          className="text-sm px-3 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+          className="px-4 py-2 text-sm bg-black text-white rounded hover:bg-gray-800 transition"
         >
           로그아웃
         </button>
       </div>
     </div>
   );
+  
   
 }
