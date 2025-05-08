@@ -47,12 +47,27 @@ export default function MyPage() {
   const fullPhone = `010${phoneRest}`;
 
   useEffect(() => {
-    const stored = localStorage.getItem("user");
-    if (stored) {
-      setUser(JSON.parse(stored));
-      setMessage("자동 로그인 중입니다.");
-    }
+    const checkLogin = async () => {
+      try {
+        const res = await fetch("/api/me");
+        const result = await res.json();
+        if (result.user) {
+          setUser(result.user);
+          setMessage("로그인 상태입니다.");
+  
+          // ✅ 전화번호 자동 설정
+          if (result.user.phone?.startsWith("010")) {
+            setPhoneRest(result.user.phone.slice(3));
+          }
+        }
+      } catch (err) {
+        console.error("로그인 확인 실패", err);
+      }
+    };
+  
+    checkLogin();
   }, []);
+  
 
   const handleLogout = () => {
     localStorage.removeItem("user");
