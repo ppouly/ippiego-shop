@@ -40,8 +40,8 @@ export default function MemberCheckout() {
       try {
         const res = await fetch("/api/me");
         const result = await res.json();
-        if (result.kakaoId) {
-          setUser(result);
+      if (result.user?.kakaoId) {
+        setUser(result.user);
   
           // ✅ 전화번호 자동 설정
           if (result.phone?.startsWith("010")) {
