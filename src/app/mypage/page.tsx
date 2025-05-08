@@ -198,11 +198,18 @@ export default function MyPage() {
 
             <div className="mt-6 text-center">
               <p className="mb-2">또는</p>
-              <a href={kakaoAuthUrl}>
-                <button className="bg-yellow-400 px-6 py-3 rounded-lg font-bold">카카오 로그인하기</button>
-              </a>
+              <button
+                onClick={() => {
+                  localStorage.setItem("redirectAfterLogin", "/mypage");
+                  window.location.href = kakaoAuthUrl;
+                }}
+                className="bg-yellow-400 px-6 py-3 rounded-lg font-bold"
+              >
+                카카오 로그인하기
+              </button>
               <p className="text-xs text-orange-800">카카오 회원가입 서비스 준비 중 입니다.</p>
             </div>
+
           </>
         ) : (
           <div className="space-y-6">
