@@ -91,12 +91,13 @@ const saveUserAddress = async () => {
   
 
   // ✅ "회원이면 기존 전화번호/주소 자동 입력"
+// OrderForm.tsx 내 useEffect
 useEffect(() => {
   const fetchUserInfo = async () => {
     if (!isMember) return;
 
     try {
-      const res = await fetch("/api/get-user-info");
+      const res = await fetch("/api/auth/me");
       const data = await res.json();
 
       if (data.phone?.startsWith("010") && setPhoneRest) {
@@ -116,6 +117,7 @@ useEffect(() => {
 
   fetchUserInfo();
 }, [isMember, setPhoneRest]);
+
 
   useEffect(() => {
     let fee = totalAmount < FREE_SHIPPING_THRESHOLD ? DELIVERY_FEE : 0;
