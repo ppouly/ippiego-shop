@@ -49,10 +49,11 @@ export default function OrderHistoryPage() {
 
   const fetchOrdersByKakaoId = async (kakaoId: string) => {
     const { data: orderData, error } = await supabase
-      .from("orders")
-      .select("*, products(name)")
-      .eq("kakao_id", kakaoId)
-      .order("created_at", { ascending: false });
+        .from("orders")
+        .select("*, products!orders_product_id_fkey(name)")
+        .eq("kakao_id", kakaoId)
+        .order("created_at", { ascending: false });
+
 
     if (error || !orderData) {
       setMessage("주문 정보를 불러오는 중 오류가 발생했습니다.");
