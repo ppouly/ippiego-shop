@@ -38,7 +38,7 @@ export default function MemberCheckout() {
   useEffect(() => {
     const fetchLogin = async () => {
       try {
-        const res = await fetch("/api/me");
+        const res = await fetch("/api/auth/me");
         const result = await res.json();
       if (result.user?.kakaoId) {
         setUser(result.user);

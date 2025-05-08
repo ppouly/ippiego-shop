@@ -36,7 +36,7 @@ export default function OrderHistoryPage() {
 
   useEffect(() => {
     const checkLogin = async () => {
-      const res = await fetch("/api/me");
+      const res = await fetch("/api/auth/me");
       const { user } = await res.json();
 
       if (user?.kakaoId) {

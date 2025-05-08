@@ -49,7 +49,7 @@ export default function MyPage() {
   useEffect(() => {
     const checkLogin = async () => {
       try {
-        const res = await fetch("/api/me");
+        const res = await fetch("/api/auth/me");
         const result = await res.json();
         if (result.user) {
           setUser(result.user);
