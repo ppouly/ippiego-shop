@@ -22,6 +22,7 @@ export default function KakaoCallbackPage() {
         .then(async (res) => {
           if (!res.ok) {
             const errorText = await res.text();
+            console.error("❌ kakao login error", errorText);
             throw new Error(`서버 응답 실패: ${errorText}`);
           }
           return res.json();
