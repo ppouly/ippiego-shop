@@ -100,9 +100,11 @@ useEffect(() => {
       const res = await fetch("/api/auth/me");
       const data = await res.json();
 
-      if (data.phone?.startsWith("010") && setPhoneRest) {
-        setPhoneRest(data.phone.slice(3));
+      if (data.phone && setPhoneRest) {
+        const match = data.phone.replace(/[\s\-\+]/g, "").match(/10(\d{8})$/);
+        if (match) setPhoneRest(match[1]);  // 예: "54709225"
       }
+      
 
       if (data.address) {
         const [zipCode, ...rest] = data.address.split(" ");
