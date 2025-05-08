@@ -26,6 +26,13 @@ export async function POST(req: Request) {
       }),
     });
 
+    // ✅ 여기에 상태 확인 추가
+if (!tokenResponse.ok) {
+  const errorText = await tokenResponse.text();
+  console.error("❌ 카카오 토큰 요청 실패:", tokenResponse.status, errorText);
+  return NextResponse.json({ error: "카카오 토큰 요청 실패" }, { status: 400 });
+}
+
     const tokenData = await tokenResponse.json();
 
     if (!tokenData.access_token) {
@@ -74,7 +81,7 @@ export async function POST(req: Request) {
 
     return response;
   } catch (err) {
-    console.error("❌ 로그인 에러:", err);
+    console.error("❌ 로그인 서버 오류:", err); // ✅ 이 줄을 추가
     return NextResponse.json({ error: "서버 오류" }, { status: 500 });
   }
 }
