@@ -49,6 +49,8 @@ if (!tokenResponse.ok) {
     const kakaoId = userData.id?.toString();
     const email = userData.kakao_account?.email || null;
     const nickname = userData.properties?.nickname || null;
+    const phone = userData.kakao_account?.phone_number || null;       // ✅ 추가
+const address = userData.kakao_account?.shipping_address?.base_address || null; // ✅ 추가 
 
     if (!kakaoId) {
       return NextResponse.json({ error: "카카오 ID를 가져올 수 없습니다." }, { status: 400 });
@@ -56,12 +58,16 @@ if (!tokenResponse.ok) {
 
     // 3. Supabase에 사용자 저장 (중복 대비 upsert)
     await supabase.from("users").upsert(
-      { kakao_id: kakaoId, email, nickname },
+      { kakao_id: kakaoId, email, nickname,phone,
+        address, },
       { onConflict: "kakao_id" }
     );
 
     // 4. JWT 생성
-    const token = jwt.sign({ kakaoId, nickname }, JWT_SECRET, { expiresIn: "7d" });
+    const token = jwt.sign({ kakaoId, email, phone, address }, JWT_SECRET, {
+      expiresIn: "7d",
+    });
+    
 
     // 5. 세션 쿠키 설정 + 사용자 정보 응답
     const response = NextResponse.json({

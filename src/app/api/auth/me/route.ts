@@ -8,6 +8,8 @@ interface DecodedToken {
   kakaoId: string;
   email?: string;
   nickname?: string;
+  phone?: string;
+  address?: string;
 }
 
 export async function GET() {
@@ -31,6 +33,8 @@ export async function GET() {
       kakaoId: decoded.kakaoId,
       email: decoded.email ?? null,
       nickname: decoded.nickname ?? null,
+      phone: decoded.phone ?? null,
+  address: decoded.address ?? null,
     });
   } catch (error) {
     console.error("❌ 세션 검증 실패:", error);
