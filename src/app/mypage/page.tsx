@@ -51,8 +51,8 @@ export default function MyPage() {
       try {
         const res = await fetch("/api/auth/me");
         const result = await res.json();
-        if (result.user) {
-          setUser(result.user);
+        if (result.kakaoId) {
+          setUser(result);
           setMessage("로그인 상태입니다.");
   
           // ✅ 전화번호 자동 설정

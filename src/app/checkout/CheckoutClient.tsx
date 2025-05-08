@@ -11,19 +11,27 @@ export default function CheckoutPage() {
   const orderId = searchParams.get("orderId"); // ✅ 오직 orderId만 받아야 함
 
   useEffect(() => {
-    const checkLogin = () => {
-      const stored = localStorage.getItem("user");
-      if (stored) {
-        // ✅ 로그인된 경우 → 회원 주문 페이지로 바로 이동
-        router.replace(`/checkout/member?orderId=${orderId}`);
-      } else {
+    const checkLogin = async () => {
+      try {
+        const res = await fetch("/api/auth/me");
+        const result = await res.json();
+  
+        if (result.kakaoId) {
+          // ✅ 로그인된 경우 → 회원 주문 페이지로 바로 이동
+          router.replace(`/checkout/member?orderId=${orderId}`);
+        } else {
+          setIsLoading(false);
+        }
+      } catch (err) {
         // ✅ 로그인 안 됨 → 비회원 선택 화면 보여주기
+        console.log(err)
         setIsLoading(false);
       }
     };
-
+  
     checkLogin();
   }, [router, orderId]);
+  
 
   if (isLoading) {
     return <div className="p-4">로딩 중...</div>;

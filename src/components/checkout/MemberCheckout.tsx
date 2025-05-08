@@ -40,14 +40,13 @@ export default function MemberCheckout() {
       try {
         const res = await fetch("/api/auth/me");
         const result = await res.json();
-      if (result.user?.kakaoId) {
-        setUser(result.user);
-  
-          // ✅ 전화번호 자동 설정
+        if (result.kakaoId) {
+          setUser(result); // 전체 객체가 유저
           if (result.phone?.startsWith("010")) {
             setPhoneRest(result.phone.slice(3));
           }
         }
+        
       } catch (error) {
         console.error("로그인 정보 조회 실패:", error);
       }
