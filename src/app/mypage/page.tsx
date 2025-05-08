@@ -54,12 +54,12 @@ export default function MyPage() {
         if (result.kakaoId) {
           setUser(result);
           setMessage("로그인 상태입니다.");
-  
-          // ✅ 전화번호 자동 설정
-          if (result.user.phone?.startsWith("010")) {
-            setPhoneRest(result.user.phone.slice(3));
+        
+          if (result.phone?.startsWith("010")) {
+            setPhoneRest(result.phone.slice(3));
           }
         }
+        
       } catch (err) {
         console.error("로그인 확인 실패", err);
       }
@@ -69,10 +69,12 @@ export default function MyPage() {
   }, []);
   
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout_me", { method: "POST" });
     localStorage.removeItem("user");
-    location.reload();
+    location.reload(); // 또는 router.replace("/")
   };
+  
 
   const handleSendCode = async () => {
     const res = await fetch("/api/send-code", {
@@ -268,8 +270,8 @@ export default function MyPage() {
   return (
     <div className="p-6">
       <h1 className="text-xl font-bold mb-4">마이페이지</h1>
-      <p>전화번호: {user.phone}</p>
-      <p>주소: {user.address}</p>
+      <p>카카오 연동 전화번호: {user.phone}</p>
+      <p>배송지 기본주소: {user.address}</p>
       <div className="mt-4">
         <a href="/orders" className="underline text-blue-500">
           주문내역 보기 →
