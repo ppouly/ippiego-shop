@@ -280,8 +280,9 @@ export default function MyPage() {
   
       <div className="border rounded-lg p-4 shadow-sm bg-white space-y-2">
         <p className="text-[15px]">
-          <span className="font-semibold text-gray-700">카카오 연동 전화번호:</span> {user.phone ?? "정보 없음"}
+          <span className="font-semibold text-gray-700">전화번호:</span> {user.phone ?? "정보 없음"}
         </p>
+        <p className="text-xs text-orange-800">카카오 연동 전화번호로 변경이 안됩니다.</p>
         <p className="text-[15px]">
           <span className="font-semibold text-gray-700">배송지 기본주소:</span>{" "}
           {user.address ?? "저장된 주소가 없습니다."}
