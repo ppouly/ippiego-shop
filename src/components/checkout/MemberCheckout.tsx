@@ -112,6 +112,7 @@ export default function MemberCheckout() {
       setPhoneRest={setPhoneRest}
       products={order.products}
       totalAmount={order.total_amount}
+      user={user} // ✅ 여기서 전달
     />
   );
 }

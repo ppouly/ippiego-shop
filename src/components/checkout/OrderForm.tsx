@@ -24,6 +24,13 @@ interface OrderFormProps {
   handleSendCode?: () => void;
   handleVerifyCode?: () => void;
   message?: string;
+  user?: {
+    kakaoId: string;
+    email?: string;
+    nickname?: string;
+    phone?: string;
+    address?: string;
+  }; // ✅ 추가
 }
 
 export default function OrderForm({
@@ -38,6 +45,7 @@ export default function OrderForm({
   handleSendCode,
   handleVerifyCode,
   message = "",
+  user, // ✅ 이 줄 추가해야 함
 }: OrderFormProps) {
   const FREE_SHIPPING_THRESHOLD = 50000;
   const DELIVERY_FEE = 3500;
@@ -176,6 +184,7 @@ useEffect(() => {
       delivery_fee: shippingFee > 0 ? 1 : 0,
       coupon_code: couponCode,
       discount_amount: discountAmount,
+      kakao_id: isMember && user?.kakaoId ? user.kakaoId : null, // ✅ 이렇게 처리
     });
   
     if (error) {
