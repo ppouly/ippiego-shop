@@ -1,5 +1,3 @@
-// src/app/api/auth/kakao/route.ts
-
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import jwt from "jsonwebtoken";
@@ -45,30 +43,30 @@ export async function POST(req: Request) {
     const email = userData.kakao_account?.email || null;
     const nickname = userData.properties?.nickname || null;
 
-    // 3. Supabase에 사용자 조회
-    const { data: existingUser } = await supabase
-      .from("users")
-      .select("*")
-      .eq("kakao_id", kakaoId)
-      .single();
-
-    if (!existingUser) {
-      await supabase.from("users").insert([
-        { kakao_id: kakaoId, email, nickname },
-      ]);
+    if (!kakaoId) {
+      return NextResponse.json({ error: "카카오 ID를 가져올 수 없습니다." }, { status: 400 });
     }
+
+    // 3. Supabase에 사용자 저장 (중복 대비 upsert)
+    await supabase.from("users").upsert(
+      { kakao_id: kakaoId, email, nickname },
+      { onConflict: "kakao_id" }
+    );
 
     // 4. JWT 생성
     const token = jwt.sign({ kakaoId, nickname }, JWT_SECRET, { expiresIn: "7d" });
 
-    // 5. 세션 쿠키 설정
-    const response = NextResponse.json({ success: true });
+    // 5. 세션 쿠키 설정 + 사용자 정보 응답
+    const response = NextResponse.json({
+      success: true,
+      user: { kakaoId, nickname, email },
+    });
 
     response.cookies.set({
       name: "session",
       value: token,
       httpOnly: true,
-      maxAge: 60 * 60 * 24 * 7,
+      maxAge: 60 * 60 * 24 * 7, // 7일
       path: "/",
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",

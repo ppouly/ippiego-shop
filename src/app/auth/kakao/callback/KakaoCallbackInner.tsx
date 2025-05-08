@@ -9,7 +9,7 @@ export default function KakaoCallbackPage() {
   const code = searchParams.get("code");
 
   useEffect(() => {
-    const redirectAfterLogin = localStorage.getItem("redirectAfterLogin") || "/"; // 없으면 홈으로 fallback
+    const redirectAfterLogin = localStorage.getItem("redirectAfterLogin") || "/";
 
     if (code) {
       fetch("/api/auth/kakao", {
@@ -26,10 +26,19 @@ export default function KakaoCallbackPage() {
           }
           return res.json();
         })
-        .then((data) => {
-          console.log("✅ 로그인 성공:", data);
-          router.push(redirectAfterLogin); // ✅ 저장된 경로로 이동
-          localStorage.removeItem("redirectAfterLogin"); // ✅ 이동 후 깔끔하게 삭제
+        .then(() => {
+          // ✅ 유저 정보 요청 (JWT 쿠키 기반)
+          return fetch("/api/auth/me");
+        })
+        .then((res) => res.json())
+        .then((user) => {
+          if (user.kakaoId) {
+            localStorage.setItem("user", JSON.stringify(user));
+          } else {
+            console.warn("유저 정보 없음:", user);
+          }
+          localStorage.removeItem("redirectAfterLogin");
+          router.push(redirectAfterLogin);
         })
         .catch((err) => {
           console.error("❌ 로그인 실패:", err.message);
