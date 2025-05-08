@@ -60,6 +60,19 @@ export default function OrderForm({
 
   const fullPhone = `010${phoneRest}`;
 
+  // ✅ 유저 주소 저장
+const saveUserAddress = async () => {
+  try {
+    await fetch("/api/update-user-address", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ address: `${zip} ${addr} ${detail}` }),
+    });
+  } catch (err) {
+    console.error("❌ 주소 저장 실패:", err);
+  }
+};
+
   useEffect(() => {
     const loadWidget = async () => {
       const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!;
@@ -76,6 +89,33 @@ export default function OrderForm({
     loadWidget();
   }, [totalAmount]);
   
+
+  // ✅ "회원이면 기존 전화번호/주소 자동 입력"
+useEffect(() => {
+  const fetchUserInfo = async () => {
+    if (!isMember) return;
+
+    try {
+      const res = await fetch("/api/get-user-info");
+      const data = await res.json();
+
+      if (data.phone?.startsWith("010") && setPhoneRest) {
+        setPhoneRest(data.phone.slice(3));
+      }
+
+      if (data.address) {
+        const [zipCode, ...rest] = data.address.split(" ");
+        setZip(zipCode);
+        setAddr(rest.slice(0, -1).join(" "));
+        setDetail(rest.at(-1) ?? "");
+      }
+    } catch (error) {
+      console.warn("회원 정보 자동입력 실패", error);
+    }
+  };
+
+  fetchUserInfo();
+}, [isMember, setPhoneRest]);
 
   useEffect(() => {
     let fee = totalAmount < FREE_SHIPPING_THRESHOLD ? DELIVERY_FEE : 0;
@@ -115,6 +155,10 @@ export default function OrderForm({
     const successUrl = `${window.location.origin}/order-complete?orderId=${orderId}`;
     const failUrl = `${window.location.origin}/order-fail`;
   
+  // ✅ 회원이고 주소 저장 필요하면 저장
+  if (isMember && addr && detail) {
+    await saveUserAddress();
+  }
     const { error } = await supabase.from("orders").insert({
       order_id: orderId,
       products,

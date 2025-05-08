@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { supabase } from "@/lib/supabase";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -12,17 +11,13 @@ export default function CheckoutPage() {
   const orderId = searchParams.get("orderId"); // ✅ 오직 orderId만 받아야 함
 
   useEffect(() => {
-    const checkLogin = async () => {
-      try {
-        const { data: sessionData } = await supabase.auth.getSession();
-
-        if (sessionData.session) {
-          router.replace(`/checkout/member?orderId=${orderId}`);
-        } else {
-          setIsLoading(false);
-        }
-      } catch (error) {
-        console.error("로그인 체크 실패:", error);
+    const checkLogin = () => {
+      const stored = localStorage.getItem("user");
+      if (stored) {
+        // ✅ 로그인된 경우 → 회원 주문 페이지로 바로 이동
+        router.replace(`/checkout/member?orderId=${orderId}`);
+      } else {
+        // ✅ 로그인 안 됨 → 비회원 선택 화면 보여주기
         setIsLoading(false);
       }
     };
@@ -41,9 +36,7 @@ export default function CheckoutPage() {
       <div className="space-y-4">
         <button
           type="button"
-          onClick={() => {
-            router.push(`/checkout/phone?orderId=${orderId}`);
-          }}
+          onClick={() => router.push(`/checkout/phone?orderId=${orderId}`)}
           className="w-full py-3 border rounded text-center font-semibold"
         >
           비회원으로 주문하기
@@ -51,7 +44,9 @@ export default function CheckoutPage() {
 
         <button
           type="button"
-          onClick={() => router.push(`/login?redirect=/checkout/member?orderId=${orderId}`)}
+          onClick={() =>
+            router.push(`/login?redirect=/checkout/member?orderId=${orderId}`)
+          }
           className="w-full py-3 border rounded text-center font-semibold bg-yellow-300"
         >
           카카오 로그인 후 회원 주문하기
