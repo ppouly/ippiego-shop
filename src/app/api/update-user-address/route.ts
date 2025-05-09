@@ -30,22 +30,25 @@ export async function POST(req: Request) {
     }
 
     const decoded = jwt.verify(token, JWT_SECRET) as { kakaoId: string };
-    const { address } = await req.json();
+    const { address, nickname } = await req.json();
 
     if (!address) {
       return NextResponse.json({ error: "주소 없음" }, { status: 400 });
     }
 
+    const updatePayload: { address: string; nickname?: string } = { address };
+    if (nickname) updatePayload.nickname = nickname;
+
     const { error } = await supabase
       .from("users")
-      .update({ address })
+      .update(updatePayload)
       .eq("kakao_id", decoded.kakaoId);
 
     if (error) throw error;
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("❌ 주소 업데이트 실패:", err);
+    console.error("❌ 주소/닉네임 업데이트 실패:", err);
     return NextResponse.json({ error: "서버 오류" }, { status: 500 });
   }
 }

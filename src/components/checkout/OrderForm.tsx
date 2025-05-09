@@ -69,17 +69,22 @@ export default function OrderForm({
   const fullPhone = `010${phoneRest}`;
 
   // ✅ 유저 주소 저장
+// ✅ 유저 주소 + 닉네임 저장
 const saveUserAddress = async () => {
   try {
     await fetch("/api/update-user-address", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ address: `${zip} ${addr} ${detail}` }),
+      body: JSON.stringify({
+        address: `${zip} ${addr} ${detail}`,
+        nickname: recipient, // 👈 받는사람 이름을 nickname으로 저장
+      }),
     });
   } catch (err) {
-    console.error("❌ 주소 저장 실패:", err);
+    console.error("❌ 주소/닉네임 저장 실패:", err);
   }
 };
+
 
   useEffect(() => {
     const loadWidget = async () => {
