@@ -57,12 +57,15 @@ const address = userData.kakao_account?.shipping_address?.base_address || null; 
     }
 
     // 3. Supabase에 사용자 저장 (중복 대비 upsert)
-    await supabase.from("users").upsert(
-      { kakao_id: kakaoId,phone,
-        address, },
+    const { error } = await supabase.from("users").upsert(
+      { kakao_id: kakaoId, email, nickname, phone, address },
       { onConflict: "kakao_id" }
     );
-
+    
+    if (error) {
+      console.error("❌ Supabase upsert 실패:", error.message);
+      return NextResponse.json({ error: "회원 정보 저장 실패" }, { status: 500 });
+    }
     // 4. JWT 생성
     const token = jwt.sign({ kakaoId, email, phone, address }, JWT_SECRET, {
       expiresIn: "7d",
