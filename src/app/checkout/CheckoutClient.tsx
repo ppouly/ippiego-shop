@@ -13,9 +13,11 @@ export default function CheckoutPage() {
   useEffect(() => {
     const checkLogin = async () => {
       try {
-        const res = await fetch("/api/auth/me");
+        const res = await fetch("/api/auth/me", {
+          credentials: "include", // ✅ 필수!
+        });
         const result = await res.json();
-  
+
         if (result.kakaoId) {
           // ✅ 로그인된 경우 → 회원 주문 페이지로 바로 이동
           router.replace(`/checkout/member?orderId=${orderId}`);
@@ -23,15 +25,13 @@ export default function CheckoutPage() {
           setIsLoading(false);
         }
       } catch (err) {
-        // ✅ 로그인 안 됨 → 비회원 선택 화면 보여주기
-        console.log(err)
+        console.error("로그인 확인 실패:", err);
         setIsLoading(false);
       }
     };
-  
+
     checkLogin();
   }, [router, orderId]);
-  
 
   if (isLoading) {
     return <div className="p-4">로딩 중...</div>;
