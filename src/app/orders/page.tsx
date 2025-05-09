@@ -49,10 +49,11 @@ export default function OrderHistoryPage() {
 
   const fetchOrdersByKakaoId = async (kakaoId: string) => {
     const { data: orderData, error } = await supabase
-        .from("orders")
-        .select("order_id, product_id, products(name)")
-        .eq("kakao_id", kakaoId)
-        .order("created_at", { ascending: false });
+  .from("orders")
+  .select("*, products(name)")
+  .eq("kakao_id", kakaoId)
+  .order("created_at", { ascending: false });
+
 
 
     if (error || !orderData) {
