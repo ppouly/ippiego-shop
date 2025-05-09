@@ -55,6 +55,40 @@ export default function MemberCheckout() {
     fetchLogin();
   }, []);
 
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const res = await fetch("/api/user-info", {
+          credentials: "include",
+        });
+        const info = await res.json();
+  
+        setUser((prev) =>
+          prev
+            ? {
+                ...prev,
+                phone: info.phone ?? prev.phone,
+                address: info.address ?? prev.address,
+                nickname: info.nickname ?? prev.nickname, // ✅ nickname 병합
+              }
+            : null
+        );
+  
+        if (info.phone?.startsWith("010")) {
+          setPhoneRest(info.phone.slice(3));
+        }
+      } catch (err) {
+        console.error("❌ Supabase 유저 정보 불러오기 실패:", err);
+      }
+    };
+  
+    if (user?.kakaoId) {
+      fetchUserInfo();
+    }
+  }, [user?.kakaoId]);
+  
+
   useEffect(() => {
     const fetchOrder = async () => {
       if (!orderId) return;
