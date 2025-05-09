@@ -51,15 +51,31 @@ export default function MyPage() {
       try {
         const res = await fetch("/api/auth/me");
         const result = await res.json();
+  
         if (result.kakaoId) {
+          // 1차 저장
           setUser(result);
           setMessage("로그인 상태입니다.");
-        
-          if (result.phone?.startsWith("010")) {
-            setPhoneRest(result.phone.slice(3));
+  
+          // 2차: Supabase에서 phone, address 조회
+          const infoRes = await fetch("/api/user-info", {
+            credentials: "include",
+          });
+  
+          const info = await infoRes.json();
+  
+          if (info.phone?.startsWith("010")) {
+            setPhoneRest(info.phone.slice(3));
           }
+  
+          // 3차 병합 저장
+          setUser((prev: User | null): User => ({
+            ...(prev ?? { kakaoId: result.kakaoId }),
+            phone: info.phone ?? prev?.phone,
+            address: info.address ?? prev?.address,
+            nickname: info.nickname ?? prev?.nickname,
+          }));
         }
-        
       } catch (err) {
         console.error("로그인 확인 실패", err);
       }
@@ -118,6 +134,8 @@ export default function MyPage() {
   
     setOrders(data as Order[]);
   };
+
+  
   
 
   const handleRefundToggle = async (order: Order, productId: number) => {
@@ -280,9 +298,12 @@ export default function MyPage() {
   
       <div className="border rounded-lg p-4 shadow-sm bg-white space-y-2">
         <p className="text-[15px]">
+          <span className="font-semibold text-gray-700">닉네임:</span> {user.nickname ?? "정보 없음"}
+        </p>
+        <p className="text-[15px]">
           <span className="font-semibold text-gray-700">전화번호:</span> {user.phone ?? "정보 없음"}
         </p>
-        <p className="text-xs text-orange-800">카카오 연동 전화번호로 변경이 안됩니다.</p>
+        <p className="text-xs text-orange-800">카카오 연동 전화번호로 자동 설정됩니다.</p>
         <p className="text-[15px]">
           <span className="font-semibold text-gray-700">배송지 기본주소:</span>{" "}
           {user.address ?? "저장된 주소가 없습니다."}
