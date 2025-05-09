@@ -116,7 +116,7 @@ export default function OrderHistoryPage() {
               <p className="text-sm text-gray-500 mb-1">🆔 주문번호: {order.order_id}</p>
               <p className="text-sm text-gray-700">배송지: {order.address}</p>
               <p className="text-sm text-gray-700 mb-2">배송메모: {order.memo}</p>
-              <p className="text-sm font-bold text-gray-800 mb-2">
+              <p className="font-bold text-gray-800 mb-2">
                 {order.delivery_status || "배송준비중"}
               </p>
 
