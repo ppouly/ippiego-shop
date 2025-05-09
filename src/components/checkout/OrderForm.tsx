@@ -281,7 +281,7 @@ useEffect(() => {
 
       {/* 받는 사람 */}
       <div>
-        <label className="block text-[15px] font-semibold text-gray-900 mb-2">받는 사람 <span className="text-red-500">*</span></label>
+        <label className="block text-[15px] font-semibold text-gray-900 mb-2">받는 사람 (닉네임) <span className="text-red-500">*</span></label>
         <input
           type="text"
           value={recipient}
