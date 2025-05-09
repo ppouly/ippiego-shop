@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { headers as getHeaders } from "next/headers";
 import jwt from "jsonwebtoken";
-import cookie from "cookie";
+import * as cookie from "cookie"; // ✅ 이 부분 수정
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
