@@ -105,7 +105,9 @@ useEffect(() => {
     if (!isMember) return;
 
     try {
-      const res = await fetch("/api/user-info");
+      const res = await fetch("/api/user-info", {
+        credentials: "include", // ✅ 이거 꼭 있어야 쿠키가 서버에 붙음!
+      });
       const data = await res.json();
 
 
