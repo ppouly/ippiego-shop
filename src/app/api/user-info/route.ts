@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
+console.log("🛬 user-info route.ts 진입");
 
 export async function GET() {
   try {
