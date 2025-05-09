@@ -116,7 +116,7 @@ export default function Home() {
       <LogPageView path="/" />
             {/* ✅ 가운데 상단 플로팅 배너 */}
             {showBanner && (
-        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 shadow-lg bg-white border border-gray-200 rounded-xl w-[380px] max-w-full">
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 shadow-lg bg-white border border-gray-200 rounded-xl w-[370px] max-w-full">
           <div className="relative p-3">
             <button
               onClick={() => setShowBanner(false)}
