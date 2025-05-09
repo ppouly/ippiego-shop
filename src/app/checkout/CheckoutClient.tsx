@@ -8,18 +8,17 @@ export default function CheckoutPage() {
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
 
-  const orderId = searchParams.get("orderId"); // ✅ 오직 orderId만 받아야 함
+  const orderId = searchParams.get("orderId");
 
   useEffect(() => {
     const checkLogin = async () => {
       try {
         const res = await fetch("/api/auth/me", {
-          credentials: "include", // ✅ 필수!
+          credentials: "include",
         });
         const result = await res.json();
 
         if (result.kakaoId) {
-          // ✅ 로그인된 경우 → 회원 주문 페이지로 바로 이동
           router.replace(`/checkout/member?orderId=${orderId}`);
         } else {
           setIsLoading(false);
@@ -32,6 +31,18 @@ export default function CheckoutPage() {
 
     checkLogin();
   }, [router, orderId]);
+
+  const handleKakaoLogin = () => {
+    const REST_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY!;
+    const REDIRECT_URI = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI!;
+    const redirectPath = `/checkout/member?orderId=${orderId}`;
+    const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${encodeURIComponent(
+      REDIRECT_URI
+    )}&response_type=code`;
+
+    localStorage.setItem("redirectAfterLogin", redirectPath);
+    window.location.href = kakaoAuthUrl;
+  };
 
   if (isLoading) {
     return <div className="p-4">로딩 중...</div>;
@@ -52,10 +63,8 @@ export default function CheckoutPage() {
 
         <button
           type="button"
-          onClick={() =>
-            router.push(`/login?redirect=/checkout/member?orderId=${orderId}`)
-          }
-          className="w-full py-3 border rounded text-center font-semibold bg-yellow-300"
+          onClick={handleKakaoLogin}
+          className="w-full py-3 border rounded text-center font-semibold bg-yellow-300 hover:bg-yellow-400"
         >
           카카오 로그인 후 회원 주문하기
         </button>
