@@ -8,10 +8,12 @@ const JWT_SECRET = process.env.JWT_SECRET!;
 
 export async function GET() {
   try {
-    // ✅ headers()를 await하여 가져옴 (Next.js의 dynamic API 제한 회피)
+    if (!JWT_SECRET) {
+      throw new Error("❌ 환경변수 JWT_SECRET이 설정되지 않았습니다.");
+    }
+
     const headers = await getHeaders();
     const cookieHeader = headers.get("cookie") ?? "";
-
     const parsedCookies = cookie.parse(cookieHeader);
     const sessionToken = parsedCookies.session;
 
