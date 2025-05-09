@@ -92,7 +92,13 @@ export default function Home() {
     async function load() {
       try {
         const data = await fetchValidProducts();
-        setProducts(data);
+  
+        // ✅ created_at 기준 내림차순 정렬
+        const sorted = [...data].sort((a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+  
+        setProducts(sorted);
       } catch (err) {
         console.error("❌ 상품 불러오기 실패:", err);
       }
@@ -100,6 +106,7 @@ export default function Home() {
   
     load();
   }, []);
+  
   
 
   const filteredProducts =
