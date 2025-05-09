@@ -58,7 +58,7 @@ const address = userData.kakao_account?.shipping_address?.base_address || null; 
 
     // 3. Supabase에 사용자 저장 (중복 대비 upsert)
     await supabase.from("users").upsert(
-      { kakao_id: kakaoId, email, nickname,phone,
+      { kakao_id: kakaoId,phone,
         address, },
       { onConflict: "kakao_id" }
     );
