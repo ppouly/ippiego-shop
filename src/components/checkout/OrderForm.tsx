@@ -85,6 +85,12 @@ const saveUserAddress = async () => {
   }
 };
 
+useEffect(() => {
+  if (isMember && user?.nickname) {
+    setRecipient(user.nickname);
+  }
+}, [isMember, user]);
+
 
   useEffect(() => {
     const loadWidget = async () => {
