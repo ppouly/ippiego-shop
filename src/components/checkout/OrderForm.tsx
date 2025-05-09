@@ -105,8 +105,9 @@ useEffect(() => {
     if (!isMember) return;
 
     try {
-      const res = await fetch("/api/auth/me");
+      const res = await fetch("/api/user-info");
       const data = await res.json();
+
 
       if (data.phone && setPhoneRest) {
         const match = data.phone.replace(/[\s\-\+]/g, "").match(/10(\d{8})$/);

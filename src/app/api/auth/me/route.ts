@@ -3,19 +3,21 @@ export const dynamic = "force-dynamic";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
-import { supabase } from "@/lib/supabase"; // ✅ 기존 클라이언트로 대체
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
 interface DecodedToken {
   kakaoId: string;
+  email?: string;
+  nickname?: string;
+  phone?: string;
+  address?: string;
 }
 
 export async function GET() {
   try {
-    const cookieGetter = cookies as unknown as () => {
-      get: (name: string) => { value?: string } | undefined;
-    };
+    // 👇 타입 에러를 완전히 없애는 방법
+    const cookieGetter = cookies as unknown as () => { get: (name: string) => { value?: string } | undefined };
     const sessionCookie = cookieGetter().get("session");
 
     if (!sessionCookie?.value) {
@@ -29,19 +31,13 @@ export async function GET() {
       return NextResponse.json({ error: "유효하지 않은 토큰" }, { status: 401 });
     }
 
-    // ✅ Supabase에서 최신 유저 정보 조회
-    const { data: userData, error } = await supabase
-      .from("users")
-      .select("kakaoId, email, nickname, phone, address")
-      .eq("kakaoId", decoded.kakaoId)
-      .maybeSingle();
-
-    if (error || !userData) {
-      console.error("❌ Supabase 유저 조회 실패:", error);
-      return NextResponse.json({ error: "유저 정보 조회 실패" }, { status: 500 });
-    }
-
-    return NextResponse.json(userData);
+    return NextResponse.json({
+      kakaoId: decoded.kakaoId,
+      email: decoded.email ?? null,
+      nickname: decoded.nickname ?? null,
+      phone: decoded.phone ?? null,
+  address: decoded.address ?? null,
+    });
   } catch (error) {
     console.error("❌ 세션 검증 실패:", error);
     return NextResponse.json({ error: "토큰 검증 실패" }, { status: 401 });
