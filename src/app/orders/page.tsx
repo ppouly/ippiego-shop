@@ -54,7 +54,9 @@ export default function OrderHistoryPage() {
   .eq("kakao_id", kakaoId)
   .order("created_at", { ascending: false });
 
-
+  console.log("📦 kakaoId로 조회:", kakaoId);
+  console.log("🧾 orderData:", orderData);
+  console.log("🐛 error:", error);
 
     if (error || !orderData) {
       setMessage("주문 정보를 불러오는 중 오류가 발생했습니다.");
