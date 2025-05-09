@@ -18,6 +18,7 @@ export default function KakaoCallbackPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ code }),
+        credentials: "include",      // ← 여기 추가
       })
         .then(async (res) => {
           if (!res.ok) {
@@ -29,7 +30,7 @@ export default function KakaoCallbackPage() {
         })
         .then(() => {
           // ✅ 유저 정보 요청 (JWT 쿠키 기반)
-          return fetch("/api/auth/me");
+          return fetch("/api/auth/me", { credentials: "include" });
         })
         .then((res) => res.json())
         .then((user) => {

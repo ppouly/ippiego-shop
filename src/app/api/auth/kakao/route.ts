@@ -75,14 +75,15 @@ const address = userData.kakao_account?.shipping_address?.base_address || null; 
       user: { kakaoId, nickname, email },
     });
 
-    // ✅ Secure + HttpOnly + SameSite 쿠키 직접 설정
-response.headers.set(
-  "Set-Cookie",
-  `session=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${60 * 60 * 24 * 7}; ${
-    process.env.NODE_ENV === "production" ? "Secure;" : ""
-  }`
-);
-
+    response.cookies.set({
+      name: "session",
+      value: token,
+      httpOnly: true,
+      maxAge: 60 * 60 * 24 * 7, // 7일
+      path: "/",
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
 
     return response;
   } catch (err) {
