@@ -22,7 +22,14 @@ export async function GET() {
     }
 
     const decoded = jwt.verify(sessionToken, JWT_SECRET) as { kakaoId: string };
-    console.log("🪪 디코드된 JWT:", decoded);
+    console.log("🍪 JWT 토큰:", sessionToken);
+
+try {
+  const decoded = jwt.verify(sessionToken, JWT_SECRET);
+  console.log("✅ 디코드 결과:", decoded);
+} catch (err) {
+  console.error("❌ JWT 디코딩 실패:", err);
+}
 
     const { data, error } = await supabase
       .from("users")
