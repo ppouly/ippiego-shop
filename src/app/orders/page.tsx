@@ -34,7 +34,7 @@ export default function OrderHistoryPage() {
 
   useEffect(() => {
     const checkLogin = async () => {
-      const res = await fetch("/api/me"); // ✅ 경로 수정 주의
+      const res = await fetch("/api/auth/me"); // ✅ 경로 수정 주의
       const result = await res.json();
       if (result?.kakaoId) {
         setUser(result);
