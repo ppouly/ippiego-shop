@@ -34,7 +34,7 @@ try {
     const { data, error } = await supabase
       .from("users")
       .select("phone, address")
-      .eq("kakaoId", decoded.kakaoId)
+      .eq("kakao_id", decoded.kakaoId)
       .maybeSingle();
 
     if (error || !data) {
