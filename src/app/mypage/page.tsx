@@ -49,7 +49,10 @@ export default function MyPage() {
   useEffect(() => {
     const checkLogin = async () => {
       try {
-        const res = await fetch("/api/auth/me");
+        const res = await fetch("/api/auth/me", {
+          credentials: "include",
+        });
+        
         const result = await res.json();
   
         if (result.kakaoId) {
