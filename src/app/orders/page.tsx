@@ -66,7 +66,7 @@ export default function OrderHistoryPage() {
 
     if (!isCurrentlyRefunding) {
       setNoticeMessage(
-        "택배 기사가 상품을 수거할 예정입니다.\n\n상품 검수 후, 왕복 배송비를 제외한 금액이 환불 처리됩니다.\n\n상품 택이 제거된 경우, 상품 금액의 30%가 추가로 차감됩니다."
+        "택배 기사가 상품을 수거할 예정입니다.\n상품 검수 후, 왕복 배송비를 제외한 금액이 환불 처리됩니다.\n상품 택이 제거된 경우, 상품 금액의 30%가 추가로 차감됩니다."
       );
 
       setTimeout(() => {
