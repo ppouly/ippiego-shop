@@ -1,24 +1,25 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase"; // 여긴 클라이언트로도 충분
-import { cookies } from "next/headers";
+import { supabase } from "@/lib/supabase";
+import { headers as getHeaders } from "next/headers";
 import jwt from "jsonwebtoken";
+import cookie from "cookie";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
-console.log("🛬 user-info route.ts 진입");
 
 export async function GET() {
   try {
-    const cookieGetter = cookies as unknown as () => {
-      get: (name: string) => { value?: string } | undefined;
-    };
-    const sessionCookie = cookieGetter().get("session");
+    // ✅ headers()를 await하여 가져옴 (Next.js의 dynamic API 제한 회피)
+    const headers = await getHeaders();
+    const cookieHeader = headers.get("cookie") ?? "";
 
-    if (!sessionCookie?.value) {
+    const parsedCookies = cookie.parse(cookieHeader);
+    const sessionToken = parsedCookies.session;
+
+    if (!sessionToken) {
       return NextResponse.json({ error: "세션 없음" }, { status: 401 });
     }
 
-    const token = sessionCookie.value;
-    const decoded = jwt.verify(token, JWT_SECRET) as { kakaoId: string };
+    const decoded = jwt.verify(sessionToken, JWT_SECRET) as { kakaoId: string };
 
     const { data, error } = await supabase
       .from("users")
