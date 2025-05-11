@@ -260,6 +260,7 @@ export default function Home() {
               </div>
               <p className={`mt-1 text-xs ${isSoldOut ? "text-gray-400" : "text-[#FF6B6B]"}`}>
                 {product.brand}
+                <span className="text-xs text-[#3F8CFF] ml-2">{product.size}</span>
               </p>
               <p className={`text-sm font-medium ${isSoldOut ? "text-gray-500" : "text-black"}`}>
                 {product.name}

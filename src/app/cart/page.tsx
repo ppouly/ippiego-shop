@@ -95,12 +95,19 @@ export default function CartPage() {
               className="rounded"
             />
             <div className="flex-1">
-              <p className="font-medium text-gray-800">
+            <p className="font-medium text-gray-800">
+              <span
+                className="hover:underline cursor-pointer"
+                onClick={() => router.push(`/products/${item.id}`)}
+              >
                 {item.name}
-                {["판매완료", "환불요청"].includes(statuses[item.id]) && (
-                  <span className="ml-2 text-sm text-red-500">(품절)</span>
-                )}
-              </p>
+              </span>
+              <span className="text-sm text-[#3F8CFF] ml-2">{item.size}</span>
+              {["판매완료", "환불요청"].includes(statuses[item.id]) && (
+                <span className="ml-2 text-sm text-red-500">(품절)</span>
+              )}
+            </p>
+
               <p className="text-sm text-gray-400">
                 ₩{item.price.toLocaleString()}
               </p>
