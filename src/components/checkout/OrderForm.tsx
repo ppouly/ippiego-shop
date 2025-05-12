@@ -99,14 +99,14 @@ useEffect(() => {
       const widget = await loadPaymentWidget(clientKey, customerKey);
   
       await widget.renderPaymentMethods("#payment-widget", {
-        value: totalAmount,
+        value: finalAmount,
       });
   
       setPaymentWidget(widget);
     };
   
     loadWidget();
-  }, [totalAmount]);
+  }, [finalAmount]);
   
 
   // ✅ "회원이면 기존 전화번호/주소 자동 입력"
