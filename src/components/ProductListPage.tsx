@@ -182,32 +182,23 @@ export default function ProductListPage() {
                 >
                   {product.name}
                 </p>
-                {product.discountRate && product.discountRate > 0 ? (
-                  <div className="mt-1">
-                    <p className="text-sm font-semibold text-black">
-                      ₩{product.price.toLocaleString()}
-                    </p>
-                    {product.discountRate && product.discountRate > 0 ? (
-  <div className="mt-1">
-    <p className="text-sm font-semibold text-black">
-      ₩{product.price.toLocaleString()}
-    </p>
-    <p className="text-[11px] text-gray-400 line-through">
-      ₩{product.purchasePrice.toLocaleString()} ({product.discountRate}% 할인)
-    </p>
-  </div>
-) : (
-  <p className="text-sm font-semibold text-black">
-    ₩{product.price.toLocaleString()}
-  </p>
-)}
+                {(() => {
+                const discount = product.discountRate ?? 0;
+                const discountedPrice = Math.round(product.price * (1 - discount / 100));
 
+                return (
+                  <div className="mt-1 text-xs">
+                    <p className={`font-bold ${isSoldOut ? "text-gray-500" : "text-black"}`}>
+                      ₩{discountedPrice.toLocaleString()}
+                    </p>
+                    {discount > 0 && (
+                      <p className="text-[11px] text-gray-400 line-through">
+                        최초판매가 ₩{product.price.toLocaleString()} | {discount}% 할인
+                      </p>
+                    )}
                   </div>
-                ) : (
-                  <p className="text-sm font-semibold text-black">
-                    ₩{product.price.toLocaleString()}
-                  </p>
-                )}
+                );
+              })()}
 
 
               </Link>
