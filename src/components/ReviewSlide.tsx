@@ -26,10 +26,11 @@ export default function ReviewSlide() {
 
   return (
     <Swiper spaceBetween={12} slidesPerView={"auto"} className="py-4">
-      {reviews.map((r, idx) => (
-        <SwiperSlide key={idx} style={{ width: "220px" }}>
-          <div className="rounded-xl border shadow p-3 bg-white">
-            <div className="w-full h-32 relative rounded-md overflow-hidden">
+  {reviews.map((r, idx) => (
+    <SwiperSlide key={idx} style={{ width: "220px" }}>
+          <div className="h-[230px] flex flex-col justify-between rounded-xl border shadow p-3 bg-white">
+            {/* 이미지 */}
+            <div className="w-full h-[120px] relative rounded-md overflow-hidden">
               <Image
                 src={r.image_url}
                 alt="review image"
@@ -38,13 +39,20 @@ export default function ReviewSlide() {
                 unoptimized
               />
             </div>
-            <p className="text-sm text-gray-700 mt-2 line-clamp-3">{r.content}</p>
-            <div className="text-xs text-gray-400 mt-1">
+
+            {/* 후기 내용 (고정 높이 + 줄임) */}
+            <p className="text-sm text-gray-700 mt-2 line-clamp-3 h-[40px] overflow-hidden">
+              {r.content}
+            </p>
+
+            {/* 작성자, 날짜 */}
+            <div className="text-xs text-gray-400 mt-2">
               {r.nickname ?? "익명"} · {new Date(r.created_at).toLocaleDateString()}
             </div>
           </div>
         </SwiperSlide>
       ))}
     </Swiper>
+
   );
 }
