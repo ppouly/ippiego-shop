@@ -160,24 +160,25 @@ useEffect(() => {
       let discount = 0;
 
       if (!data || error) {
-        // 쿠폰 없을 경우
+        // 쿠폰 없음
         fee = totalAmount < FREE_SHIPPING_THRESHOLD ? DELIVERY_FEE : 0;
-          // ✅ 회원이면 5% 할인
         if (isMember) {
           discount = Math.floor(totalAmount * 0.05);
         }
       } else {
-        // 쿠폰 있을 경우
+        // 쿠폰 있음
         fee = data.free_shipping ? 0 : totalAmount < FREE_SHIPPING_THRESHOLD ? DELIVERY_FEE : 0;
-
+      
         if (data.type === "percent") {
           const bonusRate = isMember ? 5 : 0;
           const totalRate = data.value + bonusRate;
           discount = Math.floor(totalAmount * (totalRate / 100));
         } else if (data.type === "fixed") {
-          discount = data.value;
-        }        
+          const memberBonus = isMember ? Math.floor(totalAmount * 0.05) : 0;
+          discount = Math.max(data.value, memberBonus); // 고정할인 vs 5% 중 큰 값
+        }
       }
+      
 
       setShippingFee(fee);
       setDiscountAmount(discount);
