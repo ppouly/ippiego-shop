@@ -41,38 +41,46 @@ export default function CartPage() {
     (item) => statuses[item.id] === "판매완료" || statuses[item.id] === "환불요청"
   );
 
-  const handleOrder = async () => {
-    const products = items.map((item) => ({
+// 📍 CartPage.tsx 안쪽, handleOrder 함수 전체를 이렇게 교체하세요
+const handleOrder = async () => {
+  const products = items.map((item) => {
+    const discountRate = item.discountRate ?? 0;
+    const basePrice = item.originalPrice ?? item.price;
+    const discountedPrice = Math.round(basePrice * (1 - discountRate / 100));
+
+    return {
       product_id: item.id,
       order_name: item.name,
-      amount: item.price,
-    }));
+      amount: discountedPrice,
+    };
+  });
 
-    if (products.length === 0) {
-      alert("장바구니에 상품이 없습니다. 다시 담아주세요.");
-      return;
+  if (products.length === 0) {
+    alert("장바구니에 상품이 없습니다. 다시 담아주세요.");
+    return;
+  }
+
+  const totalAmount = products.reduce((sum, item) => sum + item.amount, 0);
+
+  try {
+    const res = await fetch("/api/create-temp-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ products, totalAmount }),
+    });
+
+    const result = await res.json();
+    if (result.success) {
+      router.push(`/checkout?orderId=${result.orderId}`);
+    } else {
+      alert(`주문 생성 실패: ${result.message}`);
     }
+  } catch (error) {
+    console.error("주문 생성 에러:", error);
+    alert("주문 생성 중 오류가 발생했습니다.");
+  }
+};
 
-    const totalAmount = products.reduce((sum, item) => sum + item.amount, 0);
-
-    try {
-      const res = await fetch("/api/create-temp-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ products, totalAmount }),
-      });
-
-      const result = await res.json();
-      if (result.success) {
-        router.push(`/checkout?orderId=${result.orderId}`);
-      } else {
-        alert(`주문 생성 실패: ${result.message}`);
-      }
-    } catch (error) {
-      console.error("주문 생성 에러:", error);
-      alert("주문 생성 중 오류가 발생했습니다.");
-    }
-  };
 
   return (
     <div className="p-4 pb-28">
@@ -111,6 +119,12 @@ export default function CartPage() {
               <p className="text-sm text-gray-400">
                 ₩{item.price.toLocaleString()}
               </p>
+              {(item.discountRate ?? 0) > 0 && item.originalPrice && (
+                <p className="text-xs text-gray-400 line-through">
+                  최초판매가 ₩{item.originalPrice.toLocaleString()} | {item.discountRate}% 할인
+                </p>
+              )}
+
               <div className="mt-2 text-sm text-gray-600">수량: {item.quantity}개</div>
             </div>
             <button
@@ -128,6 +142,17 @@ export default function CartPage() {
           <div className="text-gray-800 mt-6 text-right font-bold">
             총 합계: ₩{total.toLocaleString()}
           </div>
+
+           {/* ✅ 예상 혜택가 추가 시작 */}
+    <div className="text-sm text-right mt-2">
+      <p className="text-[#FF6B6B] font-semibold">
+        예상 혜택가: ₩{Math.round(total * 0.8).toLocaleString()}
+      </p>
+      <p className="text-xs text-[#FF6B6B] mt-1">
+        * 카카오채널 추가 15% + 회원가입 5% 할인 적용 시
+      </p>
+    </div>
+    {/* ✅ 예상 혜택가 추가 끝 */}
 
           <div className="fixed bottom-[64px] left-0 w-full bg-white p-4 shadow-md">
             {hasSoldOutItem ? (

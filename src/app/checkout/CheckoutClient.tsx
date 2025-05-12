@@ -69,7 +69,7 @@ export default function CheckoutPage() {
           카카오 로그인 후 회원 주문하기
         </button>
 
-        <p className="text-xs text-orange-800">카카오 회원가입 서비스 준비 중입니다.</p>
+        <p className="text-xs text-orange-800">카카오 회원가입 시 추가 5% 할인</p>
       </div>
     </div>
   );

@@ -52,6 +52,7 @@ export default function ProductDetailPage() {
   const [activeTab, setActiveTab] = useState<'description' | 'qa' | 'exchange'>('description');
   const [currentImage, setCurrentImage] = useState(0);
   const [showToast, setShowToast] = useState(false);
+  
 
   useEffect(() => {
     async function loadProductAndRelated() {
@@ -74,6 +75,10 @@ export default function ProductDetailPage() {
 
     loadProductAndRelated();
   }, [id]);
+
+  useEffect(() => {
+    console.log("🔥 상품 데이터:", product);
+  }, [product]);
 
   if (loading) return <p className="p-4">로딩 중...</p>;
   if (!product) return <p className="p-4">상품을 찾을 수 없습니다.</p>;
@@ -126,24 +131,46 @@ export default function ProductDetailPage() {
       </div>
 
       <div className="p-4">
-        <p className="text-xs font-bold text-[#FF6B6B]">
-          {product.brand} <span className="ml-2 text-[#3F8CFF]">{product.size}</span>
-        </p>
-        <h1 className="text-lg font-extrabold text-gray-800 mt-1">{product.name}</h1>
-        <div className="mt-1 text-base text-black font-semibold">
-          ₩{product.price.toLocaleString()}
-          {product.discountRate !== 0 && (
-            <>
-              <span className="ml-2 text-sm text-gray-400 line-through">
-                판매가 ₩{product.price?.toLocaleString()}
-              </span>
-              <span className="ml-1 text-sm text-gray-400">
-                | {product.discountRate}% 할인
-              </span>
-            </>
-          )}
-        </div>
+      <p className="text-xs font-bold text-[#FF6B6B]">
+        {product.brand} <span className="ml-2 text-[#3F8CFF]">{product.size}</span>
+      </p>
+      <h1 className="text-lg font-extrabold text-gray-800 mt-1">{product.name}</h1>
+
+      {/* ✅ 할인 가격 계산 */}
+      {(() => {
+  const discountRate = product.discountRate ?? 0;  // ← undefined 방지!
+  const discountedPrice = Math.round(product.price * (1 - discountRate / 100));
+  const finalBenefitPrice = Math.round(discountedPrice * 0.8); // 20% 추가 혜택
+
+  return (
+    <>
+      <div className="mt-1 text-base text-black font-semibold">
+        ₩{discountedPrice.toLocaleString()}
+        {discountRate > 0 && (
+          <>
+            <span className="ml-2 text-sm text-gray-400 line-through">
+              최초판매가 ₩{product.price.toLocaleString()}
+            </span>
+            <span className="ml-1 text-sm text-gray-400">
+              | {discountRate}% 할인
+            </span>
+          </>
+        )}
       </div>
+      <div className="mt-1">
+        <p className="text-sm text-[#FF6B6B] font-bold">
+          예상 혜택가 ₩{finalBenefitPrice.toLocaleString()} 
+        </p>
+        <p className="text-xs text-[#FF6B6B] mt-1">
+          * 카카오채널 추가 15% + 회원가입 5% 할인 적용 시
+        </p>
+      </div>
+    </>
+  );
+})()}
+
+    </div>
+
 
       <div className="bg-white px-4 py-5 border-t border-b">
         <div className="flex justify-between text-sm mb-1">
@@ -339,10 +366,20 @@ export default function ProductDetailPage() {
           <button
             className="w-full bg-black text-white py-3 rounded-xl text-base font-semibold"
             onClick={() => {
-              useCartStore.getState().addToCart(product!);
+              const discountedPrice = Math.round(product.price * (1 - (product.discountRate || 0) / 100));
+            
+              useCartStore.getState().addToCart({
+                ...product,
+                price: discountedPrice,
+                originalPrice: product.price,
+                discountRate: product.discountRate || 0,  // ✅ 이 줄 추가
+              });
+            
               setShowToast(true);
-  setTimeout(() => setShowToast(false), 4000); // 4초 뒤 사라지게
+              setTimeout(() => setShowToast(false), 4000);
             }}
+            
+            
           >
             장바구니 담기
           </button>

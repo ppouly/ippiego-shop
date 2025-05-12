@@ -50,7 +50,7 @@ export default function OrderForm({
   const FREE_SHIPPING_THRESHOLD = 50000;
   const DELIVERY_FEE = 3500;
 
-  const [shippingFee, setShippingFee] = useState(0);
+  const [shippingFee, setShippingFee] = useState(DELIVERY_FEE);
   const [discountAmount, setDiscountAmount] = useState(0);
   const [finalAmount, setFinalAmount] = useState(totalAmount);
   const [couponCode, setCouponCode] = useState("BETA25MAY");
@@ -143,20 +143,58 @@ useEffect(() => {
 }, [isMember, setPhoneRest]);
 
 
-  useEffect(() => {
-    let fee = totalAmount < FREE_SHIPPING_THRESHOLD ? DELIVERY_FEE : 0;
-    let discount = 0;
+useEffect(() => {
+  const fetchCoupon = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("coupons")
+        .select("*")
+        .eq("name", couponCode.toUpperCase())
+        .eq("is_active", true)
+        .lte("min_order_amount", totalAmount)
+        .gte("expires_at", new Date().toISOString())
+        .maybeSingle();
 
-    if (couponCode === "BETA25MAY") {
-      fee = 0;
-    } else if (couponCode === "BETA20DISCOUNT") {
-      discount = Math.floor(totalAmount * 0.2);
+      // ✅ fallback 로직 포함해서 항상 배송비 계산 확정
+      let fee = 0;
+      let discount = 0;
+
+      if (!data || error) {
+        // 쿠폰 없을 경우
+        fee = totalAmount < FREE_SHIPPING_THRESHOLD ? DELIVERY_FEE : 0;
+          // ✅ 회원이면 5% 할인
+        if (isMember) {
+          discount = Math.floor(totalAmount * 0.05);
+        }
+      } else {
+        // 쿠폰 있을 경우
+        fee = data.free_shipping ? 0 : totalAmount < FREE_SHIPPING_THRESHOLD ? DELIVERY_FEE : 0;
+
+        if (data.type === "percent") {
+          const bonusRate = isMember ? 5 : 0;
+          const totalRate = data.value + bonusRate;
+          discount = Math.floor(totalAmount * (totalRate / 100));
+        } else if (data.type === "fixed") {
+          discount = data.value;
+        }        
+      }
+
+      setShippingFee(fee);
+      setDiscountAmount(discount);
+      setFinalAmount(totalAmount + fee - discount);
+    } catch (err) {
+      console.error("❌ 쿠폰 로딩 오류:", err);
+      const fee = totalAmount < FREE_SHIPPING_THRESHOLD ? DELIVERY_FEE : 0;
+      setShippingFee(fee);
+      setDiscountAmount(0);
+      setFinalAmount(totalAmount + fee);
     }
+  };
 
-    setShippingFee(fee);
-    setDiscountAmount(discount);
-    setFinalAmount(totalAmount + fee - discount);
-  }, [totalAmount, couponCode]);
+  fetchCoupon();
+}, [totalAmount, couponCode]);
+
+
 
   const handleDaumPostcode = () => {
     if (window.daum?.Postcode) {
@@ -188,7 +226,7 @@ useEffect(() => {
     const { error } = await supabase.from("orders").insert({
       order_id: orderId,
       products,
-      total_amount: totalAmount,
+      total_amount: finalAmount,
       phone: fullPhone,
       address: `${zip} ${addr} ${detail}`,
       recipient,

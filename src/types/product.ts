@@ -20,6 +20,8 @@ export type Product = {
     conditionDetail: string;
     category: string
     pkg_image: string;
+    originalPrice?: number;
+
 
   //  [key: string]: any;
   };
