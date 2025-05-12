@@ -187,9 +187,21 @@ export default function ProductListPage() {
                     <p className="text-sm font-semibold text-black">
                       ₩{product.price.toLocaleString()}
                     </p>
-                    <p className="text-[11px] text-gray-400 line-through">
-                      ₩{Math.floor(product.price / (1 - product.discountRate / 100)).toLocaleString()} ({product.discountRate}% 할인)
-                    </p>
+                    {product.discountRate && product.discountRate > 0 ? (
+  <div className="mt-1">
+    <p className="text-sm font-semibold text-black">
+      ₩{product.price.toLocaleString()}
+    </p>
+    <p className="text-[11px] text-gray-400 line-through">
+      ₩{product.purchasePrice.toLocaleString()} ({product.discountRate}% 할인)
+    </p>
+  </div>
+) : (
+  <p className="text-sm font-semibold text-black">
+    ₩{product.price.toLocaleString()}
+  </p>
+)}
+
                   </div>
                 ) : (
                   <p className="text-sm font-semibold text-black">
