@@ -198,7 +198,22 @@ export default function ProductDetailPage() {
                 />
               </div>
               <p className="text-xs mt-1 text-gray-700 truncate">{item.name}</p>
-              <p className="text-xs font-bold text-gray-900">₩{item.price.toLocaleString()}</p>
+              {(() => {
+                const discountRate = item.discountRate ?? 0;
+                const discountedPrice = Math.round(item.price * (1 - discountRate / 100));
+
+                return (
+                  <>
+                    <p className="text-xs font-bold text-black">₩{discountedPrice.toLocaleString()}</p>
+                    {discountRate > 0 && (
+                      <p className="text-[11px] text-gray-400 line-through">
+                        ₩{item.price.toLocaleString()} | {discountRate}% 할인
+                      </p>
+                    )}
+                  </>
+                );
+              })()}
+
             </Link>
           ))}
         </div>
@@ -317,7 +332,7 @@ export default function ProductDetailPage() {
           <span className="text-gray-500">{product.season}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-gray-600">입피고 사이즈</span>
+          <span className="text-gray-600">입히고 사이즈</span>
           <span className="text-gray-500">{product.size}</span>
         </div>
         <div className="flex justify-between text-sm">
