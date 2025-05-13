@@ -165,6 +165,7 @@ export default function ProductDetailPage() {
           * 카카오채널 추가 15% + 회원가입 5% 할인 적용 시
         </p>
       </div>
+      
     </>
   );
 })()}

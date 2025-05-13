@@ -148,9 +148,20 @@ const handleOrder = async () => {
       <p className="text-[#FF6B6B] font-semibold">
         예상 혜택가: ₩{Math.round(total * 0.8).toLocaleString()}
       </p>
-      <p className="text-xs text-[#FF6B6B] mt-1">
-        * 카카오채널 추가 15% + 회원가입 5% 할인 적용 시
-      </p>
+      <div className="text-xs text-[#FF6B6B] mt-1">
+  *{" "}
+  <a
+    href="http://pf.kakao.com/_xblzfn"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="underline decoration-1 hover:opacity-80"
+  >
+    카카오채널
+  </a>{" "}
+  추가 15% + 회원가입 5% 할인 적용 시
+</div>
+
+
     </div>
     {/* ✅ 예상 혜택가 추가 끝 */}
 
