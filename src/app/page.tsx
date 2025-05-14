@@ -326,7 +326,7 @@ export default function Home() {
         <p>통신판매업 신고번호: 2025-성남분당A-0351</p>
         <p>사업장 주소: 경기도 분당구 서판교로132번길 24</p>
         <p>유선번호: 010-4759-9255</p>
-
+            
         {/* ⛔ 중첩된 <p> → ✅ <div>로 수정 */}
         <div className="flex space-x-4 mt-1">
           <a href="/privacy-policy" className="hover:underline">
@@ -335,7 +335,17 @@ export default function Home() {
           {/* 다른 링크 추가 가능 */}
           {/* <Link href="/terms" className="hover:underline">이용약관</Link> */}
         </div>
-
+        <div className="text-xs text-[#FF6B6B] mt-1">
+          고객센터/CS:{" "}
+          <a
+            href="http://pf.kakao.com/_xblzfn"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline decoration-1 hover:opacity-80"
+          >
+            입히고 카카오채널
+          </a>
+        </div>
         <p className="mt-1">© 2025 IPPIEGO. All rights reserved.</p>
       </footer>
 
