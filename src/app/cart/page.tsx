@@ -156,9 +156,9 @@ const handleOrder = async () => {
     rel="noopener noreferrer"
     className="underline decoration-1 hover:opacity-80"
   >
-    카카오채널
+    카카오채널 추가
   </a>{" "}
-  추가 15% + 회원가입 5% 할인 적용 시
+   15% + 회원가입 5% 할인 적용 시
 </div>
 
 
