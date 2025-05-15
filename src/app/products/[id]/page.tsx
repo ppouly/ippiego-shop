@@ -87,7 +87,7 @@ export default function ProductDetailPage() {
     `/products/${product.id}/main.jpg`,
     `/products/${product.id}/detail1.jpg`,
     `/products/${product.id}/detail2.jpg`,
-    `/products/${product.id}/detail4.jpg`, 
+    `/products/${product.id}/detail3.jpg`, 
   ];
 
   return (
