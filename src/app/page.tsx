@@ -110,13 +110,17 @@ export default function Home() {
   
 
   const filteredProducts =
-    selectedSize === "전체"
-      ? products
-      : products.filter((p) => p.size === selectedSize);
+  selectedSize === "전체"
+    ? [...products].reverse() // 오래된 순 (createdAt 빠른 순)
+    : [...products]
+        .filter((p) => p.size === selectedSize)
+        .reverse();
+
 
   const visibleProducts = showAll 
       ? filteredProducts 
       : filteredProducts.slice(0, 6);
+
       
   return (
     <div className="p-4">

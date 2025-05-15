@@ -63,7 +63,7 @@ export default function ProductDetailPage() {
         setProduct(found);
         const related = allProducts
           .filter((item) => item.size === found.size && item.id !== found.id)
-          .slice(0, 18);
+          .slice(0, 10);
         setRelatedProducts(related);
       } catch (err) {
         console.error("상품 상세 또는 추천 불러오기 실패:", err);
