@@ -131,6 +131,11 @@ export default function ProductDetailPage() {
       </div>
 
       <div className="p-4">
+          {/* 🔍 안내 배너 삽입 */}
+      <div className="mx-0 mb-3 px-4 py-3 bg-[#F9F9F9] border border-[#E0E0E0] rounded-lg text-[13px] text-gray-600 leading-relaxed text-center">
+        🔍 <strong className="text-gray-700 font-medium">AI 모델 착용 이미지는 연출된 이미지</strong>이며,<br />
+        <strong className="text-gray-700 font-medium">상세컷은 실제 상품 실사</strong>입니다.
+      </div>
       <p className="text-xs font-bold text-[#FF6B6B]">
         {product.brand} <span className="ml-2 text-[#3F8CFF]">{product.size}</span>
       </p>
