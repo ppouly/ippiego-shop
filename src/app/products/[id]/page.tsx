@@ -63,6 +63,7 @@ export default function ProductDetailPage() {
         setProduct(found);
         const related = allProducts
           .filter((item) => item.size === found.size && item.id !== found.id)
+          .sort((a, b) => a.name.localeCompare(b.name)) // 🔤 이름순 정렬
           .slice(0, 10);
         setRelatedProducts(related);
       } catch (err) {
