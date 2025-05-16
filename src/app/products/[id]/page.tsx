@@ -80,6 +80,7 @@ export default function ProductDetailPage() {
     console.log("🔥 상품 데이터:", product);
   }, [product]);
 
+
   if (loading) return <p className="p-4">로딩 중...</p>;
   if (!product) return <p className="p-4">상품을 찾을 수 없습니다.</p>;
 
@@ -395,24 +396,38 @@ export default function ProductDetailPage() {
         ) : (
           <button
             className="w-full bg-black text-white py-3 rounded-xl text-base font-semibold"
-            onClick={() => {
+            onClick={async () => {
+              if (!product) return;
+
               const discountedPrice = Math.round(product.price * (1 - (product.discountRate || 0) / 100));
-            
+
               useCartStore.getState().addToCart({
                 ...product,
                 price: discountedPrice,
                 originalPrice: product.price,
-                discountRate: product.discountRate || 0,  // ✅ 이 줄 추가
+                discountRate: product.discountRate || 0,
               });
-            
+
+              try {
+                await fetch("/api/log/cart", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    productId: product.id,
+                    timestamp: new Date().toISOString(),
+                  }),
+                });
+              } catch (e) {
+                console.error("장바구니 로그 실패", e);
+              }
+
               setShowToast(true);
               setTimeout(() => setShowToast(false), 4000);
             }}
-            
-            
           >
             장바구니 담기
           </button>
+
         )}
       </div>
     </div>
