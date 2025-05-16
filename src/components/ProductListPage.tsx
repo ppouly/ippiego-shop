@@ -183,24 +183,26 @@ export default function ProductListPage() {
                   {product.name}
                 </p>
                 {(() => {
-                const discount = product.discountRate ?? 0;
-                const discountedPrice = Math.round(product.price * (1 - discount / 100));
+                  const discount = product.discountRate ?? 0;
+                  const discountedPrice = Math.round(product.price * (1 - discount / 100));
+                  const finalBenefitPrice = Math.round(discountedPrice * 0.8); // ✅ 20% 추가 할인
 
-                return (
-                  <div className="mt-1 text-xs">
-                    <p className={`font-bold ${isSoldOut ? "text-gray-500" : "text-black"}`}>
-                      ₩{discountedPrice.toLocaleString()}
-                    </p>
-                    {discount > 0 && (
-                      <p className="text-[11px] text-gray-400 line-through">
-                        최초판매가 ₩{product.price.toLocaleString()} | {discount}% 할인
+                  return (
+                    <div className="mt-1 text-xs">
+                      <p className={`font-bold ${isSoldOut ? "text-gray-500" : "text-black"}`}>
+                        ₩{discountedPrice.toLocaleString()}
                       </p>
-                    )}
-                  </div>
-                );
-              })()}
-
-
+                      {discount > 0 && (
+                        <p className="text-[11px] text-gray-400 line-through">
+                          최초판매가 ₩{product.price.toLocaleString()} | {discount}% 할인
+                        </p>
+                      )}
+                      <p className="text-[12px] text-[#FF6B6B] font-semibold mt-1">
+                        예상 혜택가 ₩{finalBenefitPrice.toLocaleString()}
+                      </p>
+                    </div>
+                  );
+                })()}
               </Link>
             );
           })}

@@ -87,6 +87,8 @@ export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [showAll, setShowAll] = useState(false);
   const [showBanner, setShowBanner] = useState(true);
+  const [currentImageMap, setCurrentImageMap] = useState<Record<number, number>>({});
+
  
   useEffect(() => {
     async function load() {
@@ -107,6 +109,22 @@ export default function Home() {
     load();
   }, []);
   
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageMap((prev) => {
+        const nextMap = { ...prev };
+        products.forEach((p) => {
+          if (p.image_model) {
+            const current = prev[p.id] || 0;
+            nextMap[p.id] = (current + 1) % 2;
+          }
+        });
+        return nextMap;
+      });
+    }, 3000);
+  
+    return () => clearInterval(interval);
+  }, [products]);
   
 
   const filteredProducts =
@@ -173,50 +191,72 @@ export default function Home() {
             .slice(0, 7)
             .map((product) => {
               return (
-              <SwiperSlide key={product.id}>
+                <SwiperSlide key={product.id}>
                 <div
-                  className="border-none rounded p-2 cursor-pointer"
+                  className="cursor-pointer bg-white rounded-xl overflow-hidden"
                   onClick={() => router.push(`/products/${product.id}`)}
                 >
-                  <div className="w-full h-[280px] bg-[#F7F2EB] flex items-center justify-center rounded-md overflow-hidden">
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      width={200}
-                      height={280}
-                      className="object-contain w-full h-full"
-                      unoptimized
-                    />
-                  </div>
-                  <p className="mt-1 text-xs text-[#FF6B6B]">
-                    {product.brand}
-                    <span className="text-xs mt-1 text-[#3F8CFF] ml-2">
-                      {product.size}
-                    </span>
-                  </p>
-                  <p className="mt-2 text-sm font-medium text-black">
-                    {product.name}
-                  </p>
-                  {(() => {
-                  const discount = product.discountRate ?? 0;
-                  const discountedPrice = Math.round(product.price * (1 - discount / 100));
-
-                  return (
-                    <div className="mt-1">
-                      <p className="text-xs font-bold text-black">
-                        ₩{discountedPrice.toLocaleString()}
-                      </p>
-                      {discount > 0 && (
-                        <p className="text-[11px] text-gray-400 line-through">
-                          최초판매가 ₩{product.price.toLocaleString()} | {discount}% 할인
-                        </p>
-                      )}
+                  {/* 이미지 영역: 실사 + 모델컷 */}
+                  <div className="flex bg-[#F7F2EB]">
+                    <div className="w-[180px] h-[220px]">
+                      <Image
+                        src={product.image}
+                        alt={`${product.name} 실사`}
+                        width={180}
+                        height={220}
+                        className="w-full h-full object-cover"
+                        unoptimized
+                      />
                     </div>
-                  );
-                })()}
+                    {product.image_model && (
+                      <div className="w-[120px] h-[220px]">
+                        <Image
+                          src={product.image_model}
+                          alt={`${product.name} 모델컷`}
+                          width={120}
+                          height={220}
+                          className="w-full h-full object-cover"
+                          unoptimized
+                        />
+                      </div>
+                    )}
+                  </div>
 
+                  {/* 상품 정보 영역 */}
+                  <div className="px-3 py-2 text-left">
+                    <p className="text-xs text-[#FF6B6B]">
+                      {product.brand}
+                      <span className="ml-2 text-[#3F8CFF]">{product.size}</span>
+                    </p>
+                    <p className="text-sm font-medium text-black mt-1">{product.name}</p>
+
+                    {(() => {
+                      const discountRate = product.discountRate ?? 0;
+                      const discountedPrice = Math.round(product.price * (1 - discountRate / 100));
+                      const finalBenefitPrice = Math.round(discountedPrice * 0.8);
+
+                      return (
+                        <div className="mt-1 text-sm">
+                          <p className="font-bold text-black">
+                            ₩{discountedPrice.toLocaleString()}
+                          </p>
+                          {discountRate > 0 && (
+                            <p className="text-[11px] text-gray-400 line-through">
+                              최초판매가 ₩{product.price.toLocaleString()} | {discountRate}% 할인
+                            </p>
+                          )}
+                          <p className="text-[12px] text-[#FF6B6B] font-semibold mt-1">
+                            예상 혜택가 ₩{finalBenefitPrice.toLocaleString()}
+                          </p>
+                        </div>
+                      );
+                    })()}
+                  </div>
                 </div>
               </SwiperSlide>
+
+
+              
             );
           })}
         </Swiper>
@@ -249,62 +289,71 @@ export default function Home() {
         </div>        
         <div className="grid grid-cols-2 gap-4">
         {visibleProducts.map((product) => {
-          const isSoldOut = product.status === "판매완료" || product.status === "환불요청";
+  const isSoldOut = product.status === "판매완료" || product.status === "환불요청";
+  const images = product.image_model ? [product.image, product.image_model] : [product.image];
+  const imageToShow = images[currentImageMap[product.id] ?? 0];
+
+  return (
+    <div
+      key={product.id}
+      className="cursor-pointer"
+      onClick={() => !isSoldOut && router.push(`/products/${product.id}`)}
+    >
+      <div
+        className={`relative w-full h-[240px] ${
+          isSoldOut ? "bg-gray-200" : "bg-[#f7f2eb]"
+        } flex items-center justify-center rounded-md overflow-hidden`}
+      >
+        <Image
+          src={imageToShow}
+          alt={product.name}
+          width={160}
+          height={160}
+          className={`object-contain w-auto h-full ${isSoldOut ? "opacity-50" : ""}`}
+          unoptimized
+        />
+        {isSoldOut && (
+          <div className="absolute top-2 left-2 bg-black/70 text-white text-[11px] font-semibold px-2 py-[2px] rounded-sm">
+            품절
+          </div>
+        )}
+      </div>
+      <p className={`mt-1 text-xs ${isSoldOut ? "text-gray-400" : "text-[#FF6B6B]"}`}>
+        {product.brand}
+        <span className="text-xs text-[#3F8CFF] ml-2">{product.size}</span>
+      </p>
+      <p className={`text-sm font-medium ${isSoldOut ? "text-gray-500" : "text-black"}`}>
+        {product.name}
+      </p>
+      {(() => {
+          const discount = product.discountRate ?? 0;
+          const discountedPrice = Math.round(product.price * (1 - discount / 100));
+          const benefitPrice = Math.round(discountedPrice * 0.8); // 20% 추가 혜택
+
           return (
-            <div
-              key={product.id}
-              className="cursor-pointer"
-              onClick={() => !isSoldOut && router.push(`/products/${product.id}`)}
-            >
-              <div
-                className={`relative w-full h-[240px] ${
-                  isSoldOut ? "bg-gray-200" : "bg-[#f7f2eb]"
-                } flex items-center justify-center rounded-md overflow-hidden`}
-              >
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  width={160}
-                  height={160}
-                  className={`object-contain w-auto h-full ${
-                    isSoldOut ? "opacity-50" : ""
-                  }`}
-                  unoptimized
-                />
-                {isSoldOut && (
-                  <div className="absolute top-2 left-2 bg-black/70 text-white text-[11px] font-semibold px-2 py-[2px] rounded-sm">
-                    품절
-                  </div>
-                )}
-              </div>
-              <p className={`mt-1 text-xs ${isSoldOut ? "text-gray-400" : "text-[#FF6B6B]"}`}>
-                {product.brand}
-                <span className="text-xs text-[#3F8CFF] ml-2">{product.size}</span>
+            <div className="mt-1 text-xs">
+              <p className={`font-bold ${isSoldOut ? "text-gray-500" : "text-black"}`}>
+                ₩{discountedPrice.toLocaleString()}
               </p>
-              <p className={`text-sm font-medium ${isSoldOut ? "text-gray-500" : "text-black"}`}>
-                {product.name}
+
+              {discount > 0 && (
+                <p className="text-[11px] text-gray-400 line-through">
+                  최초판매가 ₩{product.price.toLocaleString()} | {discount}% 할인
+                </p>
+              )}
+
+              {/* 예상 혜택가는 항상 노출 */}
+              <p className="text-[12px] text-[#FF6B6B] font-semibold mt-1">
+                예상 혜택가 ₩{benefitPrice.toLocaleString()}
               </p>
-              {(() => {
-                const discount = product.discountRate ?? 0;
-                const discountedPrice = Math.round(product.price * (1 - discount / 100));
-
-                return (
-                  <div className="mt-1 text-xs">
-                    <p className={`font-bold ${isSoldOut ? "text-gray-500" : "text-black"}`}>
-                      ₩{discountedPrice.toLocaleString()}
-                    </p>
-                    {discount > 0 && (
-                      <p className="text-[11px] text-gray-400 line-through">
-                        최초판매가 ₩{product.price.toLocaleString()} | {discount}% 할인
-                      </p>
-                    )}
-                  </div>
-                );
-              })()}
-
             </div>
           );
-        })}
+        })()}
+
+    </div>
+  );
+})}
+
 
         </div>
 

@@ -21,7 +21,7 @@ export type Product = {
     category: string
     pkg_image: string;
     originalPrice?: number;
-
+    image_model?: string; 
 
   //  [key: string]: any;
   };
