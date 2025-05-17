@@ -47,6 +47,10 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ko">
+      <head>
+        {/* 👉 이 부분 추가! */}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+      </head>      
       <body className="bg-background text-text dark:bg-background-dark dark:text-text-dark pt-14 pb-14">
         <ThemeInit /> {/* ✅ 다크모드 감지 로직 */}
         <Header />
