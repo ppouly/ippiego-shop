@@ -15,6 +15,7 @@ export default function ProductListPage() {
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentImageMap, setCurrentImageMap] = useState<Record<number, number>>({});
 
   useEffect(() => {
     async function load() {
@@ -41,6 +42,23 @@ export default function ProductListPage() {
 
     load();
   }, [category, brand, size]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageMap((prev) => {
+        const next = { ...prev };
+        products.forEach((p) => {
+          if (p.image_model) {
+            const current = prev[p.id] || 0;
+            next[p.id] = (current + 1) % 2;
+          }
+        });
+        return next;
+      });
+    }, 3000);
+  
+    return () => clearInterval(interval);
+  }, [products]);
 
   return (
     <div className="p-4">
@@ -133,7 +151,8 @@ export default function ProductListPage() {
         <div className="grid grid-cols-2 gap-4">
           {products.map((product) => {
             const isSoldOut  = ["판매완료", "환불요청"].includes(product.status);
-
+            const images = product.image_model ? [product.image, product.image_model] : [product.image];
+            const imageToShow = images[currentImageMap[product.id] ?? 0];
             return (
               <Link
                 href={`/products/${product.id}`}
@@ -146,7 +165,7 @@ export default function ProductListPage() {
                   } flex items-center justify-center rounded-md overflow-hidden`}
                 >
                   <Image
-                    src={product.image}
+                    src={imageToShow}
                     alt={product.name}
                     width={200}
                     height={280}
