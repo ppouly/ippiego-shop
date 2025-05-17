@@ -17,19 +17,17 @@ body {
 }
 
 /* ✅ Instagram 인앱 브라우저 대응 */
-html {
-  font-size: 14px !important;
-  -webkit-text-size-adjust: none !important;
-  text-size-adjust: none !important;
-}
-
+html,
 body {
   font-size: 14px !important;
+  -webkit-text-size-adjust: 100% !important;
+  -moz-text-size-adjust: 100% !important;
+  -ms-text-size-adjust: 100% !important;
+  text-size-adjust: 100% !important;
 }
 
-html.is-instagram *,
-html.is-instagram *::before,
-html.is-instagram *::after {
+/* Instagram 감지 후 전용 클래스 */
+html.is-instagram {
   font-size: 14px !important;
   line-height: 1.4 !important;
 }
