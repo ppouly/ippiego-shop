@@ -7,7 +7,7 @@ body {
   @apply font-sans bg-background text-text dark:bg-background-dark dark:text-text-dark;
 }
 
-/* styles/globals.css */
+/* 스크롤바 제거 */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -16,6 +16,18 @@ body {
   scrollbar-width: none; /* Firefox */
 }
 
+/* ✅ Instagram 인앱 브라우저 대응 */
+html,
+body {
+  font-size: 14px !important;
+  -webkit-text-size-adjust: 100% !important;
+  -moz-text-size-adjust: 100% !important;
+  -ms-text-size-adjust: 100% !important;
+  text-size-adjust: 100% !important;
+}
+
+/* Instagram 감지 후 전용 클래스 */
 html.is-instagram {
   font-size: 14px !important;
+  line-height: 1.4 !important;
 }
