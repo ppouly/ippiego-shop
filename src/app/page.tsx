@@ -175,7 +175,7 @@ export default function Home() {
                   }}
                   className="bg-yellow-400 text-black text-xs font-semibold py-1.5 px-3 rounded-md shadow hover:opacity-90"
                 >
-                  카카오 로그인하기
+                  카카오로 시작하기
                 </button>
 
               <a
