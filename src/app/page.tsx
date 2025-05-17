@@ -169,15 +169,15 @@ export default function Home() {
             {/* ✅ 버튼 추가 */}
             <div className="mt-3 flex justify-center gap-3">
                 {/* 카카오 로그인 */}
-              <button
-                onClick={() => {
-                  localStorage.setItem("redirectAfterLogin", "/mypage");
-                  window.location.href = kakaoAuthUrl;
-                }}
-                className="bg-yellow-400 text-black text-xs font-semibold py-1.5 px-3 rounded-md shadow hover:opacity-90"
-              >
-                카카오 로그인하기
-              </button>
+                <button
+                  onClick={() => {
+                    window.location.href = "/mypage";
+                  }}
+                  className="bg-yellow-400 text-black text-xs font-semibold py-1.5 px-3 rounded-md shadow hover:opacity-90"
+                >
+                  카카오 로그인하기
+                </button>
+
               <a
                 href="http://pf.kakao.com/_xblzfn"
                 target="_blank"
