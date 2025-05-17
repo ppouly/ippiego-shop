@@ -6,6 +6,7 @@ import { ReactNode } from "react";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
 import ThemeInit from "@/components/ThemeInit"; // 👈 다크모드 감지용 클라이언트 컴포넌트
+import DetectInstagram from "@/components/DetectInstagram"; // 👈 추가
 
 export const metadata = {
   title: "입히고 | 환불보장, 수입 유아동복 중고 마켓 IPPIE Go!",
@@ -53,6 +54,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>      
       <body className="bg-background text-text dark:bg-background-dark dark:text-text-dark pt-14 pb-14">
         <ThemeInit /> {/* ✅ 다크모드 감지 로직 */}
+        <DetectInstagram /> {/* 👈 추가 */}
         <Header />
         {children}
         <BottomNav />
