@@ -149,16 +149,27 @@ const handleOrder = async () => {
         예상 혜택가: ₩{Math.round(total * 0.8).toLocaleString()}
       </p>
       <div className="text-xs text-[#FF6B6B] mt-1">
-  *{" "}
-  <a
-    href="http://pf.kakao.com/_xblzfn"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="underline decoration-1 hover:opacity-80"
-  >
-    카카오채널 추가
-  </a>{" "}
-   15% + 회원가입 5% 할인 적용 시
+      <p className="text-xs text-[#FF6B6B] mt-1">
+          * 회원주문 5% 상시 할인<br></br>
+        * {" "}
+            <a
+              href="http://pf.kakao.com/_xblzfn"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline decoration-1 hover:opacity-80"
+            >카카오채널 
+            </a>{" "}추가 시 15% 쿠폰 바로 발급<br></br>
+             
+            * {" "}
+            <a
+              href="https://www.instagram.com/ippiego"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline decoration-1 hover:opacity-80"
+            >인스타 
+            </a>{" "} 
+            친구추가 후 말걸면 20% 쿠폰 지급
+        </p>
 </div>
 
 
