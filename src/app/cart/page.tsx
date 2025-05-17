@@ -197,14 +197,34 @@ const handleOrder = async () => {
       )}
       {/* 📌 5월 베타서비스 배너 */}
       <div className="mt-10">
-        <Image
-          src="/banner-holiday.png"
-          alt="5월 베타서비스 혜택 배너"
-          width={768}
-          height={831}
-          className="w-full h-auto rounded-xl shadow"
-        />
+      <Image
+        src="/banner-holiday.png"
+        alt="5월 베타서비스 혜택 배너"
+        width={768}
+        height={831}
+        className="w-full h-auto rounded-xl shadow"
+      />
+
+      {/* 📌 버튼은 이 div 안쪽으로 넣어야 배너 밑에 붙어요 */}
+      <div className="mt-4 flex justify-center gap-4">
+        <a
+          href="http://pf.kakao.com/_xblzfn"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-[#FEE500] text-black font-semibold py-2 px-4 rounded-lg shadow hover:opacity-90"
+        >
+          카카오채널 바로가기
+        </a>
+        <a
+          href="https://www.instagram.com/ippiego"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white font-semibold py-2 px-4 rounded-lg shadow hover:opacity-90"
+        >
+          인스타 바로가기
+        </a>
       </div>
+    </div>
 
     </div>
   );

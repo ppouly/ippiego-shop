@@ -139,6 +139,10 @@ export default function Home() {
       ? filteredProducts 
       : filteredProducts.slice(0, 6);
 
+  const REST_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY!;
+  const REDIRECT_URI = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI!;
+  const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code`;
+
       
   return (
     <div className="p-4">
@@ -156,12 +160,41 @@ export default function Home() {
             </button>
             <Image
               src="/banner-holiday.png"
-              alt="입히고 배송안내"
+              alt="입히고 플로팅 배너안내"
               width={320}
               height={200}
               className="rounded-lg w-full h-auto"
               priority
             />
+            {/* ✅ 버튼 추가 */}
+            <div className="mt-3 flex justify-center gap-3">
+                {/* 카카오 로그인 */}
+              <button
+                onClick={() => {
+                  localStorage.setItem("redirectAfterLogin", "/mypage");
+                  window.location.href = kakaoAuthUrl;
+                }}
+                className="bg-yellow-400 text-black text-xs font-semibold py-1.5 px-3 rounded-md shadow hover:opacity-90"
+              >
+                카카오 로그인하기
+              </button>
+              <a
+                href="http://pf.kakao.com/_xblzfn"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-[#FEE500] text-black text-xs font-semibold py-1.5 px-3 rounded-md shadow hover:opacity-90"
+              >
+                카카오채널
+              </a>
+              <a
+                href="https://www.instagram.com/ippiego"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white text-xs font-semibold py-1.5 px-3 rounded-md shadow hover:opacity-90"
+              >
+                인스타그램
+              </a>
+            </div>
           </div>
         </div>
       )}
