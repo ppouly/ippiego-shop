@@ -126,7 +126,12 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [products]);
   
-
+  useEffect(() => {
+    const hide = localStorage.getItem("hideHolidayBanner");
+    if (hide === "true") {
+      setShowBanner(false);
+    }
+  }, []);
   const filteredProducts =
   selectedSize === "전체"
     ? [...products].reverse() // 오래된 순 (createdAt 빠른 순)
@@ -194,6 +199,18 @@ export default function Home() {
               >
                 인스타그램
               </a>
+            </div>
+            {/* ✅ 다시 보지 않기 버튼 */}
+            <div className="flex justify-center mt-2">
+              <button
+                onClick={() => {
+                  localStorage.setItem("hideHolidayBanner", "true");
+                  setShowBanner(false);
+                }}
+                className="text-xs text-gray-400 hover:underline"
+              >
+                다시 보지 않기
+              </button>
             </div>
           </div>
         </div>
