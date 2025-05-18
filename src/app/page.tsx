@@ -144,9 +144,6 @@ export default function Home() {
       ? filteredProducts 
       : filteredProducts.slice(0, 6);
 
-  const REST_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY!;
-  const REDIRECT_URI = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI!;
-  
       
   return (
     <div className="p-4">
