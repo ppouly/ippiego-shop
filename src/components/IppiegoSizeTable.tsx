@@ -18,6 +18,7 @@ const brandComments: Record<string, { comment: string; adjusted: boolean }> = {
   '타오': { comment: '타오는 제품별 핏 차이가 크므로 상세 사진 확인을 권장합니다.', adjusted: false },
   '봉주르다이어리': { comment: '봉주르다이어리는 루즈핏 경향이 있습니다. 체형에 따라 선택해주세요.', adjusted: false },
   '콩제슬래드': { comment: '콩제슬래드는 크게 나오는 편입니다. 한 사이즈 작게 선택하는 경우가 많습니다.', adjusted: true },
+  '타이니코튼': { comment: '타이니코튼은 유럽표준 사이즈로 정사이즈 착용 기준입니다.', adjusted: false },
 };
 
 const brandToColumn: Record<string, string> = {
@@ -29,6 +30,7 @@ const brandToColumn: Record<string, string> = {
   '타오': '타오 (TAO)',
   '봉주르다이어리': '봉주르다이어리',
   '콩제슬래드': '콩제슬래드 (사이즈다운)',
+  '타이니코튼': '타이니코튼',
 };
 
 export function BrandComment({ brand }: BrandCommentProps) {
@@ -50,20 +52,20 @@ export default function IppiegoSizeTable({ selectedSize, brand }: IppiegoSizeTab
   const columnHeaders = [
     '입히고 사이즈', '키 기준(cm)', '나이 기준',
     '미니로디니', '보보쇼즈 (사이즈다운)', '루이스미샤 (반사이즈업)', '아폴리나',
-    '던스 (사이즈다운)', '타오 (TAO)', '봉주르다이어리', '콩제슬래드 (사이즈다운)',
+    '던스 (사이즈다운)', '타오 (TAO)', '봉주르다이어리', '콩제슬래드 (사이즈다운)','타이니코튼',
   ];
 
   const targetColumnName = brand ? brandToColumn[brand] : '';
   const targetColumnIndex = columnHeaders.indexOf(targetColumnName);
 
   const rows = [
-    { size: '70', height: '68–74', age: '6–12개월', mini: '68/74', bobo: '-', louise: '-', apolina: '-', duns: '50/56', tao: '-', bonjour: '6M', konges: '6M' },
-    { size: '85', height: '80–86', age: '12–24개월', mini: '80/86', bobo: '6-12M', louise: '18M', apolina: '-', duns: '62/68', tao: '-', bonjour: '12M', konges: '12M' },
-    { size: '95', height: '92–98', age: '2–3세', mini: '92/98', bobo: '18-24M', louise: '3Y–4Y', apolina: '2-3Y', duns: '86/92', tao: '2Y', bonjour: '2Y', konges: '2Y' },
-    { size: '110', height: '104–110', age: '4–5세', mini: '104/110', bobo: '2-3Y', louise: '5Y', apolina: '3-5Y', duns: '98/104', tao: '4Y', bonjour: '3Y–4Y', konges: '3Y–4Y' },
-    { size: '120', height: '116–122', age: '6–7세', mini: '116/122', bobo: '4-5Y', louise: '7Y–8Y', apolina: '5-7Y', duns: '110/116', tao: '6Y', bonjour: '6Y', konges: '5–6Y' },
-    { size: '130', height: '128–134', age: '8–9세', mini: '128/134', bobo: '6-7Y', louise: '9Y–10Y', apolina: '7-9Y', duns: '122/128', tao: '8Y', bonjour: '8Y', konges: '7–8Y' },
-    { size: '140', height: '140–146', age: '10–11세', mini: '140/146', bobo: '8-9Y', louise: '11Y–12Y', apolina: '9Y+', duns: '134/140', tao: '10Y', bonjour: '10Y', konges: '9–10Y' },
+    { size: '70', height: '68–74', age: '6–12개월', mini: '68/74', bobo: '-', louise: '-', apolina: '-', duns: '50/56', tao: '-', bonjour: '6M', konges: '6M', tiny: '6M' },
+    { size: '85', height: '80–86', age: '12–24개월', mini: '80/86', bobo: '6-12M', louise: '18M', apolina: '-', duns: '62/68', tao: '-', bonjour: '12M', konges: '12M', tiny: '12M–18M' },
+    { size: '95', height: '92–98', age: '2–3세', mini: '92/98', bobo: '18-24M', louise: '3Y–4Y', apolina: '2-3Y', duns: '86/92', tao: '2Y', bonjour: '2Y', konges: '2Y', tiny: '2Y-3Y' },
+    { size: '110', height: '104–110', age: '4–5세', mini: '104/110', bobo: '2-3Y', louise: '5Y', apolina: '3-5Y', duns: '98/104', tao: '4Y', bonjour: '3Y–4Y', konges: '3Y–4Y', tiny: '4Y' },
+    { size: '120', height: '116–122', age: '6–7세', mini: '116/122', bobo: '4-5Y', louise: '7Y–8Y', apolina: '5-7Y', duns: '110/116', tao: '6Y', bonjour: '6Y', konges: '5–6Y', tiny: '6Y' },
+    { size: '130', height: '128–134', age: '8–9세', mini: '128/134', bobo: '6-7Y', louise: '9Y–10Y', apolina: '7-9Y', duns: '122/128', tao: '8Y', bonjour: '8Y', konges: '7–8Y', tiny: '8Y' },
+    { size: '140', height: '140–146', age: '10–11세', mini: '140/146', bobo: '8-9Y', louise: '11Y–12Y', apolina: '9Y+', duns: '134/140', tao: '10Y', bonjour: '10Y', konges: '9–10Y', tiny: '10Y' },
   ];
   
 
@@ -101,6 +103,7 @@ export default function IppiegoSizeTable({ selectedSize, brand }: IppiegoSizeTab
               <td className={`px-4 py-3 ${targetColumnIndex === 8 ? 'text-orange-500 font-bold' : ''}`}>{row.tao}</td>
               <td className={`px-4 py-3 ${targetColumnIndex === 9 ? 'text-orange-500 font-bold' : ''}`}>{row.bonjour}</td>
               <td className={`px-4 py-3 ${targetColumnIndex === 10 ? 'text-orange-500 font-bold' : ''}`}>{row.konges}</td>
+              <td className={`px-4 py-3 ${targetColumnIndex === 11 ? 'text-orange-500 font-bold' : ''}`}>{row.tiny}</td>
             </tr>
           ))}
         </tbody>
