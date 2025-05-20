@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { LogPageView } from "@/components/LogPageView";
 
+
 export default function CartPage() {
   const { items, removeFromCart } = useCartStore();
   const router = useRouter();

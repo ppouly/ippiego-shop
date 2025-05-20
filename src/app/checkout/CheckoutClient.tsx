@@ -9,7 +9,27 @@ export default function CheckoutPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   const orderId = searchParams.get("orderId");
+  const [totalAmount, setTotalAmount] = useState<number | null>(null);
 
+  useEffect(() => {
+    const fetchOrderAmount = async () => {
+      if (!orderId) return;
+  
+      try {
+        const res = await fetch(`/api/get-temp-order?orderId=${orderId}`);
+        const result = await res.json();
+  
+        if (result.success && result.order?.total_amount) {
+          setTotalAmount(result.order.total_amount);
+        }
+      } catch (err) {
+        console.error("임시 주문 금액 조회 실패:", err);
+      }
+    };
+  
+    fetchOrderAmount();
+  }, [orderId]);
+  
   useEffect(() => {
     const checkLogin = async () => {
       try {
@@ -69,7 +89,12 @@ export default function CheckoutPage() {
           카카오 로그인 후 회원 주문하기
         </button>
 
-        <p className="text-xs text-orange-800">카카오 회원가입 시 추가 5% 할인</p>
+        <p className="text-xs text-orange">
+          {totalAmount
+            ? `[추천] 카카오로 로그인하고 ₩${Math.floor(totalAmount * 0.05).toLocaleString()} 할인 받기`
+            : "카카오 회원가입 시 추가 5% 할인"}
+        </p>
+
       </div>
     </div>
   );

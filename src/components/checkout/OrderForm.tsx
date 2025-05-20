@@ -478,10 +478,12 @@ useEffect(() => {
       {/* ✅ 결제 비활성 메세지*/}
       <div id="payment-widget" className="my-6" />
       {warningMessage && (
-  <div className="text-center text-red-600 font-semibold text-[15px] mt-2 animate-pulse">
-    {warningMessage}
-  </div>
-)}
+        <div className="flex items-center gap-2 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 font-semibold px-4 py-3 rounded mt-3 text-sm animate-pulse">
+          <span className="text-xl">⚠️</span>
+          <span className="flex-1">{warningMessage}</span>
+        </div>
+      )}
+
 
       {/* ✅ 결제 버튼 - 더 이상 disabled X */}
       <button
