@@ -14,7 +14,7 @@ import { motion } from "framer-motion";
 import type { Product } from "@/types/product";
 import { fetchValidProducts } from "@/lib/fetchProducts";
 import { LogPageView } from "@/components/LogPageView";
-import ReviewSlide from "@/components/ReviewSlide";
+// import ReviewSlide from "@/components/ReviewSlide";
 
 const banners = [
   {
