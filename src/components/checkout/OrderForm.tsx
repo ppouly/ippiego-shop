@@ -54,7 +54,7 @@ export default function OrderForm({
   const [discountAmount, setDiscountAmount] = useState(0);
   const [finalAmount, setFinalAmount] = useState(totalAmount);
   const [couponCode, setCouponCode] = useState("BETA25MAY");
-
+  const [couponMessage, setCouponMessage] = useState("");
   const [recipient, setRecipient] = useState("");
   const [zip, setZip] = useState("");
   const [addr, setAddr] = useState("");
@@ -62,6 +62,7 @@ export default function OrderForm({
   const [memo, setMemo] = useState("부재 시 문 앞에 놓아주세요.");
   const [customMemo, setCustomMemo] = useState("");
   const [submitMessage, setSubmitMessage] = useState("");
+  const [warningMessage, setWarningMessage] = useState("");
 
   const [paymentWidget, setPaymentWidget] = useState<PaymentWidgetInstance | null>(null);
   // const [isPaymentMethodSelected, setIsPaymentMethodSelected] = useState(false);
@@ -177,6 +178,8 @@ useEffect(() => {
           const memberBonus = isMember ? Math.floor(totalAmount * 0.05) : 0;
           discount = Math.max(data.value, memberBonus); // 고정할인 vs 5% 중 큰 값
         }
+
+        setCouponMessage(data.message || ""); // ✅ 이 부분 추가
       }
       
 
@@ -196,6 +199,21 @@ useEffect(() => {
 }, [totalAmount, couponCode]);
 
 
+// ✅ 여기에 아래 useEffect를 추가하세요!
+useEffect(() => {
+  if (!paymentWidget) {
+    setWarningMessage("⚠️ 결제 수단을 불러오는 중입니다.");
+  } else if (!recipient) {
+    setWarningMessage("❗ 받는 사람 이름을 입력해주세요.");
+  } else if (!addr || !detail) {
+    setWarningMessage("❗ 주소를 모두 입력해주세요.");
+  } else if (!isMember && !isVerified) {
+    setWarningMessage("🚫 비회원은 전화번호 인증이 필요합니다.");
+  } else {
+    setWarningMessage(""); // 조건 충족 시 경고 제거
+  }
+}, [paymentWidget, recipient, addr, detail, isVerified, isMember]);
+
 
   const handleDaumPostcode = () => {
     if (window.daum?.Postcode) {
@@ -209,6 +227,25 @@ useEffect(() => {
       setSubmitMessage("주소 API 로딩이 아직 완료되지 않았어요.");
     }
   };
+
+  const handleButtonClick = () => {
+    if (!paymentWidget) {
+      setWarningMessage("결제 수단을 불러오는 중입니다.");
+    } else if (!recipient) {
+      setWarningMessage("❗ 받는 사람 이름을 입력해주세요.");
+    } else if (!addr || !detail) {
+      setWarningMessage("❗주소를 모두 입력해주세요.");
+    } else if (!isMember && !isVerified) {
+      setWarningMessage("🚫 비회원은 전화번호 인증이 필요합니다.");
+    } else {
+      handleClick(); // 모든 조건 충족 시 결제 실행
+      return;
+    }
+  
+    // 경고 메시지는 2.5초 후 자동 제거
+    setTimeout(() => setWarningMessage(""), 2500);
+  };
+  
 
   const handleClick = useCallback(async () => {
     if (!paymentWidget || finalAmount <= 0 || !recipient || !addr || !detail || (!isVerified && !isMember)) {
@@ -378,6 +415,9 @@ useEffect(() => {
           className="border px-3 py-2 w-full rounded text-[15px]"
           placeholder="쿠폰 코드를 입력하세요"
         />
+      {couponMessage && (
+        <p className="mt-1 text-sm text-orange-500">{couponMessage}</p>
+      )}        
       </div>
 
       {/* 주문 상품 리스트 */}
@@ -409,27 +449,28 @@ useEffect(() => {
       </div>
 
       {/* ✅ Toss 결제수단 위젯 영역 */}
-      <div id="payment-widget" className="my-6" />
 
-      {/* ✅ 결제 버튼 */}
+      {/* ✅ 결제 비활성 메세지*/}
+      <div id="payment-widget" className="my-6" />
+      {warningMessage && (
+  <div className="text-center text-red-600 font-semibold text-[15px] mt-2 animate-pulse">
+    {warningMessage}
+  </div>
+)}
+
+      {/* ✅ 결제 버튼 - 더 이상 disabled X */}
       <button
-        onClick={handleClick}
-        disabled={
-          !paymentWidget ||
-          !recipient ||
-          !addr ||
-          !detail ||
-          (!isVerified && !isMember)
-        }
-        
+        onClick={handleButtonClick} // ❗ 조건 분기 핸들러
         className={`w-full py-3 mt-4 rounded text-white text-[15px] font-medium transition ${
-          paymentWidget && recipient && addr && detail
+          paymentWidget && recipient && addr && detail && (isMember || isVerified)
             ? "bg-black hover:bg-gray-800"
             : "bg-gray-300 cursor-not-allowed"
         }`}
       >
         결제하기
       </button>
+
+
 
 
       {submitMessage && <p className="text-sm text-red-600 text-center mt-4">{submitMessage}</p>}
