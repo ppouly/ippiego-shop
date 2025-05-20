@@ -23,6 +23,7 @@ interface OrderFormProps {
   setCode?: (value: string) => void;
   handleSendCode?: () => void;
   handleVerifyCode?: () => void;
+  handleSkipVerification?: () => void; // ✅ 이 줄을 추가해야 빨간줄 사라집니다.
   message?: string;
   user?: {
     kakaoId: string;
@@ -44,6 +45,7 @@ export default function OrderForm({
   setCode,
   handleSendCode,
   handleVerifyCode,
+  handleSkipVerification, // ✅ 여기에 이미 있으므로
   message = "",
   user, // ✅ 이 줄 추가해야 함
 }: OrderFormProps) {
@@ -146,6 +148,16 @@ useEffect(() => {
 
 useEffect(() => {
   const fetchCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponMessage("쿠폰 미적용 중 (베타기간 무료배송코드:BETA25MAY)");
+      const fee = totalAmount < FREE_SHIPPING_THRESHOLD ? DELIVERY_FEE : 0;
+      setShippingFee(fee);
+      setDiscountAmount(0);
+      setFinalAmount(totalAmount + fee);
+      return; // ✅ 쿠폰 조회 요청 중단
+    }
+
+
     try {
       const { data, error } = await supabase
         .from("coupons")
@@ -320,10 +332,90 @@ useEffect(() => {
   return (
     <div className="space-y-6">
 
+      {/* 주문 상품 리스트 */}
+      <div className="pt-5 pb-6 text-sm text-gray-800 space-y-2">
+        <h2 className="text-[15px] font-semibold text-black">주문상품</h2>
+        {products.map((product) => (
+          <div key={product.product_id} className="flex gap-3 items-center">
+            <div className="w-20 h-20 rounded overflow-hidden bg-gray-100 relative">
+              <Image src={`/products/${product.product_id}/main.jpg`} alt={product.order_name} fill className="object-cover" sizes="80px" />
+            </div>
+            <div className="flex-1">
+              <div className="font-medium">{product.order_name}</div>
+              <div className="text-[15px] font-semibold text-black mt-1">₩{product.amount.toLocaleString()}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      {/* 쿠폰 입력 */}
+      <div>
+        <label className="border-t  pt-7 block text-[15px] font-semibold text-gray-900 mb-2">쿠폰 코드</label>
+        <input
+          type="text"
+          value={couponCode}
+          onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+          className="border px-3 py-2 w-full rounded text-[15px]"
+          placeholder="쿠폰 코드를 입력하세요"
+        />
+      {couponMessage && (
+        <p className="mt-1 text-sm text-orange-500">{couponMessage}</p>
+      )}        
+      </div>
+      {/* 결제정보 */}
+      <div className="pt-3 pb-3 space-y-1 text-sm text-gray-800">
+        <h2 className="text-[15px] font-semibold text-black">결제정보</h2>
+        <div className="flex justify-between"><span>주문상품</span><span className="font-medium">₩{totalAmount.toLocaleString()}</span></div>
+        <div className="flex justify-between"><span>배송비</span><span className="font-medium">+₩{shippingFee.toLocaleString()}</span></div>
+        <div className="flex justify-between"><span>할인/부가결제</span><span className="font-medium text-red-500">-₩{discountAmount.toLocaleString()}</span></div>
+      </div>
+
+      <div className="bg-blue-50 px-4 py-3 rounded text-right mt-4">
+        <span className="text-[16px] font-bold text-blue-600">최종 결제 금액 ₩{finalAmount.toLocaleString()}</span>
+      </div>
+
+
+      {/* 받는 사람 */}
+      <div className="space-y-2">
+        <label className="border-t pt-10 block text-[15px] font-semibold text-gray-900 mb-2">받는 사람 (닉네임) <span className="text-red-500">*</span></label>
+        <input
+          type="text"
+          value={recipient}
+          onChange={(e) => setRecipient(e.target.value)}
+          className="border border-gray-300 px-4 py-2 w-full rounded text-[15px]"
+          placeholder="이름 입력"
+        />
+      </div>      
+
+      {/* 주소 입력 */}
+      <div>
+        <label className="block text-[15px] font-semibold text-gray-900 mb-2">주소 <span className="text-red-500">*</span></label>
+        <div className="flex gap-2 mb-2">
+          <input type="text" value={zip} readOnly className="border px-3 py-2 rounded w-1/2 bg-gray-100 text-center" placeholder="우편번호" />
+          <button onClick={handleDaumPostcode} className="bg-white border border-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-100 text-sm">
+            주소검색
+          </button>
+        </div>
+        <input type="text" value={addr} readOnly className="border px-3 py-2 w-full rounded bg-gray-100 mb-2" placeholder="도로명 주소" />
+        <input type="text" value={detail} onChange={(e) => setDetail(e.target.value)} className="border px-3 py-2 w-full rounded" placeholder="상세 주소 입력" />
+      </div>
+
+      {/* 배송 메모 */}
+      <div>
+        <label className="block text-[15px] font-semibold text-gray-900 mb-2">배송 메모</label>
+        <select value={memo} onChange={(e) => setMemo(e.target.value)} className="border border-gray-300 px-3 py-2 w-full rounded">
+          <option>부재 시 문 앞에 놓아주세요.</option>
+          <option>경비실에 맡겨주세요.</option>
+          <option>배송 전 연락주세요.</option>
+          <option>직접 입력</option>
+        </select>
+        {memo === "직접 입력" && (
+          <input type="text" value={customMemo} onChange={(e) => setCustomMemo(e.target.value)} className="mt-2 border px-3 py-2 w-full rounded" placeholder="배송 메모를 입력하세요" />
+        )}
+      </div>
       {/* 전화번호 입력 영역 */}
       <div className="space-y-2">
-        <label className="block text-[15px] font-semibold text-gray-900">
-          휴대전화 번호 <span className="text-red-500">*</span>
+        <label className="block pt-2 text-[15px] font-semibold text-gray-900">
+          연락처 <span className="text-red-500">*</span>
         </label>
         <div className="flex gap-2">
           <input
@@ -353,100 +445,33 @@ useEffect(() => {
               placeholder="인증번호 입력"
               className="w-full px-3 py-2 rounded border border-gray-300 text-[15px]"
             />
-            <div className="flex justify-end gap-2">
-              <button onClick={handleSendCode} className="px-3 py-2 rounded border border-gray-300 text-sm hover:bg-gray-100">
+            <div className="flex justify-end gap-2 mt-2">
+              <button
+                type="button"
+                onClick={handleSkipVerification}
+                className="text-sm text-gray-500 underline hover:text-gray-700"
+              >
+                인증 건너뛰기
+              </button>
+              <button
+                onClick={handleSendCode}
+                className="px-3 py-2 rounded border border-gray-300 text-sm hover:bg-gray-100"
+              >
                 인증요청
               </button>
-              <button onClick={handleVerifyCode} className="px-3 py-2 rounded bg-black text-white text-sm hover:bg-gray-800">
+              <button
+                onClick={handleVerifyCode}
+                className="px-3 py-2 rounded bg-black text-white text-sm hover:bg-gray-800"
+              >
                 인증확인
               </button>
             </div>
-            {message && <p className="text-sm text-red-600">{message}</p>}
+
+            {message && <p className="text-sm text-red-600 whitespace-pre-line">{message}</p>}
           </>
         )}
       </div>
 
-      {/* 받는 사람 */}
-      <div>
-        <label className="block text-[15px] font-semibold text-gray-900 mb-2">받는 사람 (닉네임) <span className="text-red-500">*</span></label>
-        <input
-          type="text"
-          value={recipient}
-          onChange={(e) => setRecipient(e.target.value)}
-          className="border border-gray-300 px-4 py-2 w-full rounded text-[15px]"
-          placeholder="이름 입력"
-        />
-      </div>
-
-      {/* 주소 입력 */}
-      <div>
-        <label className="block text-[15px] font-semibold text-gray-900 mb-2">주소 <span className="text-red-500">*</span></label>
-        <div className="flex gap-2 mb-2">
-          <input type="text" value={zip} readOnly className="border px-3 py-2 rounded w-1/2 bg-gray-100 text-center" placeholder="우편번호" />
-          <button onClick={handleDaumPostcode} className="bg-white border border-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-100 text-sm">
-            주소검색
-          </button>
-        </div>
-        <input type="text" value={addr} readOnly className="border px-3 py-2 w-full rounded bg-gray-100 mb-2" placeholder="도로명 주소" />
-        <input type="text" value={detail} onChange={(e) => setDetail(e.target.value)} className="border px-3 py-2 w-full rounded" placeholder="상세 주소 입력" />
-      </div>
-
-      {/* 배송 메모 */}
-      <div>
-        <label className="block text-[15px] font-semibold text-gray-900 mb-2">배송 메모</label>
-        <select value={memo} onChange={(e) => setMemo(e.target.value)} className="border border-gray-300 px-3 py-2 w-full rounded">
-          <option>부재 시 문 앞에 놓아주세요.</option>
-          <option>경비실에 맡겨주세요.</option>
-          <option>배송 전 연락주세요.</option>
-          <option>직접 입력</option>
-        </select>
-        {memo === "직접 입력" && (
-          <input type="text" value={customMemo} onChange={(e) => setCustomMemo(e.target.value)} className="mt-2 border px-3 py-2 w-full rounded" placeholder="배송 메모를 입력하세요" />
-        )}
-      </div>
-
-      {/* 쿠폰 입력 */}
-      <div>
-        <label className="block text-[15px] font-semibold text-gray-900 mb-2">쿠폰 코드</label>
-        <input
-          type="text"
-          value={couponCode}
-          onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-          className="border px-3 py-2 w-full rounded text-[15px]"
-          placeholder="쿠폰 코드를 입력하세요"
-        />
-      {couponMessage && (
-        <p className="mt-1 text-sm text-orange-500">{couponMessage}</p>
-      )}        
-      </div>
-
-      {/* 주문 상품 리스트 */}
-      <div className="border-t pt-5 pb-6 text-sm text-gray-800 space-y-2">
-        <h2 className="text-[15px] font-semibold text-black">주문상품</h2>
-        {products.map((product) => (
-          <div key={product.product_id} className="flex gap-3 items-center">
-            <div className="w-20 h-20 rounded overflow-hidden bg-gray-100 relative">
-              <Image src={`/products/${product.product_id}/main.jpg`} alt={product.order_name} fill className="object-cover" sizes="80px" />
-            </div>
-            <div className="flex-1">
-              <div className="font-medium">{product.order_name}</div>
-              <div className="text-[15px] font-semibold text-black mt-1">₩{product.amount.toLocaleString()}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* 결제정보 */}
-      <div className="border-t pt-5 pb-3 space-y-1 text-sm text-gray-800">
-        <h2 className="text-[15px] font-semibold text-black">결제정보</h2>
-        <div className="flex justify-between"><span>주문상품</span><span className="font-medium">₩{totalAmount.toLocaleString()}</span></div>
-        <div className="flex justify-between"><span>배송비</span><span className="font-medium">+₩{shippingFee.toLocaleString()}</span></div>
-        <div className="flex justify-between"><span>할인/부가결제</span><span className="font-medium text-red-500">-₩{discountAmount.toLocaleString()}</span></div>
-      </div>
-
-      <div className="bg-blue-50 px-4 py-3 rounded text-right mt-4">
-        <span className="text-[16px] font-bold text-blue-600">최종 결제 금액 ₩{finalAmount.toLocaleString()}</span>
-      </div>
 
       {/* ✅ Toss 결제수단 위젯 영역 */}
 

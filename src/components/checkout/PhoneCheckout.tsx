@@ -100,6 +100,23 @@ export default function PhoneCheckout() {
     }
   };
 
+  const handleSkipVerification = () => {
+    const isValid = /^[0-9]{8}$/.test(phoneRest); // 8자리 숫자인지 검사
+  
+    if (!isValid) {
+      setMessage("전화번호를 정확히 입력해주세요 (예: 12345678)");
+      return;
+    }
+  
+    setIsVerified(true);
+    setMessage("✅인증 없이도 주문은 가능해요!\n📦배송·주문확인·환불 위해 한 번 더 체크해주세요!");
+  
+    // 메시지 3초 뒤에 사라지도록 처리
+    setTimeout(() => {
+      setMessage("");
+    }, 4000);
+  };
+
   if (!order) {
     return (
       <div className="p-6 text-center">
@@ -107,6 +124,9 @@ export default function PhoneCheckout() {
       </div>
     );
   }
+
+
+  
 
   return (
     <OrderForm
@@ -118,6 +138,7 @@ export default function PhoneCheckout() {
       setCode={setCode}
       handleSendCode={handleSendCode}
       handleVerifyCode={handleVerifyCode}
+      handleSkipVerification={handleSkipVerification} // ✅ 이 줄 추가!
       message={message}
       products={order.products}
       totalAmount={order.total_amount}
