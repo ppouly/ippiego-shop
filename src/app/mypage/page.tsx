@@ -229,6 +229,21 @@ export default function MyPage() {
                 카카오 로그인하기
               </button>
               <p className="text-xs text-orange-800">카카오 회원가입 시 추가 5% 할인</p>
+
+              <footer className="mt-16 text-left text-xs text-gray-400 border-t pt-4 leading-relaxed px-2">
+
+              <div className="text-xs text-[#FF6B6B] mt-1">
+                고객센터/CS:{" "}
+                <a
+                  href="http://pf.kakao.com/_xblzfn"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline decoration-1 hover:opacity-80"
+                >
+                  입히고 카카오채널
+                </a>
+              </div>
+              </footer>
             </div>
 
           </>
@@ -324,7 +339,10 @@ export default function MyPage() {
           로그아웃
         </button>
       </div>
+
+
     </div>
+    
   );
   
   
