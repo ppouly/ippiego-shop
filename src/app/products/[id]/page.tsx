@@ -51,7 +51,6 @@ export default function ProductDetailPage() {
   const [activeTab, setActiveTab] = useState<'description' | 'qa' | 'exchange'>('description');
   const [currentImage, setCurrentImage] = useState(0);
   const [showToast, setShowToast] = useState(false);
-  const [setSameBrandProducts] = useState<Product[]>([]);
   const [displayBrandOrCategoryProducts, setDisplayBrandOrCategoryProducts] = useState<Product[]>([]);
   const [siblingLookProducts, setSiblingLookProducts] = useState<Product[]>([]);
 
@@ -87,8 +86,6 @@ export default function ProductDetailPage() {
               item.brand === found.brand
           )
           .slice(0, 10);
-
-        setSameBrandProducts(sameBrand);
 
         const brandToShow = sameBrand.length > 1 ? sameBrand : sizeOnly;
         setDisplayBrandOrCategoryProducts(brandToShow);
