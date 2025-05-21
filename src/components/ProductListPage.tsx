@@ -71,7 +71,7 @@ export default function ProductListPage() {
       {/* 브랜드 필터 */}
       <div>
         <div className="overflow-x-auto whitespace-nowrap scroll-smooth no-scrollbar -mx-2 px-2 py-1">
-          {["보보쇼즈", "미니로디니","타오", "루이스미샤","아폴리니", "던스","봉주르다이어리","콩제슬래드"].map((b) => {
+          {["보보쇼즈", "미니로디니","타오", "루이스미샤","아폴리나", "던스","봉주르다이어리","콩제슬래드"].map((b) => {
             const selectedBrands = brand?.split(",") || [];
             const isSelected = selectedBrands.includes(b);
 
