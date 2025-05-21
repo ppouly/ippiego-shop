@@ -42,8 +42,7 @@ export default function ProductListPage() {
           const categoryMatch = category ? p.category?.includes(category) : true;
           const brandMatch = selectedBrands.length > 0 ? selectedBrands.includes(p.brand) : true;
           const sizeMatch = selectedSizes.length > 0 ? selectedSizes.includes(p.size) : true;
-          const statusMatch = p.status === "판매중"; // ✅ status 조건 추가
-          
+
           return categoryMatch && brandMatch && sizeMatch;
         });
 
