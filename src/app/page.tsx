@@ -142,7 +142,7 @@ export default function Home() {
 
   const visibleProducts = showAll 
       ? filteredProducts 
-      : filteredProducts.slice(0, 6);
+      : filteredProducts.slice(0, 10);
 
       
   return (
