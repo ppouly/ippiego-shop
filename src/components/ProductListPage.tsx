@@ -4,7 +4,6 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { fetchValidProducts } from "@/lib/fetchProducts";
 import type { Product } from "@/types/product";
 
 export default function ProductListPage() {
@@ -12,6 +11,7 @@ export default function ProductListPage() {
   const category = searchParams.get("category");
   const brand = searchParams.get("brand");
   const size = searchParams.get("size");
+  const search = searchParams.get("search");
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,27 +21,42 @@ export default function ProductListPage() {
     async function load() {
       try {
         setLoading(true);
-        const allProducts = await fetchValidProducts();
+
+        let result: Product[] = [];
+
+        if (search) {
+          const res = await fetch(`/api/search-products?search=${encodeURIComponent(search)}`);
+          const json = await res.json();
+          result = json.data || [];
+        } else {
+          const res = await fetch("/api/all-products"); // 전체 불러오기용 API 따로 만들기 권장
+          const json = await res.json();
+          result = json.data || [];
+        }
+
+        // 클라이언트 필터링 (카테고리, 브랜드, 사이즈만)
         const selectedBrands = brand?.split(",") || [];
         const selectedSizes = size?.split(",") || [];
 
-        const filtered = allProducts.filter((p) => {
+        const filtered = result.filter((p) => {
           const categoryMatch = category ? p.category?.includes(category) : true;
           const brandMatch = selectedBrands.length > 0 ? selectedBrands.includes(p.brand) : true;
           const sizeMatch = selectedSizes.length > 0 ? selectedSizes.includes(p.size) : true;
+          const statusMatch = p.status === "판매중"; // ✅ status 조건 추가
+          
           return categoryMatch && brandMatch && sizeMatch;
         });
 
         setProducts(filtered);
       } catch (err) {
-        console.error("상품 필터링 실패:", err);
+        console.error("상품 조회 실패:", err);
       } finally {
         setLoading(false);
       }
     }
 
     load();
-  }, [category, brand, size]);
+  }, [category, brand, size, search]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -56,7 +71,7 @@ export default function ProductListPage() {
         return next;
       });
     }, 3000);
-  
+
     return () => clearInterval(interval);
   }, [products]);
 
