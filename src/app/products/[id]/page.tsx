@@ -42,7 +42,6 @@ const conditionDescriptions: Record<string, React.ReactNode> = {
   ),
 }; 
 
-
 export default function ProductDetailPage() {
   const params = useParams();
   const id = Number(params.id);
@@ -52,7 +51,9 @@ export default function ProductDetailPage() {
   const [activeTab, setActiveTab] = useState<'description' | 'qa' | 'exchange'>('description');
   const [currentImage, setCurrentImage] = useState(0);
   const [showToast, setShowToast] = useState(false);
-  
+  const [sameBrandProducts, setSameBrandProducts] = useState<Product[]>([]);
+  const [displayBrandOrCategoryProducts, setDisplayBrandOrCategoryProducts] = useState<Product[]>([]);
+  const [siblingLookProducts, setSiblingLookProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     async function loadProductAndRelated() {
@@ -61,10 +62,48 @@ export default function ProductDetailPage() {
         const found = allProducts.find((item) => item.id === Number(id));
         if (!found) throw new Error("상품이 존재하지 않습니다.");
         setProduct(found);
+
+        const sizeOnly = allProducts.filter(
+          (item) => item.id !== found.id && item.size === found.size
+        );
+
         const related = allProducts
-          .filter((item) => item.size === found.size && item.id !== found.id)
+          .filter(
+            (item) =>
+              item.id !== found.id &&
+              item.size === found.size &&
+              item.category1 === found.category1
+          )
           .slice(0, 10);
-        setRelatedProducts(related);
+
+        const relatedToShow = related.length > 1 ? related : sizeOnly;
+        setRelatedProducts(relatedToShow);
+
+        const sameBrand = allProducts
+          .filter(
+            (item) =>
+              item.id !== found.id &&
+              item.size === found.size &&
+              item.brand === found.brand
+          )
+          .slice(0, 10);
+
+        setSameBrandProducts(sameBrand);
+
+        const brandToShow = sameBrand.length > 1 ? sameBrand : sizeOnly;
+        setDisplayBrandOrCategoryProducts(brandToShow);
+
+        const siblings = allProducts
+          .filter(
+            (item) =>
+              item.id !== found.id &&
+              item.brand === found.brand &&
+              item.size !== found.size
+          )
+          .slice(0, 10);
+
+        setSiblingLookProducts(siblings);
+
       } catch (err) {
         console.error("상품 상세 또는 추천 불러오기 실패:", err);
         setProduct(null);
@@ -79,7 +118,6 @@ export default function ProductDetailPage() {
   useEffect(() => {
     console.log("🔥 상품 데이터:", product);
   }, [product]);
-
 
   if (loading) return <p className="p-4">로딩 중...</p>;
   if (!product) return <p className="p-4">상품을 찾을 수 없습니다.</p>;
@@ -372,10 +410,72 @@ export default function ProductDetailPage() {
         </div>
 
       </div>
+    <div className="px-4 py-5 mb-3">
+    <h3 className="font-bold text-sm text-[#222] mb-2"> 같은 사이즈 추천 ✨</h3>
+    <div className="overflow-x-auto flex gap-4 scrollbar-hide">
+      {displayBrandOrCategoryProducts.map((item) => (
+        <Link key={item.id} href={`/products/${item.id}`} className="flex-none w-[140px]">
+          <div className="w-[140px] h-[180px] rounded-md overflow-hidden bg-gray-100">
+            <Image
+              src={item.image}
+              alt={item.name}
+              width={140}
+              height={180}
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <p className="text-xs mt-1 text-gray-700 truncate">{item.name}</p>
+          {(() => {
+            const discountRate = item.discountRate ?? 0;
+            const discountedPrice = Math.round(item.price * (1 - discountRate / 100));
+            return (
+              <>
+                <p className="text-xs font-bold text-black">₩{discountedPrice.toLocaleString()}</p>
+                {discountRate > 0 && (
+                  <p className="text-[11px] text-gray-400 line-through">
+                    ₩{item.price.toLocaleString()} | {discountRate}% 할인
+                  </p>
+                )}
+              </>
+            );
+          })()}
+        </Link>
+      ))}
+    </div>
+  </div>
 
-      <div className="px-4 py-5 mb-3">
-        <h3 className="font-bold text-sm text-[#222] mb-3">👯 자매룩 · 형제룩 추천</h3>
-        {/* TODO: 슬라이더 삽입 */}
+        <div className="px-4 py-5 mb-3">
+        <h3 className="font-bold text-sm text-[#222] mb-3">자매룩 · 형제룩 추천 👯</h3>
+        <div className="overflow-x-auto flex gap-4 scrollbar-hide">
+          {siblingLookProducts.map((item) => (
+            <Link key={item.id} href={`/products/${item.id}`} className="flex-none w-[140px]">
+              <div className="w-[140px] h-[180px] rounded-md overflow-hidden bg-gray-100">
+                <Image
+                  src={item.image}
+                  alt={item.name}
+                  width={140}
+                  height={180}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <p className="text-xs mt-1 text-gray-700 truncate">{item.name}</p>
+              {(() => {
+                const discountRate = item.discountRate ?? 0;
+                const discountedPrice = Math.round(item.price * (1 - discountRate / 100));
+                return (
+                  <>
+                    <p className="text-xs font-bold text-black">₩{discountedPrice.toLocaleString()}</p>
+                    {discountRate > 0 && (
+                      <p className="text-[11px] text-gray-400 line-through">
+                        ₩{item.price.toLocaleString()} | {discountRate}% 할인
+                      </p>
+                    )}
+                  </>
+                );
+              })()}
+            </Link>
+          ))}
+        </div>
       </div>
 
       {showToast && (
