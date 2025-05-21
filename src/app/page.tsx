@@ -85,7 +85,7 @@ export default function Home() {
   const router = useRouter();
   const [selectedSize, setSelectedSize] = useState("전체");
   const [products, setProducts] = useState<Product[]>([]);
-  const [showAll, setShowAll] = useState(true);
+  const [showAll, setShowAll] = useState(false);
   const [showBanner, setShowBanner] = useState(true);
   const [currentImageMap, setCurrentImageMap] = useState<Record<number, number>>({});
 
@@ -404,7 +404,7 @@ export default function Home() {
         </div>
 
       {/* 더보기 / 접기 버튼 */}
-      {/* {filteredProducts.length > 2 && (
+      {filteredProducts.length > 2 && (
         <div className="mt-4 text-center">
           <button onClick={() => setShowAll(!showAll)} className="inline-flex justify-center">
             <Image
@@ -415,7 +415,7 @@ export default function Home() {
             />
           </button>
         </div>
-      )}   */}
+      )}  
       </section>
 
       {/* 푸터: 사업자 정보 */}  
