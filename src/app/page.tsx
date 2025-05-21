@@ -314,8 +314,8 @@ export default function Home() {
 
       {/* 사이즈별 추천 상품 목록 */}
       <section className="mt-10">
-        <h2 className="text-lg font-semibold text-black mb-4">사이즈 별 전체 상품</h2>
-        <div className="overflow-x-auto whitespace-nowrap scroll-smooth no-scrollbar px-2 py-1 -mx-4">
+        <h2 className="text-lg font-semibold text-black mb-1">사이즈 별 전체 상품</h2>
+        <div className=" overflow-x-auto whitespace-nowrap scroll-smooth no-scrollbar px-2 py-1 -mx-4">
           {["전체","70","85","95","110","120","130","140"].map((size) => (
             <button
               key={size}
@@ -323,7 +323,7 @@ export default function Home() {
                 setSelectedSize(size);
                 setShowAll(false); // 탭 바꾸면 다시 접힘
               }}
-              className={`inline-block text-sm font-semibold mr-0.5 px-2 py-2 rounded-full  ${
+              className={`inline-block text-lg font-semibold mr-0.5 px-2 py-2 rounded-full  ${
                 selectedSize === size
                   ? "text-black underline"
                   : "text-gray-400"
