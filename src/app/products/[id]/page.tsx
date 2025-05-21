@@ -51,6 +51,7 @@ export default function ProductDetailPage() {
   const [activeTab, setActiveTab] = useState<'description' | 'qa' | 'exchange'>('description');
   const [currentImage, setCurrentImage] = useState(0);
   const [showToast, setShowToast] = useState(false);
+  const [setSameBrandProducts] = useState<Product[]>([]);
   const [displayBrandOrCategoryProducts, setDisplayBrandOrCategoryProducts] = useState<Product[]>([]);
   const [siblingLookProducts, setSiblingLookProducts] = useState<Product[]>([]);
 
