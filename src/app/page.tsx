@@ -405,17 +405,24 @@ export default function Home() {
 
       {/* 더보기 / 접기 버튼 */}
       {filteredProducts.length > 2 && (
-        <div className="mt-4 text-center">
-          <button onClick={() => setShowAll(!showAll)} className="inline-flex justify-center">
+        <div className="mt-6 flex justify-center">
+          <button
+            onClick={() => setShowAll(!showAll)}
+            className="flex flex-col items-center gap-1"
+          >
             <Image
-              src={showAll ? "/up.jpg" : "/down.jpg"}
-              alt="더보기 버튼"
-              width={24}
-              height={24}
+              src={showAll ? "/up.jpg" : "/down.jpg"} // ⬅ 업로드한 한글 이미지 사용
+              alt={showAll ? "접기 버튼" : "더보기 버튼"}
+              width={56}
+              height={56}
             />
+            <span className="text-sm font-semibold text-gray-700">
+              {showAll ? "접기" : "더보기"}
+            </span>
           </button>
         </div>
-      )}  
+      )}
+
       </section>
 
       {/* 푸터: 사업자 정보 */}  
