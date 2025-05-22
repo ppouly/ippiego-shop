@@ -456,6 +456,7 @@ export default function ProductDetailPage() {
                 />
               </div>
               <p className="text-xs mt-1 text-gray-700 truncate">{item.name}</p>
+              <p className="text-[11px] text-gray-500">{item.size}</p>
               {(() => {
                 const discountRate = item.discountRate ?? 0;
                 const discountedPrice = Math.round(item.price * (1 - discountRate / 100));
