@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "@/types/product";
+import { fetchValidProducts } from "@/lib/fetchProducts";
+
 
 export default function ProductListPage() {
   const searchParams = useSearchParams();
@@ -29,10 +31,9 @@ export default function ProductListPage() {
           const json = await res.json();
           result = json.data || [];
         } else {
-          const res = await fetch("/api/all-products"); // 전체 불러오기용 API 따로 만들기 권장
-          const json = await res.json();
-          result = json.data || [];
+          result = await fetchValidProducts(); // ✅ 기존에 잘 되던 함수로 복귀
         }
+        
 
         // 클라이언트 필터링 (카테고리, 브랜드, 사이즈만)
         const selectedBrands = brand?.split(",") || [];
