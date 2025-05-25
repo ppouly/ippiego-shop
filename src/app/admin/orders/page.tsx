@@ -18,9 +18,24 @@ interface OrderSummary {
 }
 
 export default function AdminOrdersPage() {
+  const [auth, setAuth] = useState(false);
+  const [clientIP, setClientIP] = useState("");
+
+  useEffect(() => {
+    fetch("https://api.ipify.org?format=json")
+      .then(res => res.json())
+      .then(data => {
+        const allowlist = ['119.194.232.192','223.38.51.101','::1','103.243.200.61','211.235.81.50','223.38.48.120']; // 수정 필요
+        setClientIP(data.ip);
+        if (allowlist.includes(data.ip)) {
+          setAuth(true);
+        }
+      });
+  }, []);
+
   const [orders, setOrders] = useState<OrderSummary[]>([]);
-  const [totalSales, setTotalSales] = useState(0);
-  const [totalMargin, setTotalMargin] = useState(0);
+  const [totalSales, setTotalSales] = useState<number>(0);
+  const [totalMargin, setTotalMargin] = useState<number>(0);
   const [startDate, setStartDate] = useState(() => {
     const kst = new Date(Date.now() + 9 * 60 * 60 * 1000);
     return kst.toISOString().split("T")[0];
@@ -29,9 +44,11 @@ export default function AdminOrdersPage() {
     const kst = new Date(Date.now() + 9 * 60 * 60 * 1000);
     return kst.toISOString().split("T")[0];
   });
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   useEffect(() => {
+    if (!auth) return;
+
     const fetchOrders = async () => {
       const { data, error } = await supabase
         .from("orders")
@@ -63,14 +80,14 @@ export default function AdminOrdersPage() {
       for (const order of data) {
         sales += order.total_amount;
 
-        let productList: { amount: number; order_name: string; product_id: number }[] = [];
+        let productList: OrderSummary["products"] = [];
         try {
           if (Array.isArray(order.products)) {
             productList = order.products;
           } else if (typeof order.products === "string") {
             productList = JSON.parse(order.products);
           }
-        } catch (e) {
+        } catch {
           console.error("🚨 products JSON 파싱 실패:", order.products);
           continue;
         }
@@ -94,7 +111,11 @@ export default function AdminOrdersPage() {
     };
 
     fetchOrders();
-  }, [startDate, endDate]);
+  }, [auth, startDate, endDate]);
+
+  if (!auth) {
+    return <div className="p-4 text-center text-gray-500">허용되지 않은 접근입니다. (IP: {clientIP})</div>;
+  }
 
   return (
     <div className="p-4">

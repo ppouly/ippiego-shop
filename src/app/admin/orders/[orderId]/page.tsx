@@ -5,19 +5,37 @@ import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import copy from "copy-to-clipboard";
 
+interface ProductItem {
+  product_id: number;
+  order_name: string;
+  amount: number;
+}
+
+interface ProductDetail extends ProductItem {
+  name: string;
+  purchasePrice: number;
+  quantity: number;
+}
+
+interface Order {
+  [key: string]: unknown;
+  order_id: string;
+  delivery_status: string | null;
+  products: ProductItem[] | string;
+}
+
+
 export default function AdminOrderDetailPage() {
   const params = useParams();
   const orderId = params?.orderId as string;
-  const [order, setOrder] = useState<any>(null);
-  const [productDetails, setProductDetails] = useState<any[]>([]);
+
+  const [order, setOrder] = useState<Order | null>(null);
+  const [productDetails, setProductDetails] = useState<ProductDetail[]>([]);
   const [reviewLinks, setReviewLinks] = useState<string[]>([]);
-  const [newDeliveryStatus, setNewDeliveryStatus] = useState("");
+  const [newDeliveryStatus, setNewDeliveryStatus] = useState<string>("");
 
   useEffect(() => {
-    if (!orderId) {
-      console.error("❌ orderId가 없습니다.");
-      return;
-    }
+    if (!orderId) return;
 
     const fetchOrderDetail = async () => {
       const { data: orderData, error } = await supabase
@@ -26,32 +44,28 @@ export default function AdminOrderDetailPage() {
         .eq("order_id", orderId)
         .single();
 
-      if (error) {
-        console.error("❌ 주문 조회 에러:", error.message);
-        return;
-      }
-
-      if (!orderData) {
-        console.warn("🚫 해당 order_id의 주문이 존재하지 않습니다.");
+      if (error || !orderData) {
+        console.error("❌ 주문 조회 실패", error?.message);
         return;
       }
 
       setOrder(orderData);
-      setNewDeliveryStatus(orderData.delivery_status);
+      setNewDeliveryStatus(orderData.delivery_status ?? "");
 
-      let productList: { product_id: number; order_name: string; amount: number }[] = [];
+      let productList: ProductItem[] = [];
+
       try {
-        productList = Array.isArray(orderData.products)
-          ? orderData.products
-          : typeof orderData.products === "string"
-          ? JSON.parse(orderData.products)
-          : [];
-      } catch (e) {
+        if (Array.isArray(orderData.products)) {
+          productList = orderData.products;
+        } else if (typeof orderData.products === "string") {
+          productList = JSON.parse(orderData.products);
+        }
+      } catch {
         console.error("🚨 products JSON 파싱 실패:", orderData.products);
         return;
       }
 
-      const details: any[] = [];
+      const details: ProductDetail[] = [];
       const links: string[] = [];
 
       for (const item of productList) {
@@ -62,7 +76,12 @@ export default function AdminOrderDetailPage() {
           .single();
 
         if (product) {
-          details.push({ ...product, quantity: 1, ...item });
+          details.push({
+            ...item,
+            name: product.name,
+            purchasePrice: product.purchasePrice,
+            quantity: 1,
+          });
 
           const { data: tokenData } = await supabase
             .from("reviews_tokens")
@@ -90,7 +109,7 @@ export default function AdminOrderDetailPage() {
       .from("orders")
       .update({ delivery_status: valueToSave })
       .eq("order_id", orderId);
-  
+
     if (error) {
       alert("업데이트 중 오류가 발생했습니다: " + error.message);
     } else {
@@ -98,7 +117,6 @@ export default function AdminOrderDetailPage() {
       location.reload();
     }
   };
-  
 
   if (!orderId) return <div className="p-4 text-red-500">orderId 없음</div>;
   if (!order) return <div className="p-4">주문을 불러오는 중입니다...</div>;
@@ -110,30 +128,41 @@ export default function AdminOrderDetailPage() {
       <div className="mb-4">
         <h3 className="font-semibold">기본 정보</h3>
         <table className="table-auto text-sm border border-collapse">
-  <tbody>
-    {Object.entries(order).map(([key, value]) => (
-      <tr key={key}>
-        <td className="border px-2 py-1 font-medium whitespace-nowrap bg-gray-100">
-          <div className="flex items-center gap-2">
-            <span>{key}</span>
-            {(key === "phone" || key === "address" || key === "memo" || key === "recipient") && order[key] && (
-              <button
-                onClick={() => copy(String(order[key]))}
-                className="text-xs text-blue-600 underline hover:text-blue-800"
-              >
-                복사
-              </button>
-            )}
-          </div>
-        </td>
-        <td className="border px-2 py-1">
-          {value === null ? "" : typeof value === "object" ? JSON.stringify(value) : String(value)}
-        </td>
-      </tr>
-    ))}
-  </tbody>
-</table>
-      </div>
+            <tbody>
+            {(Object.entries(order) as [string, unknown][]).map(([key, value]) => {
+                const isCopyable = ["phone", "address", "memo", "recipient"].includes(key);
+
+                return (
+                <tr key={key}>
+                    <td className="border px-2 py-1 font-medium whitespace-nowrap bg-gray-100">
+                    <div className="flex items-center gap-2">
+                        <span>{key}</span>
+                        {isCopyable && value !== null && value !== undefined && (
+                        <button
+                            onClick={() => copy(String(value))}
+                            className="text-xs text-blue-600 underline hover:text-blue-800"
+                        >
+                            복사
+                        </button>
+                        )}
+                    </div>
+                    </td>
+                    <td className="border px-2 py-1">
+                    {value === null || value === undefined
+                        ? ""
+                        : typeof value === "object"
+                        ? JSON.stringify(value)
+                        : String(value)}
+                    </td>
+                </tr>
+                );
+            })}
+            </tbody>
+        </table>
+        </div>
+
+
+
 
       <div className="mb-4">
         <h3 className="font-semibold">주문 상품</h3>
@@ -147,50 +176,49 @@ export default function AdminOrderDetailPage() {
       </div>
 
       <div className="mb-4">
-  <h3 className="font-semibold">배송상태 변경</h3>
-  <div className="flex items-center gap-2 mb-2">
-    <select
-      value={newDeliveryStatus ?? ""}
-      onChange={(e) => {
-        const selected = e.target.value;
-        if (selected === "NULL") {
-          setNewDeliveryStatus("");
-        } else if (selected === "배송 진행 중") {
-          const tracking = prompt("운송장 번호를 입력해주세요");
-          if (tracking) {
-            setNewDeliveryStatus(`배송 진행 중(운송장번호: ${tracking})`);
-          }
-        } else if (selected === "배송 완료") {
-          const prev = newDeliveryStatus;
-          const match = prev?.match(/운송장번호: (.*?)\)?$/);
-          const tracking = match?.[1];
-          if (tracking) {
-            setNewDeliveryStatus(`배송완료(운송장번호: ${tracking})`);
-          } else {
-            alert("먼저 '배송 진행 중' 상태에서 운송장번호를 입력해주세요.");
-          }
-        } else {
-          setNewDeliveryStatus(selected);
-        }
-      }}
-      className="border px-2 py-1"
-    >
-      <option value="">선택</option>
-      <option value="환불완료">환불완료</option>
-      <option value="배송준비">배송준비</option>
-      <option value="배송 진행 중">배송 진행 중</option>
-      <option value="배송 완료">배송 완료</option>
-      <option value="NULL">(값 비우기)</option>
-    </select>
-    <button
-      onClick={handleStatusUpdate}
-      className="bg-blue-600 text-white px-3 py-1 rounded"
-    >
-      저장
-    </button>
-  </div>
-  <p className="text-sm text-gray-500">현재 상태: {newDeliveryStatus ?? "(없음)"}</p>
-</div>
+        <h3 className="font-semibold">배송상태 변경</h3>
+        <div className="flex items-center gap-2 mb-2">
+          <select
+            value={newDeliveryStatus ?? ""}
+            onChange={(e) => {
+              const selected = e.target.value;
+              if (selected === "NULL") {
+                setNewDeliveryStatus("");
+              } else if (selected === "배송 진행 중") {
+                const tracking = prompt("운송장 번호를 입력해주세요");
+                if (tracking) {
+                  setNewDeliveryStatus(`배송 진행 중(운송장번호: ${tracking})`);
+                }
+              } else if (selected === "배송 완료") {
+                const match = newDeliveryStatus?.match(/운송장번호: (.*?)\)?$/);
+                const tracking = match?.[1];
+                if (tracking) {
+                  setNewDeliveryStatus(`배송완료(운송장번호: ${tracking})`);
+                } else {
+                  alert("먼저 '배송 진행 중' 상태에서 운송장번호를 입력해주세요.");
+                }
+              } else {
+                setNewDeliveryStatus(selected);
+              }
+            }}
+            className="border px-2 py-1"
+          >
+            <option value="">선택</option>
+            <option value="환불완료">환불완료</option>
+            <option value="배송준비">배송준비</option>
+            <option value="배송 진행 중">배송 진행 중</option>
+            <option value="배송 완료">배송 완료</option>
+            <option value="NULL">(값 비우기)</option>
+          </select>
+          <button
+            onClick={handleStatusUpdate}
+            className="bg-blue-600 text-white px-3 py-1 rounded"
+          >
+            저장
+          </button>
+        </div>
+        <p className="text-sm text-gray-500">현재 상태: {newDeliveryStatus ?? "(없음)"}</p>
+      </div>
 
       <div className="mb-4">
         <h3 className="font-semibold">리뷰 작성 링크</h3>
