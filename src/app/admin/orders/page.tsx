@@ -157,7 +157,10 @@ export default function AdminOrdersPage() {
             <tbody>
               {orders.map((order) => (
                 <tr key={order.order_id}>
-                  <td className="border px-2 py-1">{format(new Date(order.created_at), "yyyy-MM-dd HH:mm")}</td>
+                  
+                  <td className="border px-2 py-1">
+                  {format(new Date(new Date(order.created_at).getTime() + 9 * 60 * 60 * 1000), "yyyy-MM-dd HH:mm")}
+                  </td>
                   <td className="border px-2 py-1">₩{order.total_amount.toLocaleString()}</td>
                   <td className="border px-2 py-1">(개별 계산)</td>
                   <td className="border px-2 py-1">{order.delivery_status}</td>
