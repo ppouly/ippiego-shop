@@ -33,6 +33,7 @@ export default function AdminOrderDetailPage() {
   const [productDetails, setProductDetails] = useState<ProductDetail[]>([]);
   const [reviewLinks, setReviewLinks] = useState<string[]>([]);
   const [newDeliveryStatus, setNewDeliveryStatus] = useState<string>("");
+  const [reviewUrl, setReviewUrl] = useState("https://buly.kr/9XLCeG1"); // ✅ 여기에 선언
 
   useEffect(() => {
     if (!orderId) return;
@@ -105,11 +106,20 @@ export default function AdminOrderDetailPage() {
 
   const handleStatusUpdate = async () => {
     const valueToSave = newDeliveryStatus === "" ? null : newDeliveryStatus;
+  
+    const updateFields: { delivery_status: string | null; delivery_complete_date?: string } = {
+      delivery_status: valueToSave,
+    };
+  
+    if (valueToSave?.includes("배송완료")) {
+      updateFields.delivery_complete_date = new Date().toISOString(); // ✅ 현재 시각 추가
+    }
+  
     const { error } = await supabase
       .from("orders")
-      .update({ delivery_status: valueToSave })
+      .update(updateFields)
       .eq("order_id", orderId);
-
+  
     if (error) {
       alert("업데이트 중 오류가 발생했습니다: " + error.message);
     } else {
@@ -117,6 +127,7 @@ export default function AdminOrderDetailPage() {
       location.reload();
     }
   };
+  
 
   if (!orderId) return <div className="p-4 text-red-500">orderId 없음</div>;
   if (!order) return <div className="p-4">주문을 불러오는 중입니다...</div>;
@@ -282,27 +293,50 @@ export default function AdminOrderDetailPage() {
             const match = newDeliveryStatus?.match(/운송장번호: (.*?)\)?$/);
             const trackingNumber = match?.[1];
 
-            if (!trackingNumber) return 
-            <p className="text-sm text-gray-500">
-            배송상태가 &#39;배송 진행 중&#39;일 때 표시됩니다.
-            </p>
-            ;
-
-            const message = `[입히고] 배송이 시작됐어요! 운송장번호 ${trackingNumber} 주문내역은 마이페이지에서 확인하실 수 있어요.`;
+            if (newDeliveryStatus?.includes("배송 진행 중") && trackingNumber) {
+            const message = `[입히고] 배송이 시작되었어요! CUpost 운송장번호 ${trackingNumber} 주문내역은 마이페이지에서 확인하실 수 있어요.`;
 
             return (
-            <div className="flex items-center gap-2 mt-1">
+                <div className="flex items-center gap-2 mt-1">
                 <span className="text-sm text-gray-800">{message}</span>
                 <button
-                onClick={() => copy(message)}
-                className="text-xs text-blue-600 underline hover:text-blue-800"
+                    onClick={() => copy(message)}
+                    className="text-xs text-blue-600 underline hover:text-blue-800"
                 >
-                복사
+                    복사
                 </button>
-            </div>
+                </div>
             );
+            }
+
+            if (newDeliveryStatus?.includes("배송완료")) {
+            const completeMessage = `[입히고]배송완료! 사진후기로 응원주세요🌱\n👉리뷰\n${reviewUrl}\n👉환불\n마이페이지>주문내역`;
+
+            return (
+                <div className="flex flex-col gap-2 mt-1">
+                <div className="flex items-center gap-2">
+                    <input
+                    type="text"
+                    value={reviewUrl}
+                    onChange={(e) => setReviewUrl(e.target.value)}
+                    className="border px-2 py-1 text-sm w-full"
+                    />
+                    <button
+                    onClick={() => copy(completeMessage)}
+                    className="text-xs text-blue-600 underline hover:text-blue-800"
+                    >
+                    복사
+                    </button>
+                </div>
+                <pre className="text-sm text-gray-800 whitespace-pre-wrap">{completeMessage}</pre>
+                </div>
+            );
+            }
+
+            return <p className="text-sm text-gray-500">&#39;배송 진행 중&#39; 또는 &#39;배송완료&#39; 상태일 때 표시됩니다.</p>;
         })()}
         </div>
+
 
       
     </div>
