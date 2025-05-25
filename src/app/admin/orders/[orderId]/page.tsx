@@ -251,7 +251,60 @@ export default function AdminOrderDetailPage() {
             </div>
           </div>
         ))}
+
       </div>
+        <div className="mt-6">
+        <h3 className="font-semibold">배송안내 고객번호</h3>
+        {(() => {
+            const phone = typeof order?.phone === "string" ? order.phone.replace(/^0/, "") : "";
+            const finalCode = phone ? `*28182${phone}` : "";
+
+            return (
+            <div className="flex items-center gap-2 mt-1">
+                <span className="text-sm text-gray-800">
+                {finalCode || "(전화번호가 없습니다)"}
+                </span>
+                {finalCode && (
+                <button
+                    onClick={() => copy(finalCode)}
+                    className="text-xs text-blue-600 underline hover:text-blue-800"
+                >
+                    복사
+                </button>
+                )}
+            </div>
+            );
+        })()}
+        </div>
+        <div className="mt-6">
+        <h3 className="font-semibold">배송안내 메세지</h3>
+        {(() => {
+            const match = newDeliveryStatus?.match(/운송장번호: (.*?)\)?$/);
+            const trackingNumber = match?.[1];
+
+            if (!trackingNumber) return 
+            <p className="text-sm text-gray-500">
+            배송상태가 &#39;배송 진행 중&#39;일 때 표시됩니다.
+            </p>
+            ;
+
+            const message = `[입히고] 배송이 시작됐어요! 운송장번호 ${trackingNumber} 주문내역은 마이페이지에서 확인하실 수 있어요.`;
+
+            return (
+            <div className="flex items-center gap-2 mt-1">
+                <span className="text-sm text-gray-800">{message}</span>
+                <button
+                onClick={() => copy(message)}
+                className="text-xs text-blue-600 underline hover:text-blue-800"
+                >
+                복사
+                </button>
+            </div>
+            );
+        })()}
+        </div>
+
+      
     </div>
   );
 }
