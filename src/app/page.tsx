@@ -14,7 +14,7 @@ import { motion } from "framer-motion";
 import type { Product } from "@/types/product";
 import { fetchValidProducts } from "@/lib/fetchProducts";
 import { LogPageView } from "@/components/LogPageView";
-// import ReviewSlide from "@/components/ReviewSlide";
+import ReviewSlide from "@/components/ReviewSlide"; 
 
 const banners = [
   {
@@ -307,10 +307,10 @@ export default function Home() {
           })}
         </Swiper>
 
-        {/* <section>
+        <section>
         <h2 className="text-lg font-semibold mt-7 mb-2">생생 후기🧡</h2>
         <ReviewSlide />
-      </section> */}
+      </section>
 
       {/* 사이즈별 추천 상품 목록 */}
       <section className="mt-10">
