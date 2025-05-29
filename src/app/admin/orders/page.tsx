@@ -25,7 +25,7 @@ export default function AdminOrdersPage() {
     fetch("https://api.ipify.org?format=json")
       .then(res => res.json())
       .then(data => {
-        const allowlist = ['223.38.46.251','119.194.232.192','223.38.51.101','::1','103.243.200.61','211.235.81.50','223.38.48.120','223.38.46.168']; // 수정 필요
+        const allowlist = ['223.38.46.175','119.194.232.192','223.38.51.101','::1','103.243.200.61','211.235.81.50','223.38.48.120','223.38.46.168']; // 수정 필요
         setClientIP(data.ip);
         if (allowlist.includes(data.ip)) {
           setAuth(true);
