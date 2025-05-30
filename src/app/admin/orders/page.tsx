@@ -114,8 +114,41 @@ export default function AdminOrdersPage() {
   }, [auth, startDate, endDate]);
 
   if (!auth) {
-    return <div className="p-4 text-center text-gray-500">허용되지 않은 접근입니다. (IP: {clientIP})</div>;
+    const [password, setPassword] = useState("");
+    const [passwordError, setPasswordError] = useState("");
+
+    const handlePasswordSubmit = () => {
+      if (password === "221124") {
+        setAuth(true);
+        setPasswordError("");
+      } else {
+        setPasswordError("비밀번호가 올바르지 않습니다.");
+      }
+    };
+
+    return (
+      <div className="p-4 text-center">
+        <p className="text-gray-500 mb-4">허용되지 않은 접근입니다. (IP: {clientIP})</p>
+        <div className="mb-2">
+          <input
+            type="password"
+            placeholder="비밀번호를 입력하세요"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="border px-2 py-1"
+          />
+        </div>
+        {passwordError && <p className="text-red-500">{passwordError}</p>}
+        <button
+          onClick={handlePasswordSubmit}
+          className="mt-2 bg-blue-500 text-white px-3 py-1 rounded"
+        >
+          확인
+        </button>
+      </div>
+    );
   }
+
 
   return (
     <div className="p-4">
