@@ -56,27 +56,32 @@ function MainBannerSlider() {
   });
 
   return (
-    <div ref={sliderRef} 
-         className="keen-slider w-full max-w-[768px] mx-auto overflow-hidden">
-      {banners.map((banner, index) => (
-        <div
-          key={index}
-          className="keen-slider__slide relative aspect-[2/3] bg-contain bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${banner.image})`, 
-                   backgroundColor: "#f7f2eb", // 예: 크림색 (브랜드 톤) 
-                  }}
+    <div
+    ref={sliderRef}
+    className="keen-slider w-full aspect-square mx-auto overflow-hidden"
+  >
+  
+    {banners.map((banner, index) => (
+      <div
+        key={index}
+        className="keen-slider__slide relative bg-contain bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url(${banner.image})`,
+          backgroundColor: "#f7f2eb",
+        }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="absolute bottom-10 left-5 right-5 text-white text-center text-xl font-bold drop-shadow-lg"
         >
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="absolute bottom-10 left-5 right-5 text-white text-center text-xl font-bold drop-shadow-lg"
-          >
-            {banner.text}
-          </motion.div>
-        </div>
-      ))}
-    </div>
+          {banner.text}
+        </motion.div>
+      </div>
+    ))}
+  </div>
+
   );
 }
 
