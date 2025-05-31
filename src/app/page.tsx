@@ -19,18 +19,22 @@ import ReviewSlide from "@/components/ReviewSlide";
 const banners = [
   {
     image: "/banner1.jpg",
+    link: "http://localhost:3000/products",
     text: " ",
   },
   {
     image: "/banner2.jpg",
+    link: "http://localhost:3000/cart",
     //text: "Vintage Vibes, Modern Fun",
   },
   {
     image: "/banner3.jpg",
+    link: "https://www.ippiego.shop/products?brand=%EB%B3%B4%EB%B3%B4%EC%87%BC%EC%A6%88",
     //text: "Bold Colors, Big Adventures",
   },
   {
     image: "/banner4.jpg",
+    link: "https://smartstore.naver.com/ippiego",
     //text: "Bold Colors, Big Adventures",
   },
 ];
@@ -57,32 +61,34 @@ function MainBannerSlider() {
 
   return (
     <div
-    ref={sliderRef}
-    className="keen-slider w-full aspect-square mx-auto overflow-hidden"
-  >
-  
-    {banners.map((banner, index) => (
-      <div
-        key={index}
-        className="keen-slider__slide relative bg-contain bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `url(${banner.image})`,
-          backgroundColor: "#f7f2eb",
-        }}
-      >
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="absolute bottom-10 left-5 right-5 text-white text-center text-xl font-bold drop-shadow-lg"
+      ref={sliderRef}
+      className="keen-slider w-full aspect-square mx-auto overflow-hidden"
+    >
+      {banners.map((banner, index) => (
+        <a
+          key={index}
+          href={banner.link} // 👉 각 배너별 링크 설정
+          target="_blank" // 새창 열기 (선택)
+          rel="noopener noreferrer" // 보안 권장
+          className="keen-slider__slide relative bg-contain bg-center bg-no-repeat block"
+          style={{
+            backgroundImage: `url(${banner.image})`,
+            backgroundColor: "#f7f2eb",
+          }}
         >
-          {banner.text}
-        </motion.div>
-      </div>
-    ))}
-  </div>
-
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="absolute bottom-10 left-5 right-5 text-white text-center text-xl font-bold drop-shadow-lg"
+          >
+            {banner.text}
+          </motion.div>
+        </a>
+      ))}
+    </div>
   );
+  
 }
 
 export default function Home() {

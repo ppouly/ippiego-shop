@@ -196,11 +196,11 @@ const handleOrder = async () => {
           </div>
         </>
       )}
-      {/* 📌 5월 베타서비스 배너 */}
+      {/* 📌 N월 베타서비스 배너 */}
       <div className="mt-10">
       <Image
         src="/banner-holiday.png"
-        alt="5월 베타서비스 혜택 배너"
+        alt="N월 베타서비스 혜택 배너"
         width={768}
         height={831}
         className="w-full h-auto rounded-xl shadow"
