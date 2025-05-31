@@ -20,19 +20,8 @@ interface OrderSummary {
 export default function AdminOrdersPage() {
   const [auth, setAuth] = useState(false);
   const [clientIP, setClientIP] = useState("");
-
-  useEffect(() => {
-    fetch("https://api.ipify.org?format=json")
-      .then(res => res.json())
-      .then(data => {
-        const allowlist = ['223.38.46.175','119.194.232.192','223.38.51.101','::1','103.243.200.61','211.235.81.50','223.38.48.120','223.38.46.168']; // 수정 필요
-        setClientIP(data.ip);
-        if (allowlist.includes(data.ip)) {
-          setAuth(true);
-        }
-      });
-  }, []);
-
+  const [password, setPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [orders, setOrders] = useState<OrderSummary[]>([]);
   const [totalSales, setTotalSales] = useState<number>(0);
   const [totalMargin, setTotalMargin] = useState<number>(0);
@@ -45,6 +34,23 @@ export default function AdminOrdersPage() {
     return kst.toISOString().split("T")[0];
   });
   const [errorMessage, setErrorMessage] = useState<string>("");
+
+  useEffect(() => {
+    fetch("https://api.ipify.org?format=json")
+      .then(res => res.json())
+      .then(data => {
+        const allowlist = [
+          "119.194.232.192",
+          "::1",
+          "103.243.200.61",
+          "211.235.81.50",
+        ]; // 수정 필요
+        setClientIP(data.ip);
+        if (allowlist.includes(data.ip)) {
+          setAuth(true);
+        }
+      });
+  }, []);
 
   useEffect(() => {
     if (!auth) return;
@@ -71,7 +77,9 @@ export default function AdminOrdersPage() {
       }
 
       data.forEach((order) => {
-        order.created_at = new Date(new Date(order.created_at).getTime() + 9 * 60 * 60 * 1000).toISOString();
+        order.created_at = new Date(
+          new Date(order.created_at).getTime() + 9 * 60 * 60 * 1000
+        ).toISOString();
       });
 
       let sales = 0;
@@ -113,22 +121,21 @@ export default function AdminOrdersPage() {
     fetchOrders();
   }, [auth, startDate, endDate]);
 
+  const handlePasswordSubmit = () => {
+    if (password === "221124") {
+      setAuth(true);
+      setPasswordError("");
+    } else {
+      setPasswordError("비밀번호가 올바르지 않습니다.");
+    }
+  };
+
   if (!auth) {
-    const [password, setPassword] = useState("");
-    const [passwordError, setPasswordError] = useState("");
-
-    const handlePasswordSubmit = () => {
-      if (password === "221124") {
-        setAuth(true);
-        setPasswordError("");
-      } else {
-        setPasswordError("비밀번호가 올바르지 않습니다.");
-      }
-    };
-
     return (
       <div className="p-4 text-center">
-        <p className="text-gray-500 mb-4">허용되지 않은 접근입니다. (IP: {clientIP})</p>
+        <p className="text-gray-500 mb-4">
+          허용되지 않은 접근입니다. (IP: {clientIP})
+        </p>
         <div className="mb-2">
           <input
             type="password"
@@ -148,7 +155,6 @@ export default function AdminOrdersPage() {
       </div>
     );
   }
-
 
   return (
     <div className="p-4">
@@ -174,7 +180,9 @@ export default function AdminOrdersPage() {
       {errorMessage ? (
         <p className="text-red-500 mb-4">{errorMessage}</p>
       ) : orders.length === 0 ? (
-        <p className="text-gray-500 text-center mt-8">결제완료된 주문이 없습니다.</p>
+        <p className="text-gray-500 text-center mt-8">
+          결제완료된 주문이 없습니다.
+        </p>
       ) : (
         <>
           <table className="table-auto w-full border">
@@ -190,11 +198,18 @@ export default function AdminOrdersPage() {
             <tbody>
               {orders.map((order) => (
                 <tr key={order.order_id}>
-                  
                   <td className="border px-2 py-1">
-                  {format(new Date(new Date(order.created_at).getTime() + 9 * 60 * 60 * 1000), "yyyy-MM-dd HH:mm")}
+                    {format(
+                      new Date(
+                        new Date(order.created_at).getTime() +
+                          9 * 60 * 60 * 1000
+                      ),
+                      "yyyy-MM-dd HH:mm"
+                    )}
                   </td>
-                  <td className="border px-2 py-1">₩{order.total_amount.toLocaleString()}</td>
+                  <td className="border px-2 py-1">
+                    ₩{order.total_amount.toLocaleString()}
+                  </td>
                   <td className="border px-2 py-1">(개별 계산)</td>
                   <td className="border px-2 py-1">{order.delivery_status}</td>
                   <td className="border px-2 py-1 text-blue-600 underline">
