@@ -19,12 +19,12 @@ import ReviewSlide from "@/components/ReviewSlide";
 const banners = [
   {
     image: "/banner1.jpg",
-    link: "http://localhost:3000/products",
+    link: "https://www.ippiego.shop/products",
     text: " ",
   },
   {
     image: "/banner2.jpg",
-    link: "http://localhost:3000/cart",
+    link: "https://www.ippiego.shop/cart",
     //text: "Vintage Vibes, Modern Fun",
   },
   {
