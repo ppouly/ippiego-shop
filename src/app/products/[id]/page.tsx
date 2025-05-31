@@ -31,7 +31,8 @@ const conditionDescriptions: Record<string, React.ReactNode> = {
   C: (
     <>
       많은 사용감·생활이염·변색·올나감 중 하나라도<br />
-      해당되는 상품으로 사진과 코멘트를 확인해주세요.
+      해당되는 상품으로 사진과 코멘트를 확인해주세요.<br />
+      🚨C등급은 환불 왕복 배송비가 항상 무료🚨
     </>
   ),
   D: (
