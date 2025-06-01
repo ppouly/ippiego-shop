@@ -11,9 +11,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "static.toss.im",
-        pathname: "/lotties/**", // Toss 애니메이션 이미지 경로
+        pathname: "/lotties/**",
       },
     ],
+    formats: ["image/avif", "image/webp"], // ✅ WebP/AVIF 변환 활성화!
   },
 };
 

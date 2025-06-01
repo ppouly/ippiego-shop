@@ -7,7 +7,6 @@ import Link from "next/link";
 import type { Product } from "@/types/product";
 import { fetchValidProducts } from "@/lib/fetchProducts";
 
-
 export default function ProductListPage() {
   const searchParams = useSearchParams();
   const category = searchParams.get("category");
@@ -31,11 +30,9 @@ export default function ProductListPage() {
           const json = await res.json();
           result = json.data || [];
         } else {
-          result = await fetchValidProducts(); // ✅ 기존에 잘 되던 함수로 복귀
+          result = await fetchValidProducts();
         }
-        
 
-        // 클라이언트 필터링 (카테고리, 브랜드, 사이즈만)
         const selectedBrands = brand?.split(",") || [];
         const selectedSizes = size?.split(",") || [];
 
@@ -43,7 +40,6 @@ export default function ProductListPage() {
           const categoryMatch = category ? p.category?.includes(category) : true;
           const brandMatch = selectedBrands.length > 0 ? selectedBrands.includes(p.brand) : true;
           const sizeMatch = selectedSizes.length > 0 ? selectedSizes.includes(p.size) : true;
-
           return categoryMatch && brandMatch && sizeMatch;
         });
 
@@ -81,82 +77,75 @@ export default function ProductListPage() {
         {category ? `${category} 카테고리` : "전체 상품"}
       </h1>
 
-    {/* ✅ 필터 UI */}
-    <div className="mb-4 space-y-1 text-xs">
-      {/* 브랜드 필터 */}
-      <div>
-        <div className="overflow-x-auto whitespace-nowrap scroll-smooth no-scrollbar -mx-2 px-2 py-1">
-          {["보보쇼즈", "미니로디니","타오", "루이스미샤","아폴리나", "던스","봉주르다이어리","콩제슬래드"].map((b) => {
-            const selectedBrands = brand?.split(",") || [];
-            const isSelected = selectedBrands.includes(b);
+      {/* ✅ 필터 UI */}
+      <div className="mb-4 space-y-1 text-xs">
+        <div>
+          <div className="overflow-x-auto whitespace-nowrap scroll-smooth no-scrollbar -mx-2 px-2 py-1">
+            {["보보쇼즈", "미니로디니","타오", "루이스미샤","아폴리나", "던스","봉주르다이어리","콩제슬래드"].map((b) => {
+              const selectedBrands = brand?.split(",") || [];
+              const isSelected = selectedBrands.includes(b);
+              const nextBrands = isSelected
+                ? selectedBrands.filter((v) => v !== b)
+                : [...selectedBrands, b];
 
-            const nextBrands = isSelected
-              ? selectedBrands.filter((v) => v !== b)
-              : [...selectedBrands, b];
+              const query = new URLSearchParams();
+              if (category) query.set("category", category);
+              if (size) query.set("size", size);
+              if (nextBrands.length > 0) query.set("brand", nextBrands.join(","));
 
-            const query = new URLSearchParams();
-            if (category) query.set("category", category);
-            if (size) query.set("size", size);
-            if (nextBrands.length > 0) query.set("brand", nextBrands.join(","));
+              return (
+                <Link
+                  key={b}
+                  href={`?${query.toString()}`}
+                  className={`inline-block px-2 py-[3px] mr-2 mb-1 rounded-full border h-6 leading-4 ${
+                    isSelected ? "bg-black text-white" : "bg-white text-black"
+                  }`}
+                >
+                  {b}
+                </Link>
+              );
+            })}
+          </div>
+        </div> 
 
-            return (
-              <Link
-                key={b}
-                href={`?${query.toString()}`}
-                className={`inline-block px-2 py-[3px] mr-2 mb-1 rounded-full border h-6 leading-4 ${
-                  isSelected ? "bg-black text-white" : "bg-white text-black"
-                }`}
-              >
-                {b}
-              </Link>
-            );
-          })}
+        <div>
+          <div className="overflow-x-auto whitespace-nowrap scroll-smooth no-scrollbar -mx-2 px-2 py-1">
+            {["70","85","95","110","120","130","140"].map((s) => {
+              const selectedSizes = size?.split(",") || [];
+              const isSelected = selectedSizes.includes(s);
+              const nextSizes = isSelected
+                ? selectedSizes.filter((v) => v !== s)
+                : [...selectedSizes, s];
+
+              const query = new URLSearchParams();
+              if (category) query.set("category", category);
+              if (brand) query.set("brand", brand);
+              if (nextSizes.length > 0) query.set("size", nextSizes.join(","));
+
+              return (
+                <Link
+                  key={s}
+                  href={`?${query.toString()}`}
+                  className={`inline-block px-2 py-[3px] mr-2 mb-1 rounded-full border h-6 leading-4 ${
+                    isSelected ? "bg-black text-white" : "bg-white text-black"
+                  }`}
+                >
+                  {s}
+                </Link>
+              );
+            })}
+          </div>
         </div>
-      </div> 
 
-      {/* 사이즈 필터 */}
-      <div>
-        <div className="overflow-x-auto whitespace-nowrap scroll-smooth no-scrollbar -mx-2 px-2 py-1">
-          {["70","85","95","110","120","130","140"].map((s) => {
-            const selectedSizes = size?.split(",") || [];
-            const isSelected = selectedSizes.includes(s);
-
-            const nextSizes = isSelected
-              ? selectedSizes.filter((v) => v !== s)
-              : [...selectedSizes, s];
-
-            const query = new URLSearchParams();
-            if (category) query.set("category", category);
-            if (brand) query.set("brand", brand);
-            if (nextSizes.length > 0) query.set("size", nextSizes.join(","));
-
-            return (
-              <Link
-                key={s}
-                href={`?${query.toString()}`}
-                className={`inline-block px-2 py-[3px] mr-2 mb-1 rounded-full border h-6 leading-4 ${
-                  isSelected ? "bg-black text-white" : "bg-white text-black"
-                }`}
-              >
-                {s}
-              </Link>
-            );
-          })}
+        <div className="px-2 -mx-2">
+          <Link
+            href="/products"
+            className="inline-block text-gray-400 underline text-xs"
+          >
+            전체 필터 초기화
+          </Link>
         </div>
       </div>
-
-      {/* 전체 필터 초기화 */}
-      <div className="px-2 -mx-2">
-        <Link
-          href="/products"
-          className="inline-block text-gray-400 underline text-xs"
-        >
-          전체 필터 초기화
-        </Link>
-      </div>
-    </div>
-
-
 
       {loading ? (
         <p>불러오는 중...</p>
@@ -188,6 +177,7 @@ export default function ProductListPage() {
                       isSoldOut ? "opacity-50" : ""
                     }`}
                     unoptimized
+                    loading="lazy" // ✅ lazy 속성 추가
                   />
                   {isSoldOut && (
                     <div className="absolute top-2 left-2 bg-black/70 text-white text-[11px] font-semibold px-2 py-[2px] rounded-sm">
@@ -219,7 +209,7 @@ export default function ProductListPage() {
                 {(() => {
                   const discount = product.discountRate ?? 0;
                   const discountedPrice = Math.round(product.price * (1 - discount / 100));
-                  const finalBenefitPrice = Math.round(discountedPrice * 0.8); // ✅ 20% 추가 할인
+                  const finalBenefitPrice = Math.round(discountedPrice * 0.8);
 
                   return (
                     <div className="mt-1 text-xs">
