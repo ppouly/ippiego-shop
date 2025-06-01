@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import copy from "copy-to-clipboard";
+import { useRouter } from "next/navigation"
 
 interface ProductItem {
   product_id: number;
@@ -34,8 +35,17 @@ export default function AdminOrderDetailPage() {
   const [reviewLinks, setReviewLinks] = useState<string[]>([]);
   const [newDeliveryStatus, setNewDeliveryStatus] = useState<string>("");
   const [reviewUrl, setReviewUrl] = useState("https://buly.kr/9XLCeG1"); // ✅ 여기에 선언
+  const router = useRouter();
 
   useEffect(() => {
+    const isAuth = localStorage.getItem("admin_auth");
+    if (isAuth !== "true") {
+      router.push("/admin/auth");
+    }
+  }, [router]);
+
+  useEffect(() => {
+
     if (!orderId) return;
 
     const fetchOrderDetail = async () => {

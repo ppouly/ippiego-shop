@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { format } from "date-fns-tz";
+import { useRouter } from "next/navigation";
 
 const statusOptions = ["판매중", "판매완료", "판매준비"];
 const sizeOptions = ["70", "85", "95", "110", "120", "130", "140"];
@@ -46,7 +47,14 @@ export default function AdminProductList() {
   const [editedProducts, setEditedProducts] = useState<Record<number, Partial<Product>>>({});
   const [search, setSearch] = useState("");
   const [newProduct, setNewProduct] = useState<NewProductInput | null>(null);
+  const router = useRouter();
 
+  useEffect(() => {
+    const isAuth = localStorage.getItem("admin_auth");
+    if (isAuth !== "true") {
+      router.push("/admin/auth");
+    }
+  }, [router]);
 
   useEffect(() => {
     fetchProducts();

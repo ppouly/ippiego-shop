@@ -1,7 +1,9 @@
+// /app/admin/orders/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 
@@ -18,10 +20,7 @@ interface OrderSummary {
 }
 
 export default function AdminOrdersPage() {
-  const [auth, setAuth] = useState(false);
-  const [clientIP, setClientIP] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordError, setPasswordError] = useState("");
+  const router = useRouter();
   const [orders, setOrders] = useState<OrderSummary[]>([]);
   const [totalSales, setTotalSales] = useState<number>(0);
   const [totalMargin, setTotalMargin] = useState<number>(0);
@@ -34,27 +33,20 @@ export default function AdminOrdersPage() {
     return kst.toISOString().split("T")[0];
   });
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [deliveryStats, setDeliveryStats] = useState<
+    { status: string; count: number }[]
+  >([]);
 
+  // ✅ 인증 여부 확인
   useEffect(() => {
-    fetch("https://api.ipify.org?format=json")
-      .then(res => res.json())
-      .then(data => {
-        const allowlist = [
-          "119.194.232.192",
-          "::1",
-          "103.243.200.61",
-          "211.235.81.50",
-        ]; // 수정 필요
-        setClientIP(data.ip);
-        if (allowlist.includes(data.ip)) {
-          setAuth(true);
-        }
-      });
-  }, []);
+    const isAuth = localStorage.getItem("admin_auth");
+    if (isAuth !== "true") {
+      router.push("/admin/auth");
+    }
+  }, [router]);
 
+  // ✅ 결제완료 주문 조회
   useEffect(() => {
-    if (!auth) return;
-
     const fetchOrders = async () => {
       const { data, error } = await supabase
         .from("orders")
@@ -73,9 +65,12 @@ export default function AdminOrdersPage() {
       if (!data || data.length === 0) {
         console.warn("📭 결제완료 주문 없음");
         setOrders([]);
+        setTotalSales(0);
+        setTotalMargin(0);
         return;
       }
 
+      // KST 시간으로 변환
       data.forEach((order) => {
         order.created_at = new Date(
           new Date(order.created_at).getTime() + 9 * 60 * 60 * 1000
@@ -119,42 +114,43 @@ export default function AdminOrdersPage() {
     };
 
     fetchOrders();
-  }, [auth, startDate, endDate]);
+  }, [startDate, endDate]);
 
-  const handlePasswordSubmit = () => {
-    if (password === "221124") {
-      setAuth(true);
-      setPasswordError("");
-    } else {
-      setPasswordError("비밀번호가 올바르지 않습니다.");
-    }
-  };
+  // ✅ 배송상태/환불요청 통계 조회
+  useEffect(() => {
+    const fetchDeliveryStats = async () => {
+      const { data, error } = await supabase
+        .from("orders")
+        .select("delivery_status, created_at")
+        .gte("created_at", startDate)
+        .lte("created_at", endDate);
 
-  if (!auth) {
-    return (
-      <div className="p-4 text-center">
-        <p className="text-gray-500 mb-4">
-          허용되지 않은 접근입니다. (IP: {clientIP})
-        </p>
-        <div className="mb-2">
-          <input
-            type="password"
-            placeholder="비밀번호를 입력하세요"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="border px-2 py-1"
-          />
-        </div>
-        {passwordError && <p className="text-red-500">{passwordError}</p>}
-        <button
-          onClick={handlePasswordSubmit}
-          className="mt-2 bg-blue-500 text-white px-3 py-1 rounded"
-        >
-          확인
-        </button>
-      </div>
-    );
-  }
+      if (error) {
+        console.error("🚨 배송 상태 통계 조회 실패:", error.message);
+        return;
+      }
+
+      const statusCount: Record<string, number> = {};
+      data?.forEach((order) => {
+        let status = order.delivery_status ?? "";
+        if (status.includes("(")) {
+          status = status.split("(")[0];
+        }
+        if (status) {
+          statusCount[status] = (statusCount[status] || 0) + 1;
+        }
+      });
+
+      const statsArray = Object.entries(statusCount).map(([status, count]) => ({
+        status,
+        count,
+      }));
+
+      setDeliveryStats(statsArray);
+    };
+
+    fetchDeliveryStats();
+  }, [startDate, endDate]);
 
   return (
     <div className="p-4">
@@ -200,10 +196,7 @@ export default function AdminOrdersPage() {
                 <tr key={order.order_id}>
                   <td className="border px-2 py-1">
                     {format(
-                      new Date(
-                        new Date(order.created_at).getTime() +
-                          9 * 60 * 60 * 1000
-                      ),
+                      new Date(order.created_at),
                       "yyyy-MM-dd HH:mm"
                     )}
                   </td>
@@ -224,6 +217,28 @@ export default function AdminOrdersPage() {
             <p>총 결제금액: ₩{totalSales.toLocaleString()}</p>
             <p>총 마진: ₩{totalMargin.toLocaleString()}</p>
           </div>
+
+          {deliveryStats.length > 0 && (
+            <div className="mt-8">
+              <h2 className="text-lg font-semibold mb-2">배송상태, 환불요청 별 건수</h2>
+              <table className="table-auto border text-sm">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="border px-2 py-1">진행상태</th>
+                    <th className="border px-2 py-1">건수</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {deliveryStats.map((stat, index) => (
+                    <tr key={index}>
+                      <td className="border px-2 py-1">{stat.status}</td>
+                      <td className="border px-2 py-1">{stat.count}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </>
       )}
     </div>
