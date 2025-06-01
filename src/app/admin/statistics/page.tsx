@@ -48,8 +48,16 @@ export default function AdminStatisticsPage() {
     pendingPayments: 0,
     paymentsCompleted: 0,
   });
+  interface ReferrerStat {
+    date: string;
+    referrer: string;
+    channel: string;
+    device: string;
+    count: number;
+    firstCount: number;
+  }
+  const [referrerStats, setReferrerStats] = useState<ReferrerStat[]>([]);
 
-  const [referrerStats, setReferrerStats] = useState<any[]>([]);
 
   const toUTCISOString = (
     dateStr: string,
