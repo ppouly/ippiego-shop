@@ -64,7 +64,8 @@ export default function ProductDetailPage() {
         setProduct(found);
 
         const sizeOnly = allProducts.filter(
-          (item) => item.id !== found.id && item.size === found.size
+          (item) => item.id !== found.id && item.size === found.size &&
+          item.status !== "판매완료"  // 🔥 품절 제외 추가!
         );
 
         const related = allProducts
@@ -72,7 +73,8 @@ export default function ProductDetailPage() {
             (item) =>
               item.id !== found.id &&
               item.size === found.size &&
-              item.category1 === found.category1
+              item.category1 === found.category1 &&
+              item.status !== "판매완료"  // 🔥 품절 제외 추가!
           )
           .slice(0, 10);
 
@@ -84,7 +86,8 @@ export default function ProductDetailPage() {
             (item) =>
               item.id !== found.id &&
               item.size === found.size &&
-              item.brand === found.brand
+              item.brand === found.brand &&
+              item.status !== "판매완료"  // 🔥 품절 제외 추가!
           )
           .slice(0, 10);
 
@@ -96,7 +99,8 @@ export default function ProductDetailPage() {
             (item) =>
               item.id !== found.id &&
               item.brand === found.brand &&
-              item.size !== found.size
+              item.size !== found.size &&
+              item.status !== "판매완료"  // 🔥 품절 제외 추가!
           )
           .slice(0, 10);
 
