@@ -41,7 +41,7 @@ export default function ReviewSlide() {
             </div>
 
             {/* 후기 내용 (고정 높이 + 줄임) */}
-            <p className="text-[10px] text-gray-700 mt-1 line-clamp-3 h-[40px] overflow-hidden">
+            <p className="text-[12px] text-gray-700 mt-1 line-clamp-3 h-[55px] overflow-hidden">
               {r.content}
             </p>
 
