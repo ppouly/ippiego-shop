@@ -3,8 +3,13 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 import Image from "next/image";
 import Link from "next/link";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 interface User {
   kakaoId: string;
@@ -32,6 +37,7 @@ interface Order {
   delivery_fee?: boolean;
   delivery_complete_date?: string;
   status?: string;
+  created_at?: string; // ✅ 주문일시 추가
 }
 
 export default function MyPage() {
@@ -50,18 +56,14 @@ export default function MyPage() {
   useEffect(() => {
     const checkLogin = async () => {
       try {
-        const res = await fetch("/api/auth/me", {
-          credentials: "include",
-        });
+        const res = await fetch("/api/auth/me", { credentials: "include" });
         const result = await res.json();
 
         if (result.kakaoId) {
           setUser(result);
           setMessage("로그인 상태입니다.");
 
-          const infoRes = await fetch("/api/user-info", {
-            credentials: "include",
-          });
+          const infoRes = await fetch("/api/user-info", { credentials: "include" });
           const info = await infoRes.json();
 
           if (info.phone?.startsWith("010")) {
@@ -120,7 +122,7 @@ export default function MyPage() {
   const fetchOrdersByPhone = async () => {
     const { data, error } = await supabase
       .from("orders")
-      .select("order_id, products, refund_product_ids, address, total_amount, memo, delivery_fee, delivery_status, delivery_complete_date, status")
+      .select("order_id, products, refund_product_ids, address, total_amount, memo, delivery_fee, delivery_status, delivery_complete_date, status, created_at") // ✅ 주문일시 추가!
       .eq("phone", fullPhone)
       .order("created_at", { ascending: false });
 
@@ -164,9 +166,7 @@ export default function MyPage() {
       setNoticeMessage(
         "택배 기사가 상품을 수거할 예정입니다.\n상품 검수 후, 왕복 배송비를 제외한 금액이 환불 처리됩니다.\n상품 택이 제거된 경우, 상품 금액의 30%가 추가로 차감됩니다."
       );
-      setTimeout(() => {
-        setNoticeMessage(null);
-      }, 10000);
+      setTimeout(() => setNoticeMessage(null), 10000);
     }
 
     if (isCurrentlyRefunding) {
@@ -252,6 +252,11 @@ export default function MyPage() {
                 <div key={order.order_id} className="border-b pb-5">
                   <div className="text-gray-800 mt-1 mb-1 font-bold ">{order.delivery_status || "배송준비중"}</div>
                   <p className="text-sm text-gray-500 mb-1">🆔 주문번호: {order.order_id}</p>
+                  {order.created_at && (
+                    <p className="text-xs text-gray-400 mb-1">
+                      주문일시: {dayjs(order.created_at).tz("Asia/Seoul").format("YYYY-MM-DD HH:mm")}
+                    </p>
+                  )}
                   <p className="text-sm text-gray-700">배송지: {order.address}</p>
                   <p className="text-sm text-gray-700">배송메모: {order.memo}</p>
 
