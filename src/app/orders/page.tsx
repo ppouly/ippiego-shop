@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Image from "next/image";
 import Link from "next/link";
@@ -23,9 +24,11 @@ interface Order {
   delivery_status?: string;
   status?: string;
   total_amount: number;
+  created_at: string; // ✅ 주문일시 추가
 }
 
 export default function OrderHistoryPage() {
+  const router = useRouter();
   const [user, setUser] = useState<{ kakaoId: string; email: string; nickname: string } | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [reviewTokens, setReviewTokens] = useState<Record<string, string>>({});
@@ -43,13 +46,28 @@ export default function OrderHistoryPage() {
         await fetchReviewTokens();
       }
     };
+  
     init();
-  }, []);
+  
+    // ✅ 뒤로가기 시 강제로 refresh
+    const handlePopState = () => {
+      router.refresh();
+    };
+  
+    window.addEventListener("popstate", handlePopState);
+  
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [router]);
+  
 
   const fetchOrdersByKakaoId = async (kakaoId: string) => {
     const { data, error } = await supabase
       .from("orders")
-      .select("order_id, products, refund_product_ids, address, total_amount, memo, delivery_fee, delivery_status, delivery_complete_date, status")
+      .select(
+        "order_id, products, refund_product_ids, address, total_amount, memo, delivery_fee, delivery_status, delivery_complete_date, status, created_at" // ✅ created_at 추가
+      )
       .eq("kakao_id", kakaoId)
       .order("created_at", { ascending: false });
 
@@ -132,6 +150,9 @@ export default function OrderHistoryPage() {
           orders.map((order) => (
             <div key={order.order_id} className="border-b pb-5">
               <p className="text-sm text-gray-500 mb-1">🆔 주문번호: {order.order_id}</p>
+              <p className="text-sm text-gray-500 mb-1">
+                📅 주문일시: {dayjs(order.created_at).format("YYYY년 M월 D일 HH:mm")}
+              </p>
               <p className="text-sm text-gray-700">배송지: {order.address}</p>
               <p className="text-sm text-gray-700 mb-2">배송메모: {order.memo}</p>
               <p className="font-bold text-gray-800 mb-2">
@@ -154,16 +175,23 @@ export default function OrderHistoryPage() {
                       />
                     </div>
                     <div className="flex-1 space-y-1 text-sm">
-                      <Link href={`/products/${product.product_id}`} className="font-semibold text-blue-600 hover:underline">
+                      <Link
+                        href={`/products/${product.product_id}`}
+                        className="font-semibold text-blue-600 hover:underline"
+                      >
                         {product.order_name}
                       </Link>
-                      <p className="text-black font-bold">₩{product.amount.toLocaleString()}</p>
+                      <p className="text-black font-bold">
+                        ₩{product.amount.toLocaleString()}
+                      </p>
 
                       <div className="flex items-center gap-2 mt-2">
                         <button
                           disabled={loadingOrderId === order.order_id}
                           className={`text-sm px-3 py-1 rounded transition ${
-                            isRefunding ? "bg-gray-400 text-white" : "bg-red-500 text-white hover:bg-red-600"
+                            isRefunding
+                              ? "bg-gray-400 text-white"
+                              : "bg-red-500 text-white hover:bg-red-600"
                           }`}
                           onClick={() => handleRefundToggle(order, product.product_id)}
                         >
