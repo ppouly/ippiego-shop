@@ -157,15 +157,20 @@ export default function Home() {
     }, [saveFilters, selectedSize, selectedBrand, excludeSkirt]);
 
 
-    const filteredProducts =
-    selectedSize.length === 0
-      ? [...products].sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0))
-      : [...products]
-          .filter((p) => selectedSize.includes(p.size ?? ""))
-          .sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0));
-  
+    // 1️⃣ 필터링 (사이즈, 브랜드, 스커트 제외 등)
+    const filteredProducts = products
+      .filter((p) => {
+        const sizeMatch = selectedSize.length === 0 || selectedSize.includes(p.size ?? "");
+        const brandMatch = selectedBrand.length === 0 || selectedBrand.includes(p.brand ?? "");
+        const skirtMatch =
+          !excludeSkirt || (p.category2 !== "치마" && p.category2 !== "원피스");
+        return sizeMatch && brandMatch && skirtMatch;
+      })
+      .sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0)); // ⭐️ 인기순 정렬
 
-  const visibleProducts = showAll ? filteredProducts : filteredProducts.slice(0, 10);
+    // 2️⃣ 10개 이하면 전부, 10개 초과면 slice
+    const visibleProducts = showAll ? filteredProducts : filteredProducts.slice(0, 10);
+
 
   return (
     <div className="p-4">
@@ -442,6 +447,8 @@ export default function Home() {
             );
           })}
         </div>
+
+
         {filteredProducts.length > 10 && (
         <div className="mt-6 flex justify-center">
           <button
@@ -461,6 +468,10 @@ export default function Home() {
           </button>
         </div>
       )}
+
+
+
+
 
       </section>
 
