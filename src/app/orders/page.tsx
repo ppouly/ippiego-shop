@@ -1,410 +1,195 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import Image from "next/image";
+import Link from "next/link";
+import dayjs from "dayjs";
 
 interface Product {
-  id: number;
-  name: string;
+  product_id: number;
+  order_name: string;
+  amount: number;
 }
 
-export default function ReviewWriteClient() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const token = searchParams.get("token");
+interface Order {
+  order_id: string;
+  products: Product[];
+  refund_product_ids?: number[];
+  address: string;
+  memo: string;
+  delivery_fee?: boolean;
+  delivery_complete_date?: string;
+  delivery_status?: string;
+  status?: string;
+  total_amount: number;
+}
 
-  const [product, setProduct] = useState<Product | null>(null);
-  const [existingReviewId, setExistingReviewId] = useState<number | null>(null);
-  const [content, setContent] = useState("");
-  const [rating, setRating] = useState<number>(5);
-  const [nickname, setNickname] = useState("");
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-
-  const resizeImage = (
-    file: File,
-    maxWidth: number = 1024,
-    quality: number = 0.8
-  ): Promise<Blob> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const img = document.createElement("img");
-        img.onload = () => {
-          const scale = Math.min(1, maxWidth / img.width);
-          const width = img.width * scale;
-          const height = img.height * scale;
-
-          const canvas = document.createElement("canvas");
-          canvas.width = width;
-          canvas.height = height;
-
-          const ctx = canvas.getContext("2d");
-          if (!ctx) {
-            reject(new Error("Canvas context error"));
-            return;
-          }
-
-          ctx.drawImage(img, 0, 0, width, height);
-          canvas.toBlob(
-            (blob) => {
-              if (blob) resolve(blob);
-              else reject(new Error("이미지 압축 실패"));
-            },
-            "image/jpeg",
-            quality
-          );
-        };
-        img.onerror = reject;
-        img.src = reader.result as string;
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  };
+export default function OrderHistoryPage() {
+  const [user, setUser] = useState<{ kakaoId: string; email: string; nickname: string } | null>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [reviewTokens, setReviewTokens] = useState<Record<string, string>>({});
+  const [message, setMessage] = useState("");
+  const [noticeMessage, setNoticeMessage] = useState<string | null>(null);
+  const [loadingOrderId, setLoadingOrderId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!token) return;
-    const fetchData = async () => {
-      const { data: tokenData } = await supabase
-        .from("reviews_tokens")
-        .select("product_id")
-        .eq("token", token)
-        .maybeSingle();
-
-      if (!tokenData) return;
-
-      const { data: productData } = await supabase
-        .from("products")
-        .select("*")
-        .eq("id", tokenData.product_id)
-        .maybeSingle();
-
-      setProduct(productData);
-
-      const { data: existingReview } = await supabase
-        .from("reviews")
-        .select("*")
-        .eq("product_id", tokenData.product_id)
-        .maybeSingle();
-
-      if (existingReview) {
-        setExistingReviewId(existingReview.id);
-        setContent(existingReview.content || "");
-        setRating(existingReview.rating || 5);
-        setNickname(existingReview.nickname || "");
-        setPreviewUrl(existingReview.image_url || null);
+    const init = async () => {
+      const res = await fetch("/api/auth/me");
+      const result = await res.json();
+      if (result?.kakaoId) {
+        setUser(result);
+        await fetchOrdersByKakaoId(result.kakaoId);
+        await fetchReviewTokens();
       }
     };
-    fetchData();
-  }, [token]);
+    init();
+  }, []);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
+  const fetchOrdersByKakaoId = async (kakaoId: string) => {
+    const { data, error } = await supabase
+      .from("orders")
+      .select("order_id, products, refund_product_ids, address, total_amount, memo, delivery_fee, delivery_status, delivery_complete_date, status")
+      .eq("kakao_id", kakaoId)
+      .order("created_at", { ascending: false });
+
+    if (error || !data) {
+      setMessage("주문 정보를 불러오는 중 오류가 발생했습니다.");
+      return;
     }
+
+    setOrders(data as Order[]);
   };
 
-  const handleSubmitReview = async () => {
-    if (!product) return;
+  const fetchReviewTokens = async () => {
+    const { data, error } = await supabase
+      .from("reviews_tokens")
+      .select("order_id, product_id, token");
 
-    let imageUrl = null;
-
-    if (imageFile) {
-      const safeName = imageFile.name
-        .replace(/\s+/g, "-")
-        .replace(/[^a-zA-Z0-9.-]/g, "")
-        .toLowerCase();
-      const fileName = `${Date.now()}_${safeName}`;
-
-      const resizedBlob = await resizeImage(imageFile, 1024, 0.8);
-      const resizedFile = new File([resizedBlob], fileName, {
-        type: "image/jpeg",
-      });
-
-      const { error: uploadError } = await supabase.storage
-        .from("review-images")
-        .upload(fileName, resizedFile, {
-          contentType: "image/jpeg",
-        });
-
-      if (uploadError) {
-        setErrorMessage("이미지 업로드 실패");
-        setTimeout(() => setErrorMessage(""), 3000);
-        return;
-      }
-
-      const { data: urlData } = supabase.storage
-        .from("review-images")
-        .getPublicUrl(fileName);
-
-      imageUrl = urlData?.publicUrl ?? null;
+    if (error || !data) {
+      console.error("리뷰 토큰 조회 오류:", error);
+      return;
     }
 
-    const { error: insertError } = await supabase.from("reviews").insert({
-      product_id: product.id,
-      content,
-      rating,
-      nickname,
-      image_url: imageUrl,
+    const tokenMap: Record<string, string> = {};
+    data.forEach((item: { order_id: string; product_id: string; token: string }) => {
+      const key = `${item.order_id}_${item.product_id}`;
+      tokenMap[key] = item.token;
     });
-
-    if (insertError) {
-      setErrorMessage("리뷰 등록 실패");
-      setTimeout(() => setErrorMessage(""), 3000);
-      return;
-    }
-
-    setSuccessMessage("리뷰가 등록되었습니다!");
-    setTimeout(() => {
-      setSuccessMessage("");
-      router.push("/");
-    }, 3000);
+    setReviewTokens(tokenMap);
   };
 
-  const handleUpdateReview = async () => {
-    if (!product || !existingReviewId) return;
+  const handleRefundToggle = async (order: Order, productId: number) => {
+    setLoadingOrderId(order.order_id);
 
-    let imageUrl = previewUrl;
+    const isCurrentlyRefunding = order.refund_product_ids?.includes(productId);
 
-    // ✅ 이미지 제거 후 DB null로
-    if (!imageFile && !previewUrl) {
-      const { error: updateError } = await supabase
-        .from("reviews")
-        .update({
-          content,
-          rating,
-          nickname,
-          image_url: null,
-        })
-        .eq("id", existingReviewId);
+    if (!isCurrentlyRefunding) {
+      setNoticeMessage(
+        "택배 기사가 상품을 수거할 예정입니다.\n상품 검수 후, 왕복 배송비를 제외한 금액이 환불 처리됩니다.\n상품 택이 제거된 경우, 상품 금액의 30%가 추가로 차감됩니다."
+      );
 
-      if (updateError) {
-        setErrorMessage("리뷰 수정 실패");
-        setTimeout(() => setErrorMessage(""), 3000);
-        return;
-      }
-
-      setSuccessMessage("리뷰가 수정되었습니다!");
       setTimeout(() => {
-        setSuccessMessage("");
-        router.push("/");
-      }, 3000);
-
-      return;
+        setNoticeMessage(null);
+      }, 10000);
     }
 
-    // ✅ 새 이미지 선택 시: 기존 이미지 삭제 후 새 업로드
-    if (imageFile) {
-      if (previewUrl) {
-        const path = previewUrl.split("/review-images/")[1];
-        if (path) {
-          await supabase.storage.from("review-images").remove([path]);
-        }
-      }
-
-      const safeName = imageFile.name
-        .replace(/\s+/g, "-")
-        .replace(/[^a-zA-Z0-9.-]/g, "")
-        .toLowerCase();
-      const fileName = `${Date.now()}_${safeName}`;
-
-      try {
-        const resizedBlob = await resizeImage(imageFile, 1024, 0.8);
-        const resizedFile = new File([resizedBlob], fileName, {
-          type: "image/jpeg",
-        });
-
-        const { error: uploadError } = await supabase.storage
-          .from("review-images")
-          .upload(fileName, resizedFile, {
-            contentType: "image/jpeg",
-            upsert: true,
-          });
-
-        if (uploadError) {
-          setErrorMessage("이미지 업로드 실패");
-          setTimeout(() => setErrorMessage(""), 3000);
-          return;
-        }
-
-        const { data: urlData } = supabase.storage
-          .from("review-images")
-          .getPublicUrl(fileName);
-
-        imageUrl = urlData?.publicUrl ?? null;
-      } catch (err) {
-        setErrorMessage("이미지 처리 실패");
-        setTimeout(() => setErrorMessage(""), 3000);
+    if (order.delivery_complete_date) {
+      const completedDate = dayjs(order.delivery_complete_date);
+      if (dayjs().diff(completedDate, "day") > 10) {
+        setMessage("배송완료일로부터 10일 초과되어 환불이 불가합니다.");
+        setLoadingOrderId(null);
         return;
       }
     }
 
-    const { error: updateError } = await supabase
-      .from("reviews")
-      .update({
-        content,
-        rating,
-        nickname,
-        image_url: imageUrl,
-      })
-      .eq("id", existingReviewId);
-
-    if (updateError) {
-      setErrorMessage("리뷰 수정 실패");
-      setTimeout(() => setErrorMessage(""), 3000);
-      return;
+    if (isCurrentlyRefunding) {
+      await supabase.from("products").update({ status: "판매완료" }).eq("id", productId);
+      const updatedRefundIds = order.refund_product_ids?.filter(id => id !== productId) || [];
+      await supabase.from("orders").update({ refund_product_ids: updatedRefundIds }).eq("order_id", order.order_id);
+    } else {
+      await supabase.from("products").update({ status: "환불요청" }).eq("id", productId);
+      const updatedRefundIds = [...(order.refund_product_ids ?? []), productId];
+      await supabase.from("orders").update({ refund_product_ids: updatedRefundIds }).eq("order_id", order.order_id);
     }
 
-    setSuccessMessage("리뷰가 수정되었습니다!");
-    setTimeout(() => {
-      setSuccessMessage("");
-      router.push("/");
-    }, 3000);
+    if (user) await fetchOrdersByKakaoId(user.kakaoId);
+    setLoadingOrderId(null);
   };
-
-  const handleDeleteReview = async () => {
-    if (!existingReviewId) return;
-
-    const { error } = await supabase
-      .from("reviews")
-      .delete()
-      .eq("id", existingReviewId);
-
-    if (error) {
-      setErrorMessage("리뷰 삭제 실패");
-      setTimeout(() => setErrorMessage(""), 3000);
-      return;
-    }
-
-    setContent("");
-    setRating(5);
-    setNickname("");
-    setPreviewUrl(null);
-    setExistingReviewId(null);
-
-    setSuccessMessage("리뷰가 삭제되었습니다!");
-    setTimeout(() => setSuccessMessage(""), 3000);
-  };
-
-  if (!product) return <p className="p-4">불러오는 중...</p>;
 
   return (
-    <div className="p-4 space-y-4">
-      {(errorMessage || successMessage) && (
-        <div
-          className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-4 py-2 rounded-md shadow-md text-sm font-medium transition-all duration-300
-          ${errorMessage ? "bg-red-100 text-red-700 border border-red-300" : "bg-green-100 text-green-700 border border-green-300"}`}
-        >
-          {errorMessage || successMessage}
-        </div>
+    <div className="p-5 space-y-6 text-[15px] text-gray-800">
+      <h1 className="text-xl font-bold text-black">주문 내역 조회</h1>
+      {message && <p className="text-sm text-red-500">{message}</p>}
+      {noticeMessage && (
+        <p className="text-sm text-blue-600 whitespace-pre-line">{noticeMessage}</p>
       )}
 
-      <Image
-        src={`/products/${product.id}/main.jpg`}
-        width={600}
-        height={400}
-        alt="product"
-        className="rounded-xl"
-      />
+      <div className="space-y-6">
+        {orders.length === 0 ? (
+          <p className="text-gray-500">주문 내역이 없습니다.</p>
+        ) : (
+          orders.map((order) => (
+            <div key={order.order_id} className="border-b pb-5">
+              <p className="text-sm text-gray-500 mb-1">🆔 주문번호: {order.order_id}</p>
+              <p className="text-sm text-gray-700">배송지: {order.address}</p>
+              <p className="text-sm text-gray-700 mb-2">배송메모: {order.memo}</p>
+              <p className="font-bold text-gray-800 mb-2">
+                {order.delivery_status || "배송준비중"}
+              </p>
 
-      <input
-        type="text"
-        placeholder="닉네임 (선택)"
-        value={nickname}
-        onChange={(e) => setNickname(e.target.value)}
-        className="w-full border rounded-md p-2"
-      />
+              {order.products?.map((product) => {
+                const isRefunding = order.refund_product_ids?.includes(product.product_id);
+                const reviewToken = reviewTokens[`${order.order_id}_${product.product_id}`];
 
-      <textarea
-        placeholder="후기를 남겨주세요 :)"
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        className="w-full border rounded-xl p-4 h-40 resize-none"
-      />
+                return (
+                  <div key={product.product_id} className="flex gap-4 items-center pt-5">
+                    <div className="w-20 h-20 bg-gray-100 rounded overflow-hidden relative">
+                      <Image
+                        src={`/products/${product.product_id}/main.jpg`}
+                        alt={product.order_name}
+                        fill
+                        className="object-cover"
+                        sizes="80px"
+                      />
+                    </div>
+                    <div className="flex-1 space-y-1 text-sm">
+                      <Link href={`/products/${product.product_id}`} className="font-semibold text-blue-600 hover:underline">
+                        {product.order_name}
+                      </Link>
+                      <p className="text-black font-bold">₩{product.amount.toLocaleString()}</p>
 
-      <div className="flex items-center gap-2">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <button
-            key={star}
-            className={star <= rating ? "text-yellow-400" : "text-gray-300"}
-            onClick={() => setRating(star)}
-          >
-            ★
-          </button>
-        ))}
-        <span className="text-sm text-gray-500">({rating}점)</span>
-      </div>
+                      <div className="flex items-center gap-2 mt-2">
+                        <button
+                          disabled={loadingOrderId === order.order_id}
+                          className={`text-sm px-3 py-1 rounded transition ${
+                            isRefunding ? "bg-gray-400 text-white" : "bg-red-500 text-white hover:bg-red-600"
+                          }`}
+                          onClick={() => handleRefundToggle(order, product.product_id)}
+                        >
+                          {isRefunding ? "환불 취소" : "환불 신청"}
+                        </button>
 
-      <div className="space-y-2">
-        <label className="block w-full text-center bg-gray-100 border border-dashed border-gray-400 rounded-lg py-3 cursor-pointer hover:bg-gray-200">
-          사진 올리기
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="hidden"
-          />
-        </label>
-        <p className="text-xs text-gray-500 text-center">*사진은 한 장만 업로드 가능합니다.</p>
-
-        {previewUrl && (
-          <div className="flex flex-col items-center gap-2">
-            <Image
-              src={previewUrl}
-              alt="리뷰 이미지 미리보기"
-              width={600}
-              height={300}
-              className="w-full h-48 object-cover rounded-xl border"
-              unoptimized
-            />
-            <button
-              onClick={() => {
-                setPreviewUrl(null);
-                setImageFile(null);
-              }}
-              className="text-xs text-red-500 underline"
-            >
-              사진 삭제
-            </button>
-          </div>
+                        {reviewToken && (
+                          <Link
+                            href={`http://ippiego.shop/review-write?token=${reviewToken}`}
+                            className="text-sm px-3 py-1 rounded bg-green-500 text-white hover:bg-green-600"
+                          >
+                            리뷰쓰기
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              <p className="mt-4 font-bold text-right">
+                총 결제금액: ₩{(order.total_amount ?? 0).toLocaleString()}
+              </p>
+            </div>
+          ))
         )}
       </div>
-
-      {existingReviewId ? (
-        <div className="flex gap-2 mt-4">
-          <button
-            onClick={handleUpdateReview}
-            className="flex-1 bg-blue-500 text-white rounded-xl py-2 font-medium"
-          >
-            리뷰 수정하기
-          </button>
-          <button
-            onClick={handleDeleteReview}
-            className="flex-1 bg-red-500 text-white rounded-xl py-2 font-medium"
-          >
-            리뷰 삭제하기
-          </button>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-2 mt-4">
-          <button
-            onClick={handleSubmitReview}
-            className="w-full bg-black text-white rounded-xl py-3 font-semibold"
-          >
-            후기 등록하기
-          </button>
-          <p className="text-center text-gray-500 font-medium">
-            작성된 리뷰가 없습니다.
-          </p>
-        </div>
-      )}
     </div>
   );
 }
