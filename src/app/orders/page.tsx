@@ -28,20 +28,22 @@ interface Order {
 export default function OrderHistoryPage() {
   const [user, setUser] = useState<{ kakaoId: string; email: string; nickname: string } | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [reviewTokens, setReviewTokens] = useState<Record<string, string>>({});
   const [message, setMessage] = useState("");
   const [noticeMessage, setNoticeMessage] = useState<string | null>(null);
   const [loadingOrderId, setLoadingOrderId] = useState<string | null>(null);
 
   useEffect(() => {
-    const checkLogin = async () => {
-      const res = await fetch("/api/auth/me"); // ✅ 경로 수정 주의
+    const init = async () => {
+      const res = await fetch("/api/auth/me");
       const result = await res.json();
       if (result?.kakaoId) {
         setUser(result);
         await fetchOrdersByKakaoId(result.kakaoId);
+        await fetchReviewTokens();
       }
     };
-    checkLogin();
+    init();
   }, []);
 
   const fetchOrdersByKakaoId = async (kakaoId: string) => {
@@ -57,6 +59,24 @@ export default function OrderHistoryPage() {
     }
 
     setOrders(data as Order[]);
+  };
+
+  const fetchReviewTokens = async () => {
+    const { data, error } = await supabase
+      .from("reviews_tokens")
+      .select("order_id, product_id, token");
+
+    if (error || !data) {
+      console.error("리뷰 토큰 조회 오류:", error);
+      return;
+    }
+
+    const tokenMap: Record<string, string> = {};
+    data.forEach((item: { order_id: string; product_id: string; token: string }) => {
+      const key = `${item.order_id}_${item.product_id}`;
+      tokenMap[key] = item.token;
+    });
+    setReviewTokens(tokenMap);
   };
 
   const handleRefundToggle = async (order: Order, productId: number) => {
@@ -84,12 +104,10 @@ export default function OrderHistoryPage() {
     }
 
     if (isCurrentlyRefunding) {
-      // 환불 취소
       await supabase.from("products").update({ status: "판매완료" }).eq("id", productId);
       const updatedRefundIds = order.refund_product_ids?.filter(id => id !== productId) || [];
       await supabase.from("orders").update({ refund_product_ids: updatedRefundIds }).eq("order_id", order.order_id);
     } else {
-      // 환불 신청
       await supabase.from("products").update({ status: "환불요청" }).eq("id", productId);
       const updatedRefundIds = [...(order.refund_product_ids ?? []), productId];
       await supabase.from("orders").update({ refund_product_ids: updatedRefundIds }).eq("order_id", order.order_id);
@@ -122,6 +140,7 @@ export default function OrderHistoryPage() {
 
               {order.products?.map((product) => {
                 const isRefunding = order.refund_product_ids?.includes(product.product_id);
+                const reviewToken = reviewTokens[`${order.order_id}_${product.product_id}`];
 
                 return (
                   <div key={product.product_id} className="flex gap-4 items-center pt-5">
@@ -140,15 +159,26 @@ export default function OrderHistoryPage() {
                       </Link>
                       <p className="text-black font-bold">₩{product.amount.toLocaleString()}</p>
 
-                      <button
-                        disabled={loadingOrderId === order.order_id}
-                        className={`mt-2 text-sm px-3 py-1 rounded transition ${
-                          isRefunding ? "bg-gray-400 text-white" : "bg-red-500 text-white hover:bg-red-600"
-                        }`}
-                        onClick={() => handleRefundToggle(order, product.product_id)}
-                      >
-                        {isRefunding ? "환불 취소" : "환불 신청"}
-                      </button>
+                      <div className="flex items-center gap-2 mt-2">
+                        <button
+                          disabled={loadingOrderId === order.order_id}
+                          className={`text-sm px-3 py-1 rounded transition ${
+                            isRefunding ? "bg-gray-400 text-white" : "bg-red-500 text-white hover:bg-red-600"
+                          }`}
+                          onClick={() => handleRefundToggle(order, product.product_id)}
+                        >
+                          {isRefunding ? "환불 취소" : "환불 신청"}
+                        </button>
+
+                        {reviewToken && (
+                          <Link
+                            href={`http://ippiego.shop/review-write?token=${reviewToken}`}
+                            className="text-sm px-3 py-1 rounded bg-green-500 text-white hover:bg-green-600"
+                          >
+                            리뷰쓰기
+                          </Link>
+                        )}
+                      </div>
                     </div>
                   </div>
                 );
