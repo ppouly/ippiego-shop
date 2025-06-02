@@ -173,6 +173,47 @@ export default function ReviewWriteClient() {
 
     let imageUrl = previewUrl;
 
+    // ✅ 이미지 제거 후 DB null로
+    if (!imageFile && !previewUrl) {
+      const { error: updateError } = await supabase
+        .from("reviews")
+        .update({
+          content,
+          rating,
+          nickname,
+          image_url: null,
+        })
+        .eq("id", existingReviewId);
+
+      if (updateError) {
+        setErrorMessage("리뷰 수정 실패");
+        setTimeout(() => setErrorMessage(""), 3000);
+        return;
+      }
+
+      setSuccessMessage("리뷰가 수정되었습니다!");
+      setTimeout(() => {
+        setSuccessMessage("");
+        router.push("/");
+      }, 3000);
+
+      return;
+    }
+
+    // ✅ 새 이미지 업로드 전 기존 이미지 제거
+    if (imageFile && previewUrl) {
+      const path = previewUrl.split("/review-images/")[1];
+      if (path) {
+        const { error: removeError } = await supabase.storage
+          .from("review-images")
+          .remove([path]);
+        if (removeError) {
+          console.error("Remove error:", removeError);
+        }
+      }
+    }
+
+    // ✅ 새 이미지 업로드
     if (imageFile) {
       const safeName = imageFile.name
         .replace(/\s+/g, "-")
@@ -180,29 +221,34 @@ export default function ReviewWriteClient() {
         .toLowerCase();
       const fileName = `${Date.now()}_${safeName}`;
 
-      const resizedBlob = await resizeImage(imageFile, 1024, 0.8);
-      const resizedFile = new File([resizedBlob], fileName, {
-        type: "image/jpeg",
-      });
-
-      const { error: uploadError } = await supabase.storage
-        .from("review-images")
-        .upload(fileName, resizedFile, {
-          contentType: "image/jpeg",
-          upsert: true,
+      try {
+        const resizedBlob = await resizeImage(imageFile, 1024, 0.8);
+        const resizedFile = new File([resizedBlob], fileName, {
+          type: "image/jpeg",
         });
 
-      if (uploadError) {
-        setErrorMessage("이미지 업로드 실패");
+        const { error: uploadError } = await supabase.storage
+          .from("review-images")
+          .upload(fileName, resizedFile, {
+            contentType: "image/jpeg",
+          });
+
+        if (uploadError) {
+          setErrorMessage("이미지 업로드 실패");
+          setTimeout(() => setErrorMessage(""), 3000);
+          return;
+        }
+
+        const { data: urlData } = supabase.storage
+          .from("review-images")
+          .getPublicUrl(fileName);
+
+        imageUrl = urlData?.publicUrl ?? null;
+      } catch (err) {
+        setErrorMessage("이미지 처리 실패");
         setTimeout(() => setErrorMessage(""), 3000);
         return;
       }
-
-      const { data: urlData } = supabase.storage
-        .from("review-images")
-        .getPublicUrl(fileName);
-
-      imageUrl = urlData?.publicUrl ?? null;
     }
 
     const { error: updateError } = await supabase
@@ -211,7 +257,7 @@ export default function ReviewWriteClient() {
         content,
         rating,
         nickname,
-        image_url: imageUrl, // ✅ previewUrl가 null이면 DB도 null로 저장!
+        image_url: imageUrl,
       })
       .eq("id", existingReviewId);
 
