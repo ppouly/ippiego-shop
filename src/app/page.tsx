@@ -14,6 +14,8 @@ import type { Product } from "@/types/product";
 import { fetchValidProducts } from "@/lib/fetchProducts";
 import { LogPageView } from "@/components/LogPageView";
 import ReviewSlide from "@/components/ReviewSlide";
+import { FaRuler, FaTags } from "react-icons/fa";
+import { FaXmark } from "react-icons/fa6";
 
 const banners = [
   {
@@ -332,29 +334,30 @@ export default function Home() {
           {/* 사이즈 고르기 */}
           <button
             onClick={() => setShowSizeModal(true)}
-            className="flex flex-col items-center justify-center flex-1 h-[70px] rounded-lg bg-[#FF6B6B] text-white shadow hover:shadow-md transition"
-          >
-            <span className="text-sm font-semibold">사이즈 고르기</span>
+            className="flex flex-col items-center justify-center flex-1 h-[105px] rounded-lg bg-[#FF6B6B] text-white shadow hover:shadow-md transition"
+          > <FaRuler className="text-lg mb-1" />  {/* ⭐️ 이렇게 아이콘을 직접 넣음 */}
+            <span className="text-l font-semibold">사이즈 고르기</span>
             <span className="text-xs">예: 85, 95, 110</span>
           </button>
 
           {/* 브랜드 선택 */}
           <button
             onClick={() => setShowBrandModal(true)}
-            className="flex flex-col items-center justify-center flex-1 h-[70px] rounded-lg bg-[#FF6B6B] text-white shadow hover:shadow-md transition"
+            className="flex flex-col items-center justify-center flex-1 h-[105px] rounded-lg bg-[#FF6B6B] text-white shadow hover:shadow-md transition"
             >
-            <span className="text-sm font-semibold">브랜드 선택</span>
+            <FaTags className="text-lg mb-1" /> 
+            <span className="text-l font-semibold">브랜드 선택</span>
             <span className="text-xs">예: 보보쇼즈, 타오</span>
           </button>
 
           {/* 치마/스커트 제외 */}
           <button
             onClick={() => setExcludeSkirt(!excludeSkirt)}
-            className={`flex flex-col justify-center items-center flex-1 h-[70px] rounded-lg ${
+            className={`flex flex-col justify-center items-center flex-1 h-[105px] rounded-lg ${
               excludeSkirt ? "border-2 border-[#FF6B6B]" : "border border-gray-200"
             } bg-white shadow hover:shadow-md transition`}
-          >
-            <span className="text-sm font-semibold text-gray-700">여아 카테고리 제외</span>
+          > <FaXmark className="text-lg mb-1" /> 
+            <span className="text-l font-semibold text-gray-700">여아 전용 제외</span>
             <span className="text-xs">예: 치마, 원피스</span>
           </button>
         </div>
