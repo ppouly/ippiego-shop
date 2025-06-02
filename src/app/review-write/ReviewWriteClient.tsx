@@ -16,6 +16,7 @@ export default function ReviewWriteClient() {
   const token = searchParams.get("token");
 
   const [product, setProduct] = useState<Product | null>(null);
+  const [existingReviewId, setExistingReviewId] = useState<number | null>(null);
   const [content, setContent] = useState("");
   const [rating, setRating] = useState<number>(5);
   const [nickname, setNickname] = useState("");
@@ -66,9 +67,10 @@ export default function ReviewWriteClient() {
     });
   };
 
+  // ✅ 상품 및 기존 리뷰 불러오기
   useEffect(() => {
     if (!token) return;
-    const fetchProduct = async () => {
+    const fetchData = async () => {
       const { data: tokenData } = await supabase
         .from("reviews_tokens")
         .select("product_id")
@@ -84,8 +86,22 @@ export default function ReviewWriteClient() {
         .maybeSingle();
 
       setProduct(productData);
+
+      const { data: existingReview } = await supabase
+        .from("reviews")
+        .select("*")
+        .eq("product_id", tokenData.product_id)
+        .maybeSingle();
+
+      if (existingReview) {
+        setExistingReviewId(existingReview.id);
+        setContent(existingReview.content || "");
+        setRating(existingReview.rating || 5);
+        setNickname(existingReview.nickname || "");
+        setPreviewUrl(existingReview.image_url || null);
+      }
     };
-    fetchProduct();
+    fetchData();
   }, [token]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,10 +112,10 @@ export default function ReviewWriteClient() {
     }
   };
 
-  const handleSubmit = async () => {
-    if (!product) return;
+  const handleUpdateReview = async () => {
+    if (!product || !existingReviewId) return;
 
-    let imageUrl = null;
+    let imageUrl = previewUrl;
 
     if (imageFile) {
       const safeName = imageFile.name
@@ -117,6 +133,7 @@ export default function ReviewWriteClient() {
         .from("review-images")
         .upload(fileName, resizedFile, {
           contentType: "image/jpeg",
+          upsert: true,
         });
 
       if (uploadError) {
@@ -132,25 +149,51 @@ export default function ReviewWriteClient() {
       imageUrl = urlData?.publicUrl ?? null;
     }
 
-    const { error: insertError } = await supabase.from("reviews").insert({
-      product_id: product.id,
-      content,
-      rating,
-      nickname,
-      image_url: imageUrl,
-    });
+    const { error: updateError } = await supabase
+      .from("reviews")
+      .update({
+        content,
+        rating,
+        nickname,
+        image_url: imageUrl,
+      })
+      .eq("id", existingReviewId);
 
-    if (insertError) {
-      setErrorMessage("리뷰 저장 실패");
+    if (updateError) {
+      setErrorMessage("리뷰 수정 실패");
       setTimeout(() => setErrorMessage(""), 3000);
       return;
     }
 
-    setSuccessMessage("리뷰가 등록되었습니다!");
+    setSuccessMessage("리뷰가 수정되었습니다!");
     setTimeout(() => {
       setSuccessMessage("");
       router.push("/");
     }, 3000);
+  };
+
+  const handleDeleteReview = async () => {
+    if (!existingReviewId) return;
+
+    const { error } = await supabase
+      .from("reviews")
+      .delete()
+      .eq("id", existingReviewId);
+
+    if (error) {
+      setErrorMessage("리뷰 삭제 실패");
+      setTimeout(() => setErrorMessage(""), 3000);
+      return;
+    }
+
+    setContent("");
+    setRating(5);
+    setNickname("");
+    setPreviewUrl(null);
+    setExistingReviewId(null);
+
+    setSuccessMessage("리뷰가 삭제되었습니다!");
+    setTimeout(() => setSuccessMessage(""), 3000);
   };
 
   if (!product) return <p className="p-4">불러오는 중...</p>;
@@ -213,6 +256,11 @@ export default function ReviewWriteClient() {
           />
         </label>
 
+
+      {/* ✅ 여기에 안내 문구 추가 */}
+      <p className="text-xs text-gray-500 text-center">*사진은 한 장만 업로드 가능합니다.</p>
+
+
         {previewUrl && (
           <Image
             src={previewUrl}
@@ -225,12 +273,26 @@ export default function ReviewWriteClient() {
         )}
       </div>
 
-      <button
-        onClick={handleSubmit}
-        className="w-full bg-black text-white rounded-xl py-3 font-semibold"
-      >
-        후기 등록하기
-      </button>
+      {existingReviewId ? (
+        <div className="flex gap-2 mt-4">
+          <button
+            onClick={handleUpdateReview}
+            className="flex-1 bg-blue-500 text-white rounded-xl py-2 font-medium"
+          >
+            리뷰 수정하기
+          </button>
+          <button
+            onClick={handleDeleteReview}
+            className="flex-1 bg-red-500 text-white rounded-xl py-2 font-medium"
+          >
+            리뷰 삭제하기
+          </button>
+        </div>
+      ) : (
+        <p className="text-center text-gray-500 font-medium">
+          작성된 리뷰가 없습니다.
+        </p>
+      )}
     </div>
   );
 }
