@@ -150,8 +150,8 @@ export default function OrderHistoryPage() {
           orders.map((order) => (
             <div key={order.order_id} className="border-b pb-5">
               <p className="text-sm text-gray-500 mb-1">🆔 주문번호: {order.order_id}</p>
-              <p className="text-sm text-gray-500 mb-1">
-                📅 주문일시: {dayjs(order.created_at).format("YYYY년 M월 D일 HH:mm")}
+              <p className="text-xs text-gray-400 mb-1">  
+                 주문일시: {dayjs(order.created_at).format("YYYY년 M월 D일 HH:mm")}
               </p>
               <p className="text-sm text-gray-700">배송지: {order.address}</p>
               <p className="text-sm text-gray-700 mb-2">배송메모: {order.memo}</p>
