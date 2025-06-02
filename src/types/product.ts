@@ -22,6 +22,7 @@ export type Product = {
     pkg_image: string;
     originalPrice?: number;
     image_model?: string; 
+    popularity?: number;
 
   //  [key: string]: any;
   };
