@@ -163,7 +163,7 @@ export default function Home() {
         const sizeMatch = selectedSize.length === 0 || selectedSize.includes(p.size ?? "");
         const brandMatch = selectedBrand.length === 0 || selectedBrand.includes(p.brand ?? "");
         const skirtMatch =
-          !excludeSkirt || (p.category2 !== "치마" && p.category2 !== "원피스" && p.category2 !== "스커트" && p.category2 !== "블라우스" && p.category2 !== "여아바지" && p.category2 !== "여아셋업" && p.category2 !== "여아상의");
+          !excludeSkirt || (p.category2 !== "치마" && p.category2 !== "원피스" && p.category2 !== "스커트" && p.category2 !== "블라우스" && p.category2 !== "여아바지" && p.category2 !== "여아셋업" && p.category2 !== "여아상의"&& p.category2 !== "여아수영복");
         return sizeMatch && brandMatch && skirtMatch;
       })
       .sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0)); // ⭐️ 인기순 정렬
