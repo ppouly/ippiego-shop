@@ -245,8 +245,10 @@ export default function ReviewWriteClient() {
 
         imageUrl = urlData?.publicUrl ?? null;
       } catch (err) {
+        console.error("이미지 처리 오류:", err);
         setErrorMessage("이미지 처리 실패");
         setTimeout(() => setErrorMessage(""), 3000);
+        return;
         return;
       }
     }
