@@ -67,7 +67,6 @@ export default function ReviewWriteClient() {
     });
   };
 
-  // ✅ 상품 및 기존 리뷰 불러오기
   useEffect(() => {
     if (!token) return;
     const fetchData = async () => {
@@ -110,6 +109,63 @@ export default function ReviewWriteClient() {
       setImageFile(file);
       setPreviewUrl(URL.createObjectURL(file));
     }
+  };
+
+  const handleSubmitReview = async () => {
+    if (!product) return;
+
+    let imageUrl = null;
+
+    if (imageFile) {
+      const safeName = imageFile.name
+        .replace(/\s+/g, "-")
+        .replace(/[^a-zA-Z0-9.-]/g, "")
+        .toLowerCase();
+      const fileName = `${Date.now()}_${safeName}`;
+
+      const resizedBlob = await resizeImage(imageFile, 1024, 0.8);
+      const resizedFile = new File([resizedBlob], fileName, {
+        type: "image/jpeg",
+      });
+
+      const { error: uploadError } = await supabase.storage
+        .from("review-images")
+        .upload(fileName, resizedFile, {
+          contentType: "image/jpeg",
+        });
+
+      if (uploadError) {
+        setErrorMessage("이미지 업로드 실패");
+        setTimeout(() => setErrorMessage(""), 3000);
+        return;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from("review-images")
+        .getPublicUrl(fileName);
+
+      imageUrl = urlData?.publicUrl ?? null;
+    }
+
+    const { error: insertError } = await supabase.from("reviews").insert({
+      product_id: product.id,
+      content,
+      rating,
+      nickname,
+      image_url: imageUrl,
+    });
+
+    if (insertError) {
+      setErrorMessage("리뷰 등록 실패");
+      setTimeout(() => setErrorMessage(""), 3000);
+      return;
+    }
+
+    setSuccessMessage("리뷰가 등록되었습니다!");
+    setTimeout(() => {
+      setSuccessMessage("");
+      router.push("/");
+    }, 3000);
   };
 
   const handleUpdateReview = async () => {
@@ -255,11 +311,7 @@ export default function ReviewWriteClient() {
             className="hidden"
           />
         </label>
-
-
-      {/* ✅ 여기에 안내 문구 추가 */}
-      <p className="text-xs text-gray-500 text-center">*사진은 한 장만 업로드 가능합니다.</p>
-
+        <p className="text-xs text-gray-500 text-center">*사진은 한 장만 업로드 가능합니다.</p>
 
         {previewUrl && (
           <Image
@@ -289,9 +341,18 @@ export default function ReviewWriteClient() {
           </button>
         </div>
       ) : (
-        <p className="text-center text-gray-500 font-medium">
-          작성된 리뷰가 없습니다.
-        </p>
+        <div className="flex flex-col gap-2 mt-4">
+          <p className="text-center text-gray-500 font-medium">
+            작성된 리뷰가 없습니다.
+          </p>          
+          <button
+            onClick={handleSubmitReview}
+            className="w-full bg-black text-white rounded-xl py-3 font-semibold"
+          >
+            후기 등록하기
+          </button>
+
+        </div>
       )}
     </div>
   );
