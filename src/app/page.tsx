@@ -163,7 +163,7 @@ export default function Home() {
         const sizeMatch = selectedSize.length === 0 || selectedSize.includes(p.size ?? "");
         const brandMatch = selectedBrand.length === 0 || selectedBrand.includes(p.brand ?? "");
         const skirtMatch =
-          !excludeSkirt || (p.category2 !== "치마" && p.category2 !== "원피스");
+          !excludeSkirt || (p.category2 !== "치마" && p.category2 !== "원피스" && p.category2 !== "스커트" && p.category2 !== "블라우스");
         return sizeMatch && brandMatch && skirtMatch;
       })
       .sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0)); // ⭐️ 인기순 정렬
@@ -354,7 +354,8 @@ export default function Home() {
               excludeSkirt ? "border-2 border-[#FF6B6B]" : "border border-gray-200"
             } bg-white shadow hover:shadow-md transition`}
           >
-            <span className="text-sm font-semibold text-gray-700">치마/스커트 제외</span>
+            <span className="text-sm font-semibold text-gray-700">여아 카테고리 제외</span>
+            <span className="text-xs">예: 치마, 원피스</span>
           </button>
         </div>
 
