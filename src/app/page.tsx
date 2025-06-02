@@ -278,7 +278,7 @@ export default function Home() {
         </Swiper>
 
         <section>
-          <h2 className="text-lg font-semibold mt-7 mb-2">생생 후기🧡</h2>
+          <h2 className="text-lg font-semibold mt-7 mb-2">생생 포토 후기🧡</h2>
           <ReviewSlide />
         </section>
 

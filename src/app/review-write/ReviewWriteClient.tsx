@@ -211,7 +211,7 @@ export default function ReviewWriteClient() {
         content,
         rating,
         nickname,
-        image_url: imageUrl,
+        image_url: imageUrl, // ✅ previewUrl가 null이면 DB도 null로 저장!
       })
       .eq("id", existingReviewId);
 
@@ -314,14 +314,25 @@ export default function ReviewWriteClient() {
         <p className="text-xs text-gray-500 text-center">*사진은 한 장만 업로드 가능합니다.</p>
 
         {previewUrl && (
-          <Image
-            src={previewUrl}
-            alt="리뷰 이미지 미리보기"
-            width={600}
-            height={300}
-            className="w-full h-48 object-cover rounded-xl border"
-            unoptimized
-          />
+          <div className="flex flex-col items-center gap-2">
+            <Image
+              src={previewUrl}
+              alt="리뷰 이미지 미리보기"
+              width={600}
+              height={300}
+              className="w-full h-48 object-cover rounded-xl border"
+              unoptimized
+            />
+            <button
+              onClick={() => {
+                setPreviewUrl(null);
+                setImageFile(null);
+              }}
+              className="text-xs text-red-500 underline"
+            >
+              사진 삭제
+            </button>
+          </div>
         )}
       </div>
 
@@ -342,16 +353,15 @@ export default function ReviewWriteClient() {
         </div>
       ) : (
         <div className="flex flex-col gap-2 mt-4">
-          <p className="text-center text-gray-500 font-medium">
-            작성된 리뷰가 없습니다.
-          </p>          
           <button
             onClick={handleSubmitReview}
             className="w-full bg-black text-white rounded-xl py-3 font-semibold"
           >
             후기 등록하기
           </button>
-
+          <p className="text-center text-gray-500 font-medium">
+            작성된 리뷰가 없습니다.
+          </p>
         </div>
       )}
     </div>
