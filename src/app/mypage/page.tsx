@@ -251,7 +251,7 @@ export default function MyPage() {
               orders.map((order) => (
                 <div key={order.order_id} className="border-b pb-5">
                   <div className="text-gray-800 mt-1 mb-1 font-bold ">{order.delivery_status || "배송준비중"}</div>
-                  <p className="text-sm text-gray-500 mb-1">🆔 주문번호: {order.order_id}</p>
+                  <p className="text-sm text-gray-500 mb-1">주문번호: {order.order_id}</p>
                   {order.created_at && (
                     <p className="text-xs text-gray-400 mb-1">
                       주문일시: {dayjs(order.created_at).tz("Asia/Seoul").format("YYYY-MM-DD HH:mm")}
