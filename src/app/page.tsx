@@ -161,14 +161,35 @@ export default function Home() {
 
     // 1️⃣ 필터링 (사이즈, 브랜드, 스커트 제외 등)
     const filteredProducts = products
-      .filter((p) => {
-        const sizeMatch = selectedSize.length === 0 || selectedSize.includes(p.size ?? "");
-        const brandMatch = selectedBrand.length === 0 || selectedBrand.includes(p.brand ?? "");
-        const skirtMatch =
-          !excludeSkirt || (p.category2 !== "치마" && p.category2 !== "원피스" && p.category2 !== "스커트" && p.category2 !== "블라우스" && p.category2 !== "여아바지" && p.category2 !== "여아셋업" && p.category2 !== "여아상의"&& p.category2 !== "여아수영복");
-        return sizeMatch && brandMatch && skirtMatch;
-      })
-      .sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0)); // ⭐️ 인기순 정렬
+    .filter((p) => {
+      const sizeMatch = selectedSize.length === 0 || selectedSize.includes(p.size ?? "");
+      const brandMatch = selectedBrand.length === 0 || selectedBrand.includes(p.brand ?? "");
+      const skirtMatch =
+        !excludeSkirt ||
+        (p.category2 !== "치마" &&
+          p.category2 !== "원피스" &&
+          p.category2 !== "스커트" &&
+          p.category2 !== "블라우스" &&
+          p.category2 !== "여아바지" &&
+          p.category2 !== "여아셋업" &&
+          p.category2 !== "여아상의" &&
+          p.category2 !== "여아수영복");
+      return sizeMatch && brandMatch && skirtMatch;
+    })
+    // ⭐️ 판매완료 상품은 맨 뒤로 정렬!
+    .sort((a, b) => {
+      const isSoldOutA = a.status === "판매완료" ? 1 : 0;
+      const isSoldOutB = b.status === "판매완료" ? 1 : 0;
+  
+      // 판매완료 상품을 맨 뒤로
+      if (isSoldOutA !== isSoldOutB) {
+        return isSoldOutA - isSoldOutB;
+      }
+  
+      // 같은 판매상태라면 인기순 정렬 유지
+      return (b.popularity ?? 0) - (a.popularity ?? 0);
+    });
+  
 
     // 2️⃣ 10개 이하면 전부, 10개 초과면 slice
     const visibleProducts = showAll ? filteredProducts : filteredProducts.slice(0, 10);
