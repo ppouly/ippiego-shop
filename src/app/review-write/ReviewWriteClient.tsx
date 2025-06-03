@@ -314,7 +314,7 @@ export default function ReviewWriteClient() {
       )}
 
       <Image
-        src={`/products/${product.id}/main.jpg`}
+        src={`/products/${product.id}/main.webp`}
         width={600}
         height={400}
         alt="product"

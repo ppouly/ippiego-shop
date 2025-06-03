@@ -167,7 +167,7 @@ export default function OrderHistoryPage() {
                   <div key={product.product_id} className="flex gap-4 items-center pt-5">
                     <div className="w-20 h-20 bg-gray-100 rounded overflow-hidden relative">
                       <Image
-                        src={`/products/${product.product_id}/main.jpg`}
+                        src={`/products/${product.product_id}/main.webp`}
                         alt={product.order_name}
                         fill
                         className="object-cover"

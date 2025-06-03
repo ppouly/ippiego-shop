@@ -176,11 +176,11 @@ export default function AdminProductList() {
   ${desc2 ?? ""}
   <br>
   <div style="padding: 0 16px;">
-    <img src="/products/${newId}/main.jpg" alt="상세이미지1" style="width: 100%; margin-bottom: 16px; border-radius: 8px;"><br>
-    <br><img src="/products/${newId}/detail1.jpg" alt="상세이미지2" style="width: 100%; border-radius: 8px;">  
-    <br><img src="/products/${newId}/detail2.jpg" alt="상세이미지3" style="width: 100%; border-radius: 8px;">
-    <br><img src="/products/${newId}/detail3.jpg" alt="상세이미지4" style="width: 100%; border-radius: 8px;">
-    <br><img src="/products/${newId}/brand1.jpg" alt="브랜드이미지1" style="width: 100%; border-radius: 8px;"><br>
+    <img src="/products/${newId}/main.webp" alt="상세이미지1" style="width: 100%; margin-bottom: 16px; border-radius: 8px;"><br>
+    <br><img src="/products/${newId}/detail1.webp" alt="상세이미지2" style="width: 100%; border-radius: 8px;">  
+    <br><img src="/products/${newId}/detail2.webp" alt="상세이미지3" style="width: 100%; border-radius: 8px;">
+    <br><img src="/products/${newId}/detail3.webp" alt="상세이미지4" style="width: 100%; border-radius: 8px;">
+    <br><img src="/products/${newId}/brand1.webp" alt="브랜드이미지1" style="width: 100%; border-radius: 8px;"><br>
   </div>
   `;
   
@@ -189,9 +189,9 @@ export default function AdminProductList() {
       .from("products")
       .update({
         description: finalDescription,
-        image: `/products/${newId}/main.jpg`,
-        pkg_image: `/products/${newId}/pkg.jpg`,
-        image_model: `/products/${newId}/detail3.jpg`,
+        image: `/products/${newId}/main.webp`,
+        pkg_image: `/products/${newId}/pkg.webp`,
+        image_model: `/products/${newId}/detail3.webp`,
       })
       .eq("id", newId);
   
@@ -317,9 +317,9 @@ export default function AdminProductList() {
         category: newProduct.category1 === "셋업"
           ? ["셋업", "상의", "하의"]
           : [newProduct.category1],
-        image: `/products/미정/main.jpg`,
-        pkg_image: `/products/미정/pkg.jpg`,
-        image_model: `/products/미정/detail3.jpg`,
+        image: `/products/미정/main.webp`,
+        pkg_image: `/products/미정/pkg.webp`,
+        image_model: `/products/미정/detail3.webp`,
       }, null, 2)}
     </div>
 

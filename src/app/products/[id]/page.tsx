@@ -125,10 +125,10 @@ export default function ProductDetailPage() {
   if (!product) return <p className="p-4">상품을 찾을 수 없습니다.</p>;
 
   const imageList = [
-    `/products/${product.id}/main.jpg`,
-    `/products/${product.id}/detail1.jpg`,
-    `/products/${product.id}/detail2.jpg`,
-    `/products/${product.id}/detail3.jpg`, 
+    `/products/${product.id}/main.webp`,
+    `/products/${product.id}/detail1.webp`,
+    `/products/${product.id}/detail2.webp`,
+    `/products/${product.id}/detail3.webp`, 
   ];
 
   return (

@@ -267,7 +267,7 @@ export default function MyPage() {
                     return (
                       <div key={product.product_id} className="flex gap-4 items-center pt-5">
                         <div className="w-20 h-20 bg-gray-100 rounded overflow-hidden relative">
-                          <Image src={`/products/${product.product_id}/main.jpg`} alt={product.order_name} fill className="object-cover" sizes="80px" />
+                          <Image src={`/products/${product.product_id}/main.webp`} alt={product.order_name} fill className="object-cover" sizes="80px" />
                         </div>
                         <div className="flex-1 space-y-1 text-sm">
                           <Link href={`/products/${product.product_id}`} className="font-semibold text-blue-600 hover:underline">

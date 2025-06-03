@@ -121,7 +121,7 @@ for (const id of productIds) {
               <div key={idx} className="flex items-center gap-4">
                 <div className="w-16 h-16 relative rounded overflow-hidden bg-gray-100">
                   <Image
-                    src={`/products/${item.product_id}/main.jpg`}
+                    src={`/products/${item.product_id}/main.webp`}
                     alt={item.order_name}
                     fill
                     className="object-cover"
