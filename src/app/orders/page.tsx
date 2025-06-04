@@ -100,19 +100,10 @@ export default function OrderHistoryPage() {
 
   const handleRefundToggle = async (order: Order, productId: number) => {
     setLoadingOrderId(order.order_id);
-
+  
     const isCurrentlyRefunding = order.refund_product_ids?.includes(productId);
-
-    if (!isCurrentlyRefunding) {
-      setNoticeMessage(
-        "택배 기사가 상품을 수거할 예정입니다.\n상품 검수 후, 왕복 배송비를 제외한 금액이 환불 처리됩니다.\n상품 택이 제거된 경우, 상품 금액의 30%가 추가로 차감됩니다."
-      );
-
-      setTimeout(() => {
-        setNoticeMessage(null);
-      }, 10000);
-    }
-
+  
+    // ✅ 10일 초과 여부 먼저 확인
     if (order.delivery_complete_date) {
       const completedDate = dayjs(order.delivery_complete_date);
       if (dayjs().diff(completedDate, "day") > 10) {
@@ -121,7 +112,18 @@ export default function OrderHistoryPage() {
         return;
       }
     }
-
+  
+    // ✅ 이후에 안내문구 출력
+    if (!isCurrentlyRefunding) {
+      setNoticeMessage(
+        "택배 기사가 상품을 수거할 예정입니다.\n상품 검수 후, 왕복 배송비를 제외한 금액이 환불 처리됩니다.\n상품 택이 제거된 경우, 상품 금액의 30%가 추가로 차감됩니다."
+      );
+      setTimeout(() => {
+        setNoticeMessage(null);
+      }, 10000);
+    }
+  
+    // ✅ 환불 처리 로직
     if (isCurrentlyRefunding) {
       await supabase.from("products").update({ status: "판매완료" }).eq("id", productId);
       const updatedRefundIds = order.refund_product_ids?.filter(id => id !== productId) || [];
@@ -131,10 +133,11 @@ export default function OrderHistoryPage() {
       const updatedRefundIds = [...(order.refund_product_ids ?? []), productId];
       await supabase.from("orders").update({ refund_product_ids: updatedRefundIds }).eq("order_id", order.order_id);
     }
-
+  
     if (user) await fetchOrdersByKakaoId(user.kakaoId);
     setLoadingOrderId(null);
   };
+  
 
   return (
     <div className="p-5 space-y-6 text-[15px] text-gray-800">
