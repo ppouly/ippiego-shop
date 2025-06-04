@@ -221,7 +221,7 @@ export default function AdminOrdersPage() {
 
           <div className="mt-4 text-right">
             <p>총 결제금액: ₩{totalSales.toLocaleString()}</p>
-            <p>총 마진: ₩{totalMargin.toLocaleString()}</p>
+            <p>총 마진: ₩{(totalSales - totalMargin).toLocaleString()}</p>
           </div>
 
           {deliveryStats.length > 0 && (
