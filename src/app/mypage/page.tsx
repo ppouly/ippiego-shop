@@ -124,6 +124,7 @@ export default function MyPage() {
       .from("orders")
       .select("order_id, products, refund_product_ids, address, total_amount, memo, delivery_fee, delivery_status, delivery_complete_date, status, created_at") // ✅ 주문일시 추가!
       .eq("phone", fullPhone)
+      .eq("status", "결제완료") // ✅ 결제완료 상태만 불러오기
       .order("created_at", { ascending: false });
 
     if (error || !data) {
