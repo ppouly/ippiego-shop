@@ -163,35 +163,38 @@ export default function MyPage() {
 
     const isCurrentlyRefunding = order.refund_product_ids?.includes(productId);
 
-    if (!isCurrentlyRefunding) {
-      setNoticeMessage(
-        "택배 기사가 상품을 수거할 예정입니다.\n상품 검수 후, 왕복 배송비를 제외한 금액이 환불 처리됩니다.\n상품 택이 제거된 경우, 상품 금액의 30%가 추가로 차감됩니다."
-      );
-      setTimeout(() => setNoticeMessage(null), 10000);
-    }
-
-    if (isCurrentlyRefunding) {
-      await supabase.from("products").update({ status: "판매완료" }).eq("id", productId);
-      const updatedRefundIds = order.refund_product_ids?.filter(id => id !== productId) || [];
-      await supabase.from("orders").update({ refund_product_ids: updatedRefundIds }).eq("order_id", order.order_id);
-    } else {
-      const now = dayjs();
-      if (order.delivery_complete_date) {
-        const completedDate = dayjs(order.delivery_complete_date);
-        if (now.diff(completedDate, "day") > 10) {
-          setMessage("배송완료일로부터 10일 초과되어 환불이 불가합니다.");
-          setLoadingOrderId(null);
-          return;
-        }
+ 
+  // ✅ 10일 초과 여부를 먼저 검사
+  if (!isCurrentlyRefunding) {
+    if (order.delivery_complete_date) {
+      const completedDate = dayjs(order.delivery_complete_date);
+      if (dayjs().diff(completedDate, "day") > 10) {
+        setMessage("배송완료일로부터 10일 초과되어 환불이 불가합니다.");
+        setLoadingOrderId(null);
+        return;
       }
-      await supabase.from("products").update({ status: "환불요청" }).eq("id", productId);
-      const updatedRefundIds = [...(order.refund_product_ids ?? []), productId];
-      await supabase.from("orders").update({ refund_product_ids: updatedRefundIds }).eq("order_id", order.order_id);
     }
 
-    await fetchOrdersByPhone();
-    setLoadingOrderId(null);
-  };
+    // ✅ 10일 이내일 때만 안내문구 출력
+    setNoticeMessage(
+      "택배 기사가 상품을 수거할 예정입니다.\n상품 검수 후, 왕복 배송비를 제외한 금액이 환불 처리됩니다.\n상품 택이 제거된 경우, 상품 금액의 30%가 추가로 차감됩니다."
+    );
+    setTimeout(() => setNoticeMessage(null), 10000);
+  }
+
+  if (isCurrentlyRefunding) {
+    await supabase.from("products").update({ status: "판매완료" }).eq("id", productId);
+    const updatedRefundIds = order.refund_product_ids?.filter(id => id !== productId) || [];
+    await supabase.from("orders").update({ refund_product_ids: updatedRefundIds }).eq("order_id", order.order_id);
+  } else {
+    await supabase.from("products").update({ status: "환불요청" }).eq("id", productId);
+    const updatedRefundIds = [...(order.refund_product_ids ?? []), productId];
+    await supabase.from("orders").update({ refund_product_ids: updatedRefundIds }).eq("order_id", order.order_id);
+  }
+
+  await fetchOrdersByPhone();
+  setLoadingOrderId(null);
+};
 
   const REST_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY!;
   const REDIRECT_URI = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI!;
