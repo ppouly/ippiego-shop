@@ -48,12 +48,15 @@ export default function AdminOrdersPage() {
   // ✅ 결제완료 주문 조회
   useEffect(() => {
     const fetchOrders = async () => {
+      const startDateKST = new Date(`${startDate}T00:00:00+09:00`).toISOString();
+      const endDateKST = new Date(`${endDate}T23:59:59+09:00`).toISOString();
+
       const { data, error } = await supabase
         .from("orders")
         .select("order_id, created_at, total_amount, delivery_status, products")
         .eq("status", "결제완료")
-        .gte("created_at", startDate)
-        .lte("created_at", endDate)
+        .gte("created_at", startDateKST)
+        .lte("created_at", endDateKST)
         .order("created_at", { ascending: true });
 
       if (error) {
@@ -119,11 +122,14 @@ export default function AdminOrdersPage() {
   // ✅ 배송상태/환불요청 통계 조회
   useEffect(() => {
     const fetchDeliveryStats = async () => {
+      const startDateKST = new Date(`${startDate}T00:00:00+09:00`).toISOString();
+      const endDateKST = new Date(`${endDate}T23:59:59+09:00`).toISOString();
+
       const { data, error } = await supabase
         .from("orders")
         .select("delivery_status, created_at")
-        .gte("created_at", startDate)
-        .lte("created_at", endDate);
+        .gte("created_at", startDateKST)
+        .lte("created_at", endDateKST);
 
       if (error) {
         console.error("🚨 배송 상태 통계 조회 실패:", error.message);

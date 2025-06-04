@@ -338,7 +338,7 @@ useEffect(() => {
         {products.map((product) => (
           <div key={product.product_id} className="flex gap-3 items-center">
             <div className="w-20 h-20 rounded overflow-hidden bg-gray-100 relative">
-              <Image src={`/products/${product.product_id}/main.jpg`} alt={product.order_name} fill className="object-cover" sizes="80px" />
+              <Image src={`/products/${product.product_id}/main.webp`} alt={product.order_name} fill className="object-cover" sizes="80px" />
             </div>
             <div className="flex-1">
               <div className="font-medium">{product.order_name}</div>
