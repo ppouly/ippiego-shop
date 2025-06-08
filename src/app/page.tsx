@@ -261,7 +261,7 @@ export default function Home() {
       <div className="mt-6">
         <h2 className="text-lg font-semibold text-black mb-2 flex items-center justify-between">
           New
-          <span className="text-sm text-gray-500 ml-2">매주 금요일 밤, 새 옷들이 도착해요 🛎️</span>
+          <span className="text-sm text-gray-500 ml-2">언제든 새로운 스타일이 찾아와요 🛎️</span>
         </h2>
         <Swiper
           modules={[Navigation, Pagination, Autoplay]}
